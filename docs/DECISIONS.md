@@ -226,3 +226,62 @@ stale the first time someone adds a control to the panel.
 `AnimatePresence`'s `onExitComplete` is what actually closes the dialog. That is the one
 non-obvious line in the component and it is commented as such.
 **Affects:** §7.2, §9.2, §10.2
+
+## 2026-08-15 — Merge strategy fixed, and `main`'s squashed history reconciled into `dev`
+
+**Context:** PR #1 squash-merged `feat/phase-0-foundations` into `dev`, and PR #2 merged
+the result onto `main`. The squash commit carried no ancestral link to the five commits it
+contained, so when `dev` was rebuilt on those commits, `merge-base(main, dev)` fell back to
+the initial commit — 14 commits on one side, 2 on the other, with identical content.
+**Decision:** Three parts.
+1. `feat/*` merges into `dev` by **rebase**; `dev` merges into `main` by **fast-forward
+   only**; nothing that outlives a merge is ever squashed. `dev` and `main` are never
+   force-pushed — rewriting is confined to `feat/*` before it merges.
+2. The existing divergence is repaired with a `-s ours` merge of `main` into `dev`. That
+   records `main` as a second parent while taking `dev`'s tree verbatim: zero content
+   change, verified by tree hash before and after, and `main` becomes an ancestor of `dev`
+   so every future promotion is a real fast-forward.
+3. Phase completions are tagged on `dev` (`phase-0`, `phase-1`, …) rather than kept alive
+   as branches.
+**Reason:** Squash merges are right for a branch about to be deleted and wrong for one
+that keeps existing, because git then treats the two lines as permanently diverged and
+every later merge re-derives from their last true common ancestor. Squashing `dev` into
+`main` at the end would also have discarded the granular history on the way in — the same
+history the `dev` rebuild existed to recover.
+**Alternative rejected:** force-pushing `main` to `dev`'s tip repairs the same divergence
+and is tidier, but promotes Phase 1 to production as a side effect. When to deploy is a
+deployment decision; it should not be forced by git plumbing.
+**Affects:** §16.1, §16.3
+
+## 2026-08-15 — Promote at phase boundaries, behind a crawl block
+
+**Context:** The original intent was to hold `main` until every phase was finished.
+**Decision:** `dev` is promoted to `main` at each phase boundary, starting at the end of
+Phase 2. `app/robots.ts` disallows all crawling behind an environment flag until Phase 6
+flips it.
+**Reason:** §16.4 leaves `NEXT_PUBLIC_SITE_URL` unset on previews on purpose, so
+`metadataBase` resolves to each deployment's own origin. Canonical URLs, the sitemap,
+JSON-LD, and OG image URLs — all of which Phase 2 builds — therefore behave differently in
+production than in any environment they are ever tested in. Promoting once at the end
+makes launch day the first real exercise of that surface, with five other phases of change
+landing simultaneously. A misconfigured environment variable is a five-second fix found
+five months late.
+**Cost:** an unfinished portfolio is reachable on the production domain. That is what the
+crawl block is for: the answer to "do not index this yet" is `robots.ts`, not withholding
+the deploy.
+**Affects:** §13.3, §16.1, §16.4, §18 Phase 6
+
+## 2026-08-15 — Line endings normalised to LF
+
+**Context:** `core.autocrlf=true` is set on Windows checkouts and there was no
+`.gitattributes`. Git stored LF and checked out CRLF, so `pnpm format:check` failed on all
+28 tracked source files the moment a branch switch re-materialised the tree.
+**Decision:** `.gitattributes` with `* text=auto eol=lf`, plus explicit `binary` rules for
+image, font, and PDF extensions. SVG is deliberately left as text so Phase 2's placeholder
+assets normalise like any other source.
+**Reason:** It was invisible for two reasons that would not have held: files written
+directly during Phase 1 already had LF and were never re-checked-out, and CI runs on
+Ubuntu where `autocrlf` is off. A fresh clone on Windows would have hit it immediately.
+`.gitattributes` overrides `core.autocrlf` regardless of local configuration, so this does
+not depend on every machine setting the same git option.
+**Affects:** §16.2
