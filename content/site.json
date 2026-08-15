@@ -1,0 +1,39 @@
+{
+  "name": "Mukerem Shifa",
+  "wordmark": "MK",
+  "role": "AI Engineer & Full-Stack Developer",
+  "eyebrow": "PLACEHOLDER — section eyebrow",
+  "headline": "PLACEHOLDER — hero headline goes here",
+  "intro": "PLACEHOLDER — a two-sentence positioning paragraph of roughly this length, long enough to exercise the prose measure and the body-lg step without pretending to be the real copy that Phase 5 will write.",
+  "email": "PLACEHOLDER@mukeremshifa.com",
+  "location": {
+    "label": "PLACEHOLDER — city, country",
+    "remote": true
+  },
+  "availability": {
+    "show": true,
+    "state": "open",
+    "label": "PLACEHOLDER — availability"
+  },
+  "socials": [
+    {
+      "platform": "github",
+      "label": "GitHub",
+      "url": "https://github.com/PLACEHOLDER"
+    },
+    {
+      "platform": "linkedin",
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/PLACEHOLDER"
+    }
+  ],
+  "featuredCaseStudySlug": "placeholder-project",
+  "seo": {
+    "title": "PLACEHOLDER — site title",
+    "description": "PLACEHOLDER — a search-result description of roughly the right length, replaced during the Phase 5 content sweep before anything ships."
+  },
+  "contact": {
+    "headline": "PLACEHOLDER — contact headline",
+    "body": "PLACEHOLDER — contact body copy."
+  }
+}
