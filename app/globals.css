@@ -1,11 +1,291 @@
 @import "tailwindcss";
 
-/* Spec §6.4: dark mode is class-based, not media-query-based, because Phase 1 adds a
-   theme toggle. Declared now so the Tailwind v4 variant is proven to compile before
-   the token set depends on it. */
+/* Spec §6.4: dark mode is class-based, not media-query-based, because the theme toggle
+   (§6.5) offers `system` as one of three states. `:where()` keeps the variant at zero
+   specificity so it never out-ranks a utility it is modifying. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Design tokens are Phase 1. Nothing but the colour-scheme hint belongs here yet. */
+/* =============================================================================
+   Colour tokens — §6.2 (light) and §6.3 (dark)
+
+   Values are measured, not chosen; the ratios behind them are quoted in §6.1. Change
+   a hex here and §6.1 becomes a lie, so do not, without re-measuring.
+   ============================================================================= */
+
 :root {
+  /* §6.5: form controls, scrollbars, and the address bar follow the theme. Both
+     keywords stay listed; the class on <html> decides which one applies. */
   color-scheme: light dark;
+
+  --canvas: #f3ece2;
+  --surface: #ffffff;
+  --surface-alt: #ede5da;
+  --text: #1e2229;
+  --text-muted: #5c6470;
+  --brand: #0a39a6;
+  --brand-hover: #082d85;
+  --brand-solid: #0a39a6;
+  --brand-contrast: #ffffff;
+  --brand-soft: #e6eaf6;
+  --border-subtle: #e4dbd0;
+  --border-strong: #8a8279;
+  --ring: #0a39a6;
+
+  /* Not in §6.2/§6.3 — see docs/DECISIONS.md. §6.3 defines `brand-hover` as the hover
+     accent for *text*, and in dark mode it is lighter than `brand-solid`, so reusing it
+     as a filled-button hover would put white on #60A5FA at 2.60:1. This is the missing
+     third role: the hover fill under `brand-contrast` text. */
+  --brand-solid-hover: #082d85;
+  --danger: #b42318;
+  --success: #05683f;
+  --warning: #8a5a00;
+  --code-bg: #fbf8f3;
+
+  /* §6.3 binding rule: brand-cream is dark-mode-only. It is deliberately left
+     undefined here so `text-brand-cream` in light mode fails visibly rather than
+     quietly rendering beige on white. */
+
+  --overlay-shadow: 0 16px 40px -12px rgb(30 34 41 / 0.28);
+
+  /* §10.1 motion tokens. Durations are plain custom properties: Tailwind v4 has no
+     `--duration-*` theme namespace, so these are consumed as
+     `duration-(--duration-fast)` or in raw CSS. The easings do have a namespace and
+     live in `@theme` below. */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+}
+
+.dark {
+  --canvas: #0b0f19;
+  --surface: #161c2a;
+  --surface-alt: #1d2536;
+  --text: #f3f4f6;
+  --text-muted: #9ca3af;
+  --brand: #3b82f6;
+  --brand-hover: #60a5fa;
+  --brand-solid: #2563eb;
+  --brand-contrast: #ffffff;
+  --brand-soft: #16243d;
+  --brand-cream: #ece3d4;
+  --brand-solid-hover: #1d4ed8;
+  --border-subtle: #232d3f;
+  --border-strong: #6b7385;
+  --ring: #3b82f6;
+  --danger: #fca5a5;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --code-bg: #0f1523;
+
+  --overlay-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.72);
+}
+
+/* =============================================================================
+   Theme mapping — §6.4
+
+   `inline` so each utility emits `var(--canvas)` rather than a snapshot of its value.
+   That is what lets `.dark` reassign the custom property and have every utility follow
+   without Tailwind generating a second set of rules.
+   ============================================================================= */
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-hover: var(--brand-solid-hover);
+  --color-brand-contrast: var(--brand-contrast);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-cream: var(--brand-cream);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-code-bg: var(--code-bg);
+
+  /* §6.7: one shadow in the whole system, reserved for the mobile nav panel and
+     dialogs. Cards get a border and a surface change, never a shadow. It is mapped
+     through a custom property so the dark theme can carry a heavier one. */
+  --shadow-overlay: var(--overlay-shadow);
+
+  /* §6.6: the three families, injected by next/font in app/layout.tsx. Swapping a
+     family later is one line there — nothing else references the loader variables. */
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, Cambria, serif;
+  --font-sans:
+    var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* `ring` is deliberately absent from the map above. §6.8 consumes it exactly once, as
+   `var(--ring)` in the raw `outline` declaration below. A `ring-ring` utility would be a
+   second spelling of the same thing and an invitation to paint the focus treatment onto
+   something that is not focus. */
+
+/* =============================================================================
+   Scale — §6.6 type, §6.7 space, layout, radius
+   ============================================================================= */
+
+@theme {
+  /* §6.7 containers. Tailwind's `--container-*` namespace, so these are `max-w-content`
+     and `max-w-prose`. `measure` is §6.6's 68-character prose cap, which is what
+     `Prose` enforces. The 4px spacing scale is Tailwind's default, not redefined. */
+  --container-content: 1200px;
+  --container-prose: 720px;
+  --container-measure: 68ch;
+
+  /* §6.7 radii. Overrides Tailwind's defaults on purpose: chips and inputs `sm`,
+     buttons `md`, cards and media `lg`. */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* §10.1 easings. `--ease-out` shadows a Tailwind default; that is intended, so that
+     `ease-out` anywhere in the codebase means the system's curve and not two curves
+     depending on who wrote the class. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* §6.6 type scale — ten steps, each carrying its own line-height and tracking.
+     Tailwind's `--text-*` namespace has no slot for a font family, so a step sets size,
+     leading, and tracking only: pair it with `font-serif` / `font-sans` / `font-mono`
+     per the Family column. The primitives in components/ui do this for you. */
+
+  /* Source Serif 4 */
+  --text-display-1: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+  --text-display-1--line-height: 1.05;
+  --text-display-1--letter-spacing: -0.01em;
+
+  --text-display-2: clamp(2rem, 1.5rem + 2vw, 3rem);
+  --text-display-2--line-height: 1.1;
+  --text-display-2--letter-spacing: -0.01em;
+
+  --text-heading-1: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  --text-heading-1--line-height: 1.2;
+  --text-heading-1--letter-spacing: 0;
+
+  /* Instrument Sans */
+  --text-heading-2: 1.25rem;
+  --text-heading-2--line-height: 1.3;
+  --text-heading-2--letter-spacing: -0.01em;
+
+  --text-heading-3: 1.0625rem;
+  --text-heading-3--line-height: 1.4;
+  --text-heading-3--letter-spacing: 0;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.65;
+  --text-body-lg--letter-spacing: 0;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-body--letter-spacing: 0;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.6;
+  --text-body-sm--letter-spacing: 0;
+
+  /* IBM Plex Mono */
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.08em;
+
+  --text-code: 0.875rem;
+  --text-code--line-height: 1.6;
+  --text-code--letter-spacing: 0;
+}
+
+/* =============================================================================
+   Base layer
+   ============================================================================= */
+
+@layer base {
+  body {
+    background-color: var(--canvas);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* §6.8 / §11.2: one global focus treatment, and it is never suppressed. Anything
+     needing a different focus shape changes the shape, not the visibility. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* §11.1: <main id="main" tabindex="-1"> is a programmatic focus target for the skip
+     link, not a tab stop, so it must not draw a ring when clicked into. */
+  main:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* =============================================================================
+   Theme toggle state — §6.5, §10.2
+
+   Driven off the `data-theme-pref` attribute the inline no-flash script sets during head
+   parsing, so the control is painted in the correct state before React has loaded rather
+   than corrected once it has. That also means the server can render all three options
+   unconditionally: there is no client-only value in the markup, so nothing to mismatch.
+
+   The two halves work differently on purpose. Icons crossfade with `opacity`, which
+   leaves all three in the accessibility tree — harmless, since they are `aria-hidden`.
+   Labels use `display`, which removes the inactive two from the accessible name
+   computation; with `opacity` the button would be named "Switch to light theme Switch to
+   dark theme Switch to system theme".
+   ============================================================================= */
+
+.theme-icon {
+  grid-column: 1;
+  grid-row: 1;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+html[data-theme-pref="system"] .theme-icon-system,
+html[data-theme-pref="light"] .theme-icon-light,
+html[data-theme-pref="dark"] .theme-icon-dark {
+  opacity: 1;
+}
+
+.theme-label {
+  display: none;
+}
+
+html[data-theme-pref="system"] .theme-label-system,
+html[data-theme-pref="light"] .theme-label-light,
+html[data-theme-pref="dark"] .theme-label-dark {
+  display: block;
+}
+
+/* Before the script runs — and if it is ever blocked by a CSP without a nonce — no
+   `data-theme-pref` is set, so nothing above matches. Fall back to the `system` pairing
+   so the button is never iconless and never nameless. */
+html:not([data-theme-pref]) .theme-icon-system {
+  opacity: 1;
+}
+
+html:not([data-theme-pref]) .theme-label-system {
+  display: block;
+}
+
+/* §10.3, verbatim. Covers everything Motion does not own; the `MotionConfig
+   reducedMotion="user"` in components/motion/MotionProvider.tsx covers the rest. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
