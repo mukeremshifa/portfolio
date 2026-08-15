@@ -75,3 +75,58 @@ structured data, and the contact endpoint CORS allowlist.
 **Open sub-question:** which mailbox the site displays and the contact form delivers to is
 still unresolved. See §19 question 1.
 **Affects:** §2, §13, §14.1, §16.4, §17.2, §18 Phase 0
+
+## 2026-08-15 — Hosting split: Vercel for the app, Cloudflare for the backend
+
+**Context:** §19 question 2 was blocking Phase 0. The zone for `mukeremshifa.com` already
+lives in Cloudflare DNS, and the contact endpoint needs somewhere to run.
+**Decision:** The Next.js app deploys to Vercel. The contact Worker, object storage (R2),
+and DNS stay on Cloudflare. `api.mukeremshifa.com` is reserved now and left unclaimed until
+Phase 4. `deploy.yml` is not created; Vercel's GitHub integration builds every push, with
+`main` as production and `dev` plus pull requests as previews.
+**Reason:** Vercel supports the Next.js feature set with no configuration, which is what
+made the v2 rewrite worth doing. Keeping the backend on Cloudflare avoids moving a zone that
+already works and keeps R2 available for large assets. The cost of the split is that the
+contact endpoint is cross-origin, so §14's CORS allowlist stops being a formality — that is
+a known, contained cost. A `deploy.yml` alongside the Git integration would be a second path
+to the same deploy with a token to rotate.
+**Affects:** §2, §4, §14, §16.3, §16.4, §18 Phase 0, §19
+
+## 2026-08-15 — The apex is the canonical host
+
+**Context:** §19 question 7 left apex versus `www` open, and §13.3 could not describe
+canonical URLs precisely without it.
+**Decision:** `https://mukeremshifa.com` is canonical. `www.mukeremshifa.com` redirects to
+it with a 30x, configured in Vercel. `NEXT_PUBLIC_SITE_URL` matches the canonical form
+exactly: no `www`, no trailing slash.
+**Reason:** Shorter to say and to print, and it matches how the domain has been written
+everywhere in the spec already. Either choice works technically; leaving it open was the
+only real cost.
+**Affects:** §2, §13.3, §16.4, §17.2
+
+## 2026-08-15 — Syntax highlighting deferred; code blocks are native
+
+**Context:** v2.0 named `prism-react-renderer` as the replacement for `shiki`. Phase 0 is
+the last point at which dropping it costs nothing, since nothing has been built against it.
+**Decision:** No highlighter. `CodeBlock` renders `<pre><code class="language-{lang}">` with
+the raw source as text, styled with IBM Plex Mono on the `code-bg` token, `overflow-x: auto`,
+and every accessibility affordance already specified in §8.3. `lib/highlight.ts` is removed
+from the repo layout. `language` becomes a plain label feeding the `class="language-*"` hook
+and the filename chip, validated against nothing.
+**Reason:** Snippets on a portfolio are short and captioned, so colour is decoration rather
+than comprehension. Dropping the package removes a client component, a dual-theme
+configuration to maintain against §6.2 and §6.3, and a language-id contract that content
+would have had to honour. This is deferral, not refusal: the `class="language-*"` hook is
+the seam, and adding a highlighter later is contained to `CodeBlock`.
+**Affects:** §2, §2.1, §4, §5.3, §8.3, §9.1, §12.4, §18 Phase 0 and Phase 2, §19
+
+## 2026-08-15 — `ci.yml` omits `next build`
+
+**Context:** §16.2 sketches CI as install, quality, unit, build.
+**Decision:** The Phase 0 workflow runs `format:check`, `lint`, and `typecheck` only. No
+`next build` step, and no unit job until Vitest arrives in Phase 2.
+**Reason:** Vercel builds every push already and reports the result on the commit and the
+pull request. Repeating the build in Actions adds roughly a minute per push for a signal
+that is already there. If Vercel builds ever stop being visible on PRs, this is one step to
+add back.
+**Affects:** §16.2

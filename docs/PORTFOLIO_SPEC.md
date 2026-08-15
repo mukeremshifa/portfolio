@@ -1,7 +1,7 @@
-# Portfolio — Specification v2.0 (Quality-First)
+# Portfolio — Specification v2.1 (Quality-First)
 
-**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Pre-implementation
-**Spec version:** 2.0 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 0 — foundations
+**Spec version:** 2.1 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
 
 ## Why this version exists
 
@@ -126,15 +126,16 @@ Binding on all copy on the live site:
 | Validation | Zod | Build-time and runtime content validation; types derived from schemas |
 | Motion | Motion for React (`motion/react`) | `MotionConfig reducedMotion="user"` gives a global a11y guarantee |
 | UI primitives | shadcn/ui (selective) | Copy in only what is needed; the rest is ours |
-| Syntax highlighting | **`prism-react-renderer`**, client-side | Replaces Shiki. See §12.4 for why this is now a fine trade |
+| Syntax highlighting | **None for now.** Plain `<pre><code>` | Styled with the `code` token, no colouring, no dependency. Revisit only when a real need appears. See §12.4 |
 | Images | `next/image`, `unoptimized: true` for now | Replaces the `sharp` build pipeline. See §12.2 |
 | Testing — unit | Vitest | Lightweight, advisory, see §15 |
 | Testing — e2e & a11y | Playwright + `@axe-core/playwright` | Advisory, not a merge gate |
 | Lint / format | ESLint + Prettier | Flat config; Prettier owns formatting, ESLint owns correctness |
-| Domain | `mukeremshifa.com` | Resolved 2026-08-15. Drives `metadataBase`, canonical URLs, sitemap, OG cards, and contact CORS |
-| Hosting | **Open, see §19** | No longer implied by the rendering strategy; pick based on what the app needs |
-| Contact backend | Small serverless endpoint (platform TBD with hosting) | §14 |
-| Large assets | Wherever is convenient (repo `public/`, or object storage later) | Not worth deciding until there is a real résumé PDF and real images |
+| Domain | `mukeremshifa.com`, apex canonical | Resolved 2026-08-15. `www` redirects to the apex. Drives `metadataBase`, canonical URLs, sitemap, OG cards, and contact CORS |
+| Hosting | **Vercel** | Resolved 2026-08-15. Git integration deploys `main` to production and every other branch to a preview; no `deploy.yml` (§16.3) |
+| Backend & storage | **Cloudflare** (Workers, R2) | Resolved 2026-08-15. The zone already lives in Cloudflare DNS. The contact endpoint is therefore cross-origin, which makes §14's CORS allowlist load-bearing rather than a formality |
+| Contact backend | Cloudflare Worker on `api.mukeremshifa.com` | §14. Subdomain reserved in Phase 0, built in Phase 4 |
+| Large assets | Repo `public/` for now, Cloudflare R2 when they outgrow it | Not worth moving until there is a real résumé PDF and real images |
 
 ### 2.1 What changed from v1.0, and why
 
@@ -143,7 +144,8 @@ Binding on all copy on the live site:
 | `output: "export"`, static-only | **Removed.** Full Next.js is available. | The static-export rulebook (§3 of v1.0) existed to protect a performance budget nobody had asked for yet. |
 | "No JavaScript" rule, no-JS Playwright gate | **Removed.** | Ship what the product needs. A 10 MB client bundle is fine if that is what quality requires; trim it later with real data, not a guess made before any content existed. |
 | First-load JS budgets (130–140 KB) | **Removed.** | Same reasoning, a premature optimization target. |
-| `shiki` (build-time highlighting) | **Removed as a dependency.** | Not permitted per owner instruction. Client-side highlighting is a fine substitute now that bundle size is not a constraint (§12.4). |
+| `shiki` (build-time highlighting) | **Removed as a dependency.** | Not permitted per owner instruction. Its intended replacement was dropped too; see the next row. |
+| `prism-react-renderer` (v2.0's replacement for `shiki`) | **Removed before it was ever installed** (2026-08-15). | Nothing had been built against it. Snippets on this site are short and captioned, so plain `<pre><code>` on the `code-bg` token reads fine, and dropping the package removes a client component, a dual-theme configuration, and a language-id contract that content would have had to honour. Deferred rather than refused: swapping a highlighter in later is contained to `CodeBlock` (§12.4). |
 | `sharp` (build-time image pipeline) | **Removed as a dependency.** | Not permitted per owner instruction. `next/image` with `unoptimized: true` covers layout stability and lazy-loading without it; a real optimization pass can be added later without touching markup (§12.2). |
 | Server Actions / Route Handlers / middleware / SSR / ISR forbidden | **Removed.** | No restriction on Next.js features. Use whatever the page actually needs. |
 | Content placeholders (`TODO`, `Lorem`, brackets) banned everywhere | **Scoped to pre-launch, not every build.** | Early phases intentionally ship stub content and generic placeholder assets, see §5.6. |
@@ -171,8 +173,8 @@ independent of performance:
   to do with performance, so it stays.
 
 Everything else (image optimization strategy, whether pages are prerendered or rendered per
-request, how big the client bundle gets, which host runs it) is deliberately unresolved
-until there is a real product to measure. §12 covers what "later" looks like when it arrives.
+request, how big the client bundle gets) is deliberately unresolved until there is a real
+product to measure. §12 covers what "later" looks like when it arrives.
 
 ---
 
@@ -181,8 +183,7 @@ until there is a real product to measure. §12 covers what "later" looks like wh
 ```text
 portfolio/
 ├── .github/workflows/
-│   ├── ci.yml                  # lint, typecheck, unit, build — informational, not blocking
-│   └── deploy.yml              # deploy on push (target TBD, §19)
+│   └── ci.yml                  # format, lint, typecheck — informational, not blocking
 ├── app/
 │   ├── layout.tsx              # html/body, fonts, theme script, MotionConfig, skip link
 │   ├── globals.css             # tailwind import, @theme tokens, base layer
@@ -220,7 +221,6 @@ portfolio/
 │   ├── content.ts              # load, validate, and derived selectors
 │   ├── metadata.ts             # buildMetadata(), canonical URLs
 │   ├── structured-data.ts      # JSON-LD builders
-│   ├── highlight.ts            # prism-react-renderer wiring, client-side
 │   └── utils.ts                # cn(), formatDate(), and friends
 ├── public/
 │   ├── images/                 # real assets once available; placeholders until then (§5.6)
@@ -229,7 +229,7 @@ portfolio/
 ├── tests/
 │   ├── unit/                   # vitest — advisory
 │   └── e2e/                    # playwright — advisory
-├── worker/ or api/             # contact endpoint — shape depends on hosting choice (§19)
+├── worker/                     # contact endpoint — Cloudflare Worker (§14), added in Phase 4
 └── docs/
     ├── PORTFOLIO_SPEC.md       # this file
     └── DECISIONS.md            # append-only log of deviations from this spec
@@ -351,7 +351,7 @@ export const ProjectSchema = z.object({
   })).min(2).max(8),
   codeSnippets: z.array(z.object({
     title: z.string(),
-    language: z.string(),                        // a prism-react-renderer supported id
+    language: z.string(),                        // plain label: the class="language-*" hook
     file: z.string().optional(),
     note: z.string().optional(),
     code: z.string().min(1),
@@ -806,8 +806,9 @@ h2  Lessons learned
 
 - Sections whose data is empty are not rendered. No empty headings.
 - `ProjectFacts` is a description list (`dl`/`dt`/`dd`), not a table.
-- `CodeHighlight` renders via `prism-react-renderer` (client-side, §12.4). Each block has a
-  visible title, an optional filename chip, an optional one-line note, and a copy button.
+- `CodeHighlight` renders semantic markup only: `<pre><code class="language-*">` holding the
+  raw source as text, with no colouring (§12.4). Each block has a visible title, an optional
+  filename chip, an optional one-line note, and a copy button.
 - Code blocks that overflow horizontally get `tabindex="0"`, `role="region"`, and an
   `aria-label` naming the snippet.
 - Screenshots use `Figure` with required alt text and optional visible captions. No lightbox
@@ -935,7 +936,7 @@ type FigureProps = {
   sizes?: string;
 };
 
-// CodeBlock — client component, highlights via prism-react-renderer.
+// CodeBlock — server component; only the copy button is a client island.
 type CodeBlockProps = {
   code: string;
   language: string;
@@ -1152,13 +1153,17 @@ None of these are enforced. They are just free.
 Use `next/image` for layout stability and the `<Figure>` wrapper, but set
 `images: { unoptimized: true }` in `next.config.ts`. That means:
 
-- No dependency on `sharp` or any build-time image-processing step.
+- No build-time image-processing step, and nothing in this repo imports `sharp`. Note that
+  `sharp` still lands in `node_modules`: it is an `optionalDependency` of `next` itself, so
+  "no `sharp`" means we never add it or write a pipeline against it, not that it is absent.
 - Images render as-is (whatever format and size the asset is) rather than being converted to
   AVIF/WebP or resized into a responsive `srcset`.
 - This is a deliberate placeholder decision, not a permanent one. Real optimization
   (responsive sources, modern formats, a CDN) is a good candidate for the eventual
-  performance pass once real assets exist and hosting is chosen (§19). Revisiting it later
-  costs nothing structurally since components already go through `<Figure>`.
+  performance pass once real assets exist. Vercel's image optimizer is a platform feature
+  that needs nothing in the project, which weakens the original reason for disabling it, so
+  Phase 6 should make this a deliberate call. Revisiting it later costs nothing structurally
+  since components already go through `<Figure>`.
 - Placeholder images live under `public/placeholders/` during early phases (§5.6); real
   assets replace them in `public/images/` in Phase 5.
 
@@ -1169,18 +1174,26 @@ Use `next/image` for layout stability and the `<Figure>` wrapper, but set
   scale.
 - No file-count or KB budget enforced.
 
-### 12.4 Code highlighting — `prism-react-renderer`, client-side
+### 12.4 Code highlighting — deferred
 
-Shiki is excluded per the owner's package list. Its whole value proposition (zero client JS
-for code blocks) only mattered under the old no-JS constraint, which is also gone. So:
+There is no syntax highlighter. `shiki` was excluded per the owner's package list, and
+`prism-react-renderer`, which replaced it in v2.0, was dropped before it was ever installed.
+Code renders natively:
 
-- `CodeBlock` is a client component that highlights with `prism-react-renderer` at render
-  time, themed to match light/dark tokens from §6.2 and §6.3.
-- This is simpler to build than a build-time pipeline (no manifest, no Shiki language-id
-  validation step) and costs nothing now that bundle size is not a constraint.
-- If a different highlighter is preferred later (`shiki` reintroduced, `starry-night`,
-  `react-syntax-highlighter`), swapping it is contained entirely to `CodeBlock` and
-  `lib/highlight.ts`.
+```html
+<pre><code class="language-{lang}">…raw source as text…</code></pre>
+```
+
+- IBM Plex Mono on the `code-bg` token (§6.2, §6.3), `overflow-x: auto`, no colouring.
+- `language` is a plain label. It feeds the `class="language-*"` hook and the filename chip;
+  nothing validates it against a highlighter's language list.
+- Every accessibility affordance in §8.3 still applies: `tabindex="0"` and `role="region"`
+  with an `aria-label` on blocks that scroll, plus the copy button.
+- `CodeBlock` can be a server component. Only the copy button needs a client island.
+- Snippets here are short and captioned, so colour is decoration rather than comprehension.
+  If that stops being true, adding a highlighter (`shiki`, `starry-night`,
+  `react-syntax-highlighter`) is contained entirely to `CodeBlock`; the `class="language-*"`
+  hook is already the seam.
 
 ### 12.5 When to actually revisit performance
 
@@ -1233,9 +1246,8 @@ All values come from `content/`.
 - `app/sitemap.ts` enumerates all static routes plus every project slug.
 - `app/robots.ts` allows everything and points at the sitemap.
 - Canonical URLs are absolute on every page, built from `https://mukeremshifa.com`.
-- Whether the apex or `www` is canonical is still open (§19, question 7). Whichever is
-  chosen, the other redirects to it, and `NEXT_PUBLIC_SITE_URL` matches the canonical form
-  exactly.
+- The apex is canonical (resolved 2026-08-15). `www.mukeremshifa.com` redirects to it, and
+  `NEXT_PUBLIC_SITE_URL` is `https://mukeremshifa.com` exactly — no `www`, no trailing slash.
 
 ### 13.4 Open Graph images
 
@@ -1248,9 +1260,9 @@ wordmark on the brand palette.
 
 ## 14. Contact backend
 
-A small serverless endpoint. Exact shape (Cloudflare Worker, Next.js Route Handler, or a
-platform-native function) depends on the hosting decision in §19. The contract below stays
-the same regardless.
+A Cloudflare Worker on `api.mukeremshifa.com`, built in Phase 4. Because the app runs on
+Vercel and the endpoint runs on Cloudflare, every request to it is cross-origin, which makes
+the CORS allowlist below load-bearing rather than a formality.
 
 ### 14.1 Contract
 
@@ -1270,9 +1282,9 @@ Content-Type: application/json
 | 429 | `{ "ok": false, "error": "rate_limit", "retryAfter": number }` | Explain the limit, show the direct email address |
 | 5xx / network | — | Generic failure plus the direct email address, in a `role="alert"` |
 
-CORS: an explicit origin allowlist. Production is `https://mukeremshifa.com` (plus the `www`
-form if that ends up canonical), and whatever preview-deployment origin pattern the chosen
-host uses. No wildcard.
+CORS: an explicit origin allowlist. Production is `https://mukeremshifa.com`. Previews need
+Vercel's `*.vercel.app` deployment origins, matched by pattern rather than wildcarded. No
+bare `*`.
 
 ### 14.2 Server-side checks
 
@@ -1287,8 +1299,8 @@ host uses. No wildcard.
 
 - Never log message contents or email addresses. Timestamp, outcome code, hashed IP only.
 - Secrets live in the hosting platform's secret store, never in the repo.
-- Email delivery provider is an open decision (§19) behind a single `sendEmail()` function so
-  it is a one-file swap.
+- Email delivery provider is an open decision (§19, question 3) behind a single `sendEmail()`
+  function so it is a one-file swap.
 ---
 
 ## 15. Testing — lightweight and non-blocking
@@ -1337,20 +1349,26 @@ build      → next build
 Nothing here is required to pass before merge unless the owner decides to tighten it later.
 The point of running it at all is visibility, not gatekeeping.
 
-### 16.3 `deploy.yml`
+### 16.3 Deployment — Vercel Git integration, no `deploy.yml`
 
-Shape depends on the hosting decision (§19). Whatever it is: push to `dev` gives a preview;
-push to `main` goes to production. No Lighthouse-gated production deploy.
+There is no deploy workflow in this repo. Vercel's GitHub integration builds every push:
+`main` goes to production, `dev` and pull requests get preview URLs. A `deploy.yml` would
+only be a second way to do the same thing, with a token to rotate.
 
 ### 16.4 Hosting configuration
 
-Deliberately unresolved, see §19 question 2. Whatever is chosen must support: the custom
-domain `mukeremshifa.com`, HTTPS, and either a Route Handler / Server Action or a small
-serverless function for the contact form. Cloudflare (Pages/Workers), Vercel, and a plain
-Node host are all reasonable; none is assumed anymore now that static export is not required.
+Resolved 2026-08-15. The app runs on **Vercel**; the backend and object storage are
+**Cloudflare** (Workers, R2). DNS stays in Cloudflare, which is what makes
+`api.mukeremshifa.com` available to a Worker in Phase 4.
 
-DNS for `mukeremshifa.com` points wherever this lands, so the hosting decision and the DNS
-setup happen together in Phase 0.
+- Production domain `mukeremshifa.com` (apex, canonical); `www.mukeremshifa.com` redirects
+  to it. Both are configured in Vercel, not in a Cloudflare page rule.
+- The DNS records Vercel asks for **must be DNS-only (grey cloud)**. Proxying Cloudflare in
+  front of Vercel breaks certificate issuance and can produce redirect loops.
+- `NEXT_PUBLIC_SITE_URL` is set to `https://mukeremshifa.com` in the Production environment
+  only. Preview deployments deliberately leave it unset so `metadataBase` falls back to
+  `VERCEL_URL` and previews never emit production canonicals.
+- `api.mukeremshifa.com` is left unclaimed until Phase 4.
 
 ---
 
@@ -1395,15 +1413,15 @@ static export.
 - Scaffold Next.js + TypeScript + Tailwind v4 with pnpm; commit the lockfile.
 - Set up `next.config.ts` (no `output: "export"`; `images.unoptimized: true` per §12.2),
   strict `tsconfig`, ESLint flat config, Prettier, the `@/*` alias.
-- Stub `ci.yml` and `deploy.yml`.
-- Confirm hosting target (§19 question 2), get an empty shell deployed to it, and point
-  `mukeremshifa.com` at it.
-- Set `NEXT_PUBLIC_SITE_URL=https://mukeremshifa.com`.
-- Spike: `prism-react-renderer` dual-theme rendering, confirming it looks right against §6.2
-  and §6.3.
+- Stub `ci.yml` only (§16.3: there is no `deploy.yml`).
+- Create the Vercel project, point Cloudflare DNS at it, and add both domain forms (§16.4).
+- Set `NEXT_PUBLIC_SITE_URL=https://mukeremshifa.com` in Production; leave it unset in
+  Preview so the `VERCEL_URL` fallback applies.
+- Confirm the Tailwind v4 class-based dark strategy (`@custom-variant`, §6.4) compiles, since
+  every token in Phase 1 depends on it.
 
-**Exit:** an empty site is live on `mukeremshifa.com`, and the highlighting spike has a
-recorded outcome.
+**Exit:** an empty site is live on `mukeremshifa.com` over HTTPS with `www` redirecting to
+it, pushes to `dev` produce previews, and `pnpm check` is clean.
 
 ### Phase 1 — Design system and application shell
 
@@ -1419,7 +1437,7 @@ navigation are keyboard-operable.
 
 - `lib/schemas.ts`, `lib/content.ts` with the validation gate.
 - `ui/Figure` (using `next/image`, `unoptimized: true`).
-- `lib/highlight.ts` and `CodeBlock` on `prism-react-renderer`.
+- `CodeBlock` on native `<pre><code>` (§12.4), including the copy-button client island.
 - One complete project JSON, the **hardest** one: long title, max-length summary, 12
   technologies, 4 code snippets, 6 screenshots, 5 lessons, a full `caseStudy` block, using
   placeholder assets per §5.6.
@@ -1482,20 +1500,20 @@ prose.
 Most of the old v1.0 decision table is resolved by this rewrite (typography, package choices,
 rendering approach) or by the owner directly.
 
-**Resolved so far:** domain is `mukeremshifa.com` (2026-08-15), applied in §2, §13, §14,
-§16.4, §17.2, and Phase 0.
+**Resolved so far:** domain is `mukeremshifa.com` with the apex canonical; hosting is Vercel,
+with Cloudflare for the backend, storage, and DNS; syntax highlighting is deferred to native
+`<pre><code>`. All 2026-08-15, applied in §2, §12.4, §13, §14, §16.3, §16.4, §17.2, and
+Phase 0.
 
 What is left genuinely needs your input:
 
 | # | Question | Why it matters | Needed by |
 |---|---|---|---|
 | 1 | **Contact mailbox.** The domain is settled, but which address should the site show and the form deliver to? A domain mailbox (`hello@mukeremshifa.com`, `mukerem@mukeremshifa.com`) reads more professional than a Gmail address and is free to set up once DNS exists. If you would rather keep Gmail, confirm the exact address so `site.email` is right. | It is printed on the contact page, the footer, the hero social links, and structured data | Phase 1 |
-| 2 | **Hosting.** With static export no longer required, Cloudflare (Pages/Workers), Vercel, and a plain Node host are all reasonable. Cloudflare keeps you in one ecosystem (DNS, R2, Workers for contact); Vercel has the smoothest Next.js feature support (Route Handlers, `ImageResponse`, ISR) with zero extra config. No wrong answer, it just needs picking. | Determines how the contact endpoint and image handling are wired, and where DNS points | Phase 0, blocking |
-| 3 | **Typography roles.** Source Serif 4 for headlines, Instrument Sans for body and UI, IBM Plex Mono for code, technology tags, and eyebrows. A fairly standard editorial-serif plus clean-sans plus technical-mono pairing. Happy to swap the roles (serif only for the hero, sans everywhere else) if you had something more specific in mind. | Affects the whole type scale in §6.6 | Phase 1 |
-| 4 | **Code highlighting theme.** `prism-react-renderer` ships several built-in themes. Default plan is custom light/dark themes matching the `code-bg` and `text` tokens (§6.2, §6.3) unless you would rather start from a stock Prism theme. | Cosmetic, low-stakes | Phase 2 |
-| 5 | **Email delivery for the contact endpoint.** Whichever provider you already have an account for; it is a one-file swap behind `sendEmail()` regardless. | Determines Phase 4 secrets and setup | Phase 4 |
-| 6 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | Phase 2 cannot produce a golden sample without knowing the shape of the real thing | Phase 2 |
-| 7 | **Low-stakes leftovers.** Résumé hosting, hero visual (portrait or illustration or none), analytics, and apex versus `www` as the canonical host. | Worth answering eventually, none of it blocks anything now | Phases 3 to 6 |
+| 2 | **Typography roles.** Source Serif 4 for headlines, Instrument Sans for body and UI, IBM Plex Mono for code, technology tags, and eyebrows. A fairly standard editorial-serif plus clean-sans plus technical-mono pairing. Happy to swap the roles (serif only for the hero, sans everywhere else) if you had something more specific in mind. | Affects the whole type scale in §6.6 | Phase 1 |
+| 3 | **Email delivery for the contact endpoint.** Whichever provider you already have an account for; it is a one-file swap behind `sendEmail()` regardless. | Determines Phase 4 secrets and setup | Phase 4 |
+| 4 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | Phase 2 cannot produce a golden sample without knowing the shape of the real thing | Phase 2 |
+| 5 | **Low-stakes leftovers.** Résumé hosting (repo `public/` or Cloudflare R2), hero visual (portrait or illustration or none), and analytics. | Worth answering eventually, none of it blocks anything now | Phases 3 to 6 |
 
 ---
 
@@ -1592,3 +1610,4 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1 | 2026-08-15 | Hosting resolved: Vercel for the app, Cloudflare for the backend, storage, and DNS (§2, §14, §16.3, §16.4). `deploy.yml` dropped in favour of Vercel's Git integration. Apex confirmed canonical, `www` redirects to it (§13.3). `prism-react-renderer` removed before installation: code blocks are native `<pre><code>` and `lib/highlight.ts` is gone (§2.1, §4, §5.3, §8.3, §9.1, §12.4, Phase 2). §19 questions 2 and 4 resolved, list renumbered. Corrected §12.2's claim that `sharp` is absent — it ships as an `optionalDependency` of `next`. |
