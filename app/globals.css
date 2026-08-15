@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Spec §6.4: dark mode is class-based, not media-query-based, because Phase 1 adds a
+   theme toggle. Declared now so the Tailwind v4 variant is proven to compile before
+   the token set depends on it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens are Phase 1. Nothing but the colour-scheme hint belongs here yet. */
+:root {
+  color-scheme: light dark;
+}
