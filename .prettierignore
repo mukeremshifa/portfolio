@@ -1,0 +1,12 @@
+.next/
+out/
+build/
+node_modules/
+pnpm-lock.yaml
+next-env.d.ts
+public/
+
+# Markdown is hand-wrapped and hand-aligned (the spec's tables are read as source as
+# often as rendered). Prettier's table padding and prose rewrapping fight that, so
+# formatting for docs is a human job here.
+*.md
