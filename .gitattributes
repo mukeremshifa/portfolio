@@ -1,0 +1,25 @@
+# Git stores text as LF. Without this file, `core.autocrlf=true` — which is set on Windows
+# checkouts of this repo — materialises CRLF in the working tree, and Prettier's default
+# `endOfLine: "lf"` then fails `format:check` on every file. Locally only: CI runs on
+# Ubuntu where autocrlf is off, so the failure is invisible until someone clones on
+# Windows and their first `pnpm check` reports 28 files of "code style issues" that are
+# nothing but line endings.
+#
+# Normalising here keeps the working tree, the stored objects, and CI in step, and it
+# overrides core.autocrlf regardless of how any individual machine is configured.
+* text=auto eol=lf
+
+# Binary assets are never line-ending-converted. SVG is deliberately absent — it is text,
+# and Phase 2's placeholders under public/placeholders/ should normalise like any source.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
