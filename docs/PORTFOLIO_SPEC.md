@@ -1,7 +1,7 @@
 # Portfolio — Specification v2.1 (Quality-First)
 
 **Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 1 — design system & application shell
-**Spec version:** 2.1.2 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Spec version:** 2.1.3 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
 
 ## Why this version exists
 
@@ -1262,7 +1262,10 @@ All values come from `content/`.
 ### 13.3 Sitemap, robots, canonical
 
 - `app/sitemap.ts` enumerates all static routes plus every project slug.
-- `app/robots.ts` allows everything and points at the sitemap.
+- `app/robots.ts` points at the sitemap. It allows everything **only when the site is
+  finished**: until then it disallows all crawling behind an environment flag, so `dev`
+  can be promoted to production at every phase boundary (§16.1) without an unfinished
+  portfolio full of placeholder copy being indexed. Phase 6 flips the flag.
 - Canonical URLs are absolute on every page, built from `https://mukeremshifa.com`.
 - The apex is canonical (resolved 2026-08-15). `www.mukeremshifa.com` redirects to it, and
   `NEXT_PUBLIC_SITE_URL` is `https://mukeremshifa.com` exactly — no `www`, no trailing slash.
@@ -1354,6 +1357,36 @@ constraints removed in §2.1. Add any of it back later if there is an actual rea
 - `main` for production.
 - `dev` for integration, deploys to a preview on push.
 - `feat/*`, `fix/*`, `content/*` are short-lived, branched from `dev`.
+
+**Merge strategy, and why it is not a matter of taste.** A squash merge replaces a
+branch's commits with a new one that has no ancestral link to them. That is exactly what
+you want for a short-lived branch you are about to delete, and exactly what you must not
+do to a branch that keeps existing — git will treat the two as permanently diverged, and
+every later merge re-derives from their last true common ancestor.
+
+| Merge | Strategy | Why |
+|---|---|---|
+| `feat/*` → `dev` | **Rebase** | Keeps each commit and its message on `dev`, linear, no merge bubble. The branch is deleted afterwards, so nothing is left to diverge |
+| `dev` → `main` | **Fast-forward only** | `main` is a moving pointer at a known-good point on `dev`'s history, not a separate line of development |
+| Anything → `dev` or `main` | **Never squash** | Both branches outlive every merge into them |
+
+If `dev` → `main` ever refuses to fast-forward, that is a signal that something diverged.
+Stop and find out what. Do not reach for `--force` or a merge commit to make the symptom
+go away.
+
+**Rewriting.** History rewriting is confined to `feat/*` branches before they merge.
+`dev` and `main` are never force-pushed.
+
+**Tags.** Each phase's completion is tagged on `dev` (`phase-0`, `phase-1`, …). Tags are
+the rollback and diff landmarks, which is the job branches were doing badly.
+
+**Promotion cadence.** `dev` → `main` at phase boundaries, not once at the end. §16.4
+leaves `NEXT_PUBLIC_SITE_URL` unset on previews on purpose, so canonical URLs, the
+sitemap, JSON-LD, and OG image URLs all resolve differently in production than in any
+preview — promoting once at the end would mean that entire surface is first exercised for
+real on launch day, with every other change landing at the same time. To keep an
+unfinished site out of the index while still promoting, `robots.ts` disallows everything
+behind an environment flag until the Phase 6 hardening pass flips it (§13.3).
 
 ### 16.2 `ci.yml` — informational, not a gate
 
@@ -1629,6 +1662,7 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1.3 | 2026-08-15 | §16.1 gains an explicit merge strategy (rebase into `dev`, fast-forward into `main`, never squash a branch that outlives the merge), a no-force-push rule for `dev` and `main`, phase tags, and a promotion cadence with the reasoning behind it. §13.3 gains the environment-flagged crawl block that makes promoting before launch safe. |
 | 2.1.2 | 2026-08-15 | `brand-solid-hover` added to §6.2, §6.3, and §6.4. §6.3 defined no hover fill for a filled button in dark mode, and reusing `brand-hover` there put white text on `#60A5FA` at 2.60:1. New token, no existing value changed. |
 | 2.1.1 | 2026-08-15 | §6 token names reconciled ahead of Phase 1: `surface-sunken` (§6.2) and `surface-raised` (§6.3) both become `surface-alt`, matching §6.4 and §6.8. `brand-soft` added to the §6.3 dark table (§6.4 already defined it). `brand-cream` and `code-bg` added to `@theme inline`; `ring`'s deliberate absence from it documented. No colour value changed. §19 question 2 (typography) resolved; list renumbered and the mailbox question reprioritised to Phase 5. |
 | 2.1 | 2026-08-15 | Hosting resolved: Vercel for the app, Cloudflare for the backend, storage, and DNS (§2, §14, §16.3, §16.4). `deploy.yml` dropped in favour of Vercel's Git integration. Apex confirmed canonical, `www` redirects to it (§13.3). `prism-react-renderer` removed before installation: code blocks are native `<pre><code>` and `lib/highlight.ts` is gone (§2.1, §4, §5.3, §8.3, §9.1, §12.4, Phase 2). §19 questions 2 and 4 resolved, list renumbered. Corrected §12.2's claim that `sharp` is absent — it ships as an `optionalDependency` of `next`. |
