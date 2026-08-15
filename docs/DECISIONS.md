@@ -130,3 +130,47 @@ pull request. Repeating the build in Actions adds roughly a minute per push for 
 that is already there. If Vercel builds ever stop being visible on PRs, this is one step to
 add back.
 **Affects:** §16.2
+
+## 2026-08-15 — §6 token names reconciled; no colour value changed
+
+**Context:** The token tables and the wiring block disagreed with each other in four places,
+so there was no single source of truth to write `globals.css` from. §6.2 named
+`surface-sunken`, §6.3 named `surface-raised`, and §6.4 used `--surface-alt` for both.
+`brand-soft` was defined in §6.4's dark block but absent from the §6.3 table. `brand-cream`
+and `code-bg` were in the tables but not in `@theme inline`.
+**Decision:** `surface-alt` is the one name, in both palettes. `brand-soft` added to §6.3
+with §6.4's `#16243D`. `@theme inline` gains `--color-brand-cream` and `--color-code-bg`.
+`ring` deliberately stays out of `@theme inline` and `brand-cream` deliberately stays
+undefined in `:root`; both omissions are now documented in §6.4.
+**Reason:** §6.8 already referenced `surface-alt` for card hover and chip backgrounds, so the
+wiring block was the half that was right. `ring` is consumed exactly once, as `var(--ring)`
+in a raw `outline` declaration — a `ring-ring` utility would be a second spelling of the same
+thing. `brand-cream` is dark-only by §6.3's binding rules, and leaving it undefined in light
+mode makes misuse visible rather than silently beige-on-white.
+**Not changed:** every hex value in §6.2 and §6.3 is untouched. Those ratios were measured
+and are quoted in §6.1.
+**Affects:** §6.2, §6.3, §6.4
+
+## 2026-08-15 — `content/site.json` pulled forward from Phase 2 to Phase 1
+
+**Context:** §18 puts content schemas in Phase 2, but `SiteFooter` (§7.3) needs identity,
+location, and socials to render at all, and the footer ships in Phase 1.
+**Decision:** A minimal `content/site.json` with placeholder values per §5.6, read through
+`lib/site.ts`, which carries a narrow hand-written TypeScript type covering only the fields
+the shell actually consumes. Phase 2 replaces that type with the Zod-derived one from
+`lib/schemas.ts` and fills in real values.
+**Reason:** The alternative is hard-coding identity into the footer and un-hard-coding it in
+Phase 2, which is the same work done twice plus a violation of §9's rule that no component
+holds copy. This is a contained pull-forward of one file, not a change to the content model:
+no schema, no validation gate, no loader for any other content type.
+**Affects:** §5.2, §5.6, §7.3, §18 Phase 1 and Phase 2
+
+## 2026-08-15 — Typography roles confirmed as specified (§19 Q2)
+
+**Context:** §19 question 2 offered to swap the three-family role split before the type scale
+was built.
+**Decision:** Owner confirmed the default. Source Serif 4 for display and section headings,
+Instrument Sans for body and all UI chrome, IBM Plex Mono for code, technology tags, and
+eyebrows. §6.6's ten-step scale is implemented against exactly that.
+**Reason:** The scale was already sized against this split; nothing had to move.
+**Affects:** §6.6, §12.3, §19

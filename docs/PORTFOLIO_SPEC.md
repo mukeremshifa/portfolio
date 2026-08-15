@@ -1,7 +1,7 @@
 # Portfolio — Specification v2.1 (Quality-First)
 
-**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 0 — foundations
-**Spec version:** 2.1 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 1 — design system & application shell
+**Spec version:** 2.1.1 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
 
 ## Why this version exists
 
@@ -486,7 +486,7 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 |---|---|---|
 | `canvas` | `#F3ECE2` | Page background |
 | `surface` | `#FFFFFF` | Cards, inputs, raised panels |
-| `surface-sunken` | `#EDE5DA` | Code chrome, inset wells |
+| `surface-alt` | `#EDE5DA` | Code chrome, inset wells, card hover, chip background |
 | `text` | `#1E2229` | Primary text |
 | `text-muted` | `#5C6470` | Secondary text, metadata |
 | `brand` | `#0A39A6` | Links, primary fill, accents |
@@ -507,13 +507,14 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 |---|---|---|
 | `canvas` | `#0B0F19` | Page background |
 | `surface` | `#161C2A` | Cards, inputs, raised panels |
-| `surface-raised` | `#1D2536` | Hover state for cards, popovers |
+| `surface-alt` | `#1D2536` | Hover state for cards, popovers, chip background |
 | `text` | `#F3F4F6` | Primary text |
 | `text-muted` | `#9CA3AF` | Secondary text, metadata |
 | `brand` | `#3B82F6` | Links and accent text |
 | `brand-hover` | `#60A5FA` | Hover and active accent |
 | `brand-solid` | `#2563EB` | Filled button surface only |
 | `brand-contrast` | `#FFFFFF` | Text on `brand-solid` |
+| `brand-soft` | `#16243D` | Tinted badge background |
 | `brand-cream` | `#ECE3D4` | Warm highlight for key tags |
 | `border-subtle` | `#232D3F` | Decorative dividers only |
 | `border-strong` | `#6B7385` | Control boundaries |
@@ -570,13 +571,25 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
   --color-brand-solid: var(--brand-solid);
   --color-brand-contrast: var(--brand-contrast);
   --color-brand-soft: var(--brand-soft);
+  --color-brand-cream: var(--brand-cream);
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
   --color-danger: var(--danger);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-code-bg: var(--code-bg);
 }
 ```
+
+**Two deliberate omissions from `@theme inline`.**
+
+- **`ring` is not a Tailwind colour.** §6.8 consumes it exactly once, as `var(--ring)` inside
+  a raw `outline` declaration on `:focus-visible`. A `ring-ring` utility would be a second
+  way to spell the same thing and an invitation to apply the focus treatment somewhere it
+  does not belong, so it stays a plain custom property.
+- **`brand-cream` is undefined in `:root`.** It is dark-mode-only by §6.3's binding rules.
+  Leaving it undefined in light mode means `text-brand-cream` resolves to nothing there
+  rather than silently rendering beige on white — the failure is visible, which is the point.
 
 ### 6.5 Theming mechanics
 
@@ -1503,17 +1516,18 @@ rendering approach) or by the owner directly.
 **Resolved so far:** domain is `mukeremshifa.com` with the apex canonical; hosting is Vercel,
 with Cloudflare for the backend, storage, and DNS; syntax highlighting is deferred to native
 `<pre><code>`. All 2026-08-15, applied in §2, §12.4, §13, §14, §16.3, §16.4, §17.2, and
-Phase 0.
+Phase 0. **Typography roles** confirmed by the owner as specified — Source Serif 4 for
+display, Instrument Sans for body and UI, IBM Plex Mono for code, tags, and eyebrows —
+and built in Phase 1 (§6.6).
 
 What is left genuinely needs your input:
 
 | # | Question | Why it matters | Needed by |
 |---|---|---|---|
-| 1 | **Contact mailbox.** The domain is settled, but which address should the site show and the form deliver to? A domain mailbox (`hello@mukeremshifa.com`, `mukerem@mukeremshifa.com`) reads more professional than a Gmail address and is free to set up once DNS exists. If you would rather keep Gmail, confirm the exact address so `site.email` is right. | It is printed on the contact page, the footer, the hero social links, and structured data | Phase 1 |
-| 2 | **Typography roles.** Source Serif 4 for headlines, Instrument Sans for body and UI, IBM Plex Mono for code, technology tags, and eyebrows. A fairly standard editorial-serif plus clean-sans plus technical-mono pairing. Happy to swap the roles (serif only for the hero, sans everywhere else) if you had something more specific in mind. | Affects the whole type scale in §6.6 | Phase 1 |
-| 3 | **Email delivery for the contact endpoint.** Whichever provider you already have an account for; it is a one-file swap behind `sendEmail()` regardless. | Determines Phase 4 secrets and setup | Phase 4 |
-| 4 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | Phase 2 cannot produce a golden sample without knowing the shape of the real thing | Phase 2 |
-| 5 | **Low-stakes leftovers.** Résumé hosting (repo `public/` or Cloudflare R2), hero visual (portrait or illustration or none), and analytics. | Worth answering eventually, none of it blocks anything now | Phases 3 to 6 |
+| 1 | **Contact mailbox.** The domain is settled, but which address should the site show and the form deliver to? A domain mailbox (`hello@mukeremshifa.com`, `mukerem@mukeremshifa.com`) reads more professional than a Gmail address and is free to set up once DNS exists. If you would rather keep Gmail, confirm the exact address so `site.email` is right. | It is printed on the contact page, the footer, the hero social links, and structured data | Phase 5 |
+| 2 | **Email delivery for the contact endpoint.** Whichever provider you already have an account for; it is a one-file swap behind `sendEmail()` regardless. | Determines Phase 4 secrets and setup | Phase 4 |
+| 3 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | Phase 2 cannot produce a golden sample without knowing the shape of the real thing | Phase 2 |
+| 4 | **Low-stakes leftovers.** Résumé hosting (repo `public/` or Cloudflare R2), hero visual (portrait or illustration or none), and analytics. | Worth answering eventually, none of it blocks anything now | Phases 3 to 6 |
 
 ---
 
@@ -1610,4 +1624,5 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1.1 | 2026-08-15 | §6 token names reconciled ahead of Phase 1: `surface-sunken` (§6.2) and `surface-raised` (§6.3) both become `surface-alt`, matching §6.4 and §6.8. `brand-soft` added to the §6.3 dark table (§6.4 already defined it). `brand-cream` and `code-bg` added to `@theme inline`; `ring`'s deliberate absence from it documented. No colour value changed. §19 question 2 (typography) resolved; list renumbered and the mailbox question reprioritised to Phase 5. |
 | 2.1 | 2026-08-15 | Hosting resolved: Vercel for the app, Cloudflare for the backend, storage, and DNS (§2, §14, §16.3, §16.4). `deploy.yml` dropped in favour of Vercel's Git integration. Apex confirmed canonical, `www` redirects to it (§13.3). `prism-react-renderer` removed before installation: code blocks are native `<pre><code>` and `lib/highlight.ts` is gone (§2.1, §4, §5.3, §8.3, §9.1, §12.4, Phase 2). §19 questions 2 and 4 resolved, list renumbered. Corrected §12.2's claim that `sharp` is absent — it ships as an `optionalDependency` of `next`. |
