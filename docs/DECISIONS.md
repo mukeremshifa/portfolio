@@ -174,3 +174,55 @@ Instrument Sans for body and all UI chrome, IBM Plex Mono for code, technology t
 eyebrows. §6.6's ten-step scale is implemented against exactly that.
 **Reason:** The scale was already sized against this split; nothing had to move.
 **Affects:** §6.6, §12.3, §19
+
+## 2026-08-15 — Added `brand-solid-hover` to both palettes
+
+**Context:** §6.8 gives `Button`'s primary variant a brand fill with `brand-contrast`
+text, and §10.2 animates the background on hover — but neither §6.2 nor §6.3 defines what
+that background hovers *to*. The obvious candidate, `brand-hover`, is defined as the
+hover accent for text and links, and in dark mode it is *lighter* than `brand-solid`.
+**Decision:** New token `brand-solid-hover`: `#082D85` light (same value as
+`brand-hover`, where the roles happen to coincide) and `#1D4ED8` dark.
+**Reason:** White on `#60A5FA` measures 2.60:1. Using `brand-hover` as a filled-button
+hover would have put the most prominent control on the site below AA on every hover, in
+the theme where it is hardest to notice during development. Measured for the new pairing:
+`brand-contrast` on `brand-solid-hover` is 12.18:1 light and 6.70:1 dark.
+**Known cost:** `#1D4ED8` measures 2.86:1 against the dark canvas, just under SC 1.4.11's
+3:1 for a control boundary. It applies only while hovering, the resting state is 3.71:1,
+and a solid fill carrying 6.70:1 text is not identified by its boundary. Worth revisiting
+if the palette is ever re-measured.
+**Affects:** §6.2, §6.3, §6.4, §6.8, §10.2
+
+## 2026-08-15 — Nav active indicator is CSS, not a Motion `layoutId`
+
+**Context:** §10.2 lists the nav active indicator as a Motion `layoutId` underline that
+slides between items.
+**Decision:** The active route gets `aria-current="page"` and a static 2px underline in
+CSS, per §7.2. No `layoutId`, no shared layout animation.
+**Reason:** §10's test is binding and it is the arbiter here: remove the animation and
+ask whether the interface got harder to understand. It does not. By the time the
+underline would slide, the navigation has already happened and the new page is rendering
+— the animation describes a transition the user has already completed. The underline's
+job is to say which route is active, which it does standing still.
+**Also:** `SiteHeader` stays a server component per §9.2. The one thing that genuinely
+needs the client is `usePathname`, so the links are split into `components/layout/MainNav.tsx`
+as a thin island. §9.2's "islands" framing therefore stays accurate rather than becoming
+a polite fiction — which is what the Phase 1 plan flagged as the risk.
+**Affects:** §7.2, §9.2, §10.2
+
+## 2026-08-15 — `MobileNavigation` is built on native `<dialog>`
+
+**Context:** §7.2 requires a focus trap, Escape to close, scroll lock, a visible close
+button, and focus returned to the trigger. The Phase 1 plan flagged this as the single
+most likely thing in the phase to be subtly wrong.
+**Decision:** `<dialog>` with `showModal()`, rather than a hand-rolled trap over a `div`.
+**Reason:** Four of the five requirements then come from the platform and cannot drift —
+the top layer traps focus and makes the background inert, Escape fires `cancel`, `close()`
+restores focus to whatever opened it, and initial focus lands on the first focusable
+child. Only scroll lock has to be written, and it is three lines. A hand-rolled trap
+would be roughly eighty lines of querySelectorAll over a focusable-element list that goes
+stale the first time someone adds a control to the panel.
+**Cost:** the exit animation has to be sequenced before `close()` rather than after, so
+`AnimatePresence`'s `onExitComplete` is what actually closes the dialog. That is the one
+non-obvious line in the component and it is commented as such.
+**Affects:** §7.2, §9.2, §10.2

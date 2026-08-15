@@ -1,7 +1,7 @@
 # Portfolio — Specification v2.1 (Quality-First)
 
 **Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 1 — design system & application shell
-**Spec version:** 2.1.1 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Spec version:** 2.1.2 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
 
 ## Why this version exists
 
@@ -490,7 +490,8 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 | `text` | `#1E2229` | Primary text |
 | `text-muted` | `#5C6470` | Secondary text, metadata |
 | `brand` | `#0A39A6` | Links, primary fill, accents |
-| `brand-hover` | `#082D85` | Hover and active accent |
+| `brand-hover` | `#082D85` | Hover and active accent (text and links) |
+| `brand-solid-hover` | `#082D85` | Hover fill under `brand-contrast` text |
 | `brand-contrast` | `#FFFFFF` | Text on a brand fill |
 | `brand-soft` | `#E6EAF6` | Tinted badge background |
 | `border-subtle` | `#E4DBD0` | Decorative dividers only |
@@ -513,6 +514,7 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 | `brand` | `#3B82F6` | Links and accent text |
 | `brand-hover` | `#60A5FA` | Hover and active accent |
 | `brand-solid` | `#2563EB` | Filled button surface only |
+| `brand-solid-hover` | `#1D4ED8` | Hover fill under `brand-contrast` text |
 | `brand-contrast` | `#FFFFFF` | Text on `brand-solid` |
 | `brand-soft` | `#16243D` | Tinted badge background |
 | `brand-cream` | `#ECE3D4` | Warm highlight for key tags |
@@ -542,6 +544,7 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
   --canvas: #f3ece2;  --surface: #ffffff;  --surface-alt: #ede5da;
   --text: #1e2229;    --text-muted: #5c6470;
   --brand: #0a39a6;   --brand-hover: #082d85;  --brand-solid: #0a39a6;
+  --brand-solid-hover: #082d85;
   --brand-contrast: #ffffff;  --brand-soft: #e6eaf6;
   --border-subtle: #e4dbd0;   --border-strong: #8a8279;
   --ring: #0a39a6;
@@ -553,6 +556,7 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
   --canvas: #0b0f19;  --surface: #161c2a;  --surface-alt: #1d2536;
   --text: #f3f4f6;    --text-muted: #9ca3af;
   --brand: #3b82f6;   --brand-hover: #60a5fa;  --brand-solid: #2563eb;
+  --brand-solid-hover: #1d4ed8;
   --brand-contrast: #ffffff;  --brand-soft: #16243d;  --brand-cream: #ece3d4;
   --border-subtle: #232d3f;   --border-strong: #6b7385;
   --ring: #3b82f6;
@@ -569,6 +573,7 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-hover: var(--brand-solid-hover);
   --color-brand-contrast: var(--brand-contrast);
   --color-brand-soft: var(--brand-soft);
   --color-brand-cream: var(--brand-cream);
@@ -1624,5 +1629,6 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1.2 | 2026-08-15 | `brand-solid-hover` added to §6.2, §6.3, and §6.4. §6.3 defined no hover fill for a filled button in dark mode, and reusing `brand-hover` there put white text on `#60A5FA` at 2.60:1. New token, no existing value changed. |
 | 2.1.1 | 2026-08-15 | §6 token names reconciled ahead of Phase 1: `surface-sunken` (§6.2) and `surface-raised` (§6.3) both become `surface-alt`, matching §6.4 and §6.8. `brand-soft` added to the §6.3 dark table (§6.4 already defined it). `brand-cream` and `code-bg` added to `@theme inline`; `ring`'s deliberate absence from it documented. No colour value changed. §19 question 2 (typography) resolved; list renumbered and the mailbox question reprioritised to Phase 5. |
 | 2.1 | 2026-08-15 | Hosting resolved: Vercel for the app, Cloudflare for the backend, storage, and DNS (§2, §14, §16.3, §16.4). `deploy.yml` dropped in favour of Vercel's Git integration. Apex confirmed canonical, `www` redirects to it (§13.3). `prism-react-renderer` removed before installation: code blocks are native `<pre><code>` and `lib/highlight.ts` is gone (§2.1, §4, §5.3, §8.3, §9.1, §12.4, Phase 2). §19 questions 2 and 4 resolved, list renumbered. Corrected §12.2's claim that `sharp` is absent — it ships as an `optionalDependency` of `next`. |
