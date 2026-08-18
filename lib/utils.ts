@@ -16,3 +16,13 @@ export type ClassValue = string | false | null | undefined;
 export function cn(...values: ClassValue[]): string {
   return values.filter(Boolean).join(" ");
 }
+
+/**
+ * §8.3's project timeline. `end: null` means the work is current, so it renders
+ * "Present"; a project that started and finished in the same year renders that year once
+ * rather than as a range of it to itself.
+ */
+export function formatYearRange(start: string, end: string | null): string {
+  if (end === null) return `${start} — Present`;
+  return end === start ? start : `${start} — ${end}`;
+}
