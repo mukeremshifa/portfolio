@@ -30,6 +30,21 @@ const ImageDimensions = {
   height: z.int().positive(),
 };
 
+/**
+ * A same-origin asset path or an absolute URL.
+ *
+ * §5.2 originally typed `resume.url` as `z.url()`, which a root-relative path fails. The
+ * only two ways to satisfy that were to host the file off-origin or to write
+ * `https://mukeremshifa.com/...` into a content file — and the second hard-codes the
+ * origin that `SITE_ORIGIN` exists to derive exactly once, so it would break on
+ * localhost and emit a production URL from every preview (§16.4).
+ *
+ * `socials[].url` deliberately stays `z.url()`. Those destinations are genuinely
+ * external, and a relative social link is always a mistake rather than a valid case this
+ * union would be admitting.
+ */
+const AssetPathOrUrl = z.union([z.url(), z.string().regex(/^\/[^\s]*$/)]);
+
 export const SiteSchema = z.object({
   name: z.string().min(1),
   wordmark: z.string().min(1).max(4),
@@ -49,8 +64,25 @@ export const SiteSchema = z.object({
   }),
   resume: z
     .object({
-      url: z.url(),
+      url: AssetPathOrUrl,
       updated: YearMonth,
+    })
+    .optional(),
+  /**
+   * §8.1's `ProfileVisual`, which §5.2 never gave a source. Optional is the load-bearing
+   * part: absence collapses the hero to one column, which is both what §8.1 asks for and
+   * the state the owner reaches by deleting the field rather than by adding one.
+   *
+   * `alt` carries the same 10-character floor as §5.3's images. A portrait sitting beside
+   * the owner's own name and role is arguably decorative under §11.4, which would want
+   * `alt=""` — the schema will not allow it, and Phase 5 decides that when the real
+   * photograph lands. Do not weaken the floor for a placeholder.
+   */
+  portrait: z
+    .object({
+      src: z.string(),
+      alt: z.string().min(10),
+      ...ImageDimensions,
     })
     .optional(),
   socials: z

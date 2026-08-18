@@ -2,38 +2,48 @@
   "name": "Mukerem Shifa",
   "wordmark": "MK",
   "role": "AI Engineer & Full-Stack Developer",
-  "eyebrow": "PLACEHOLDER — section eyebrow",
-  "headline": "PLACEHOLDER — hero headline goes here",
-  "intro": "PLACEHOLDER — a two-sentence positioning paragraph of roughly this length, long enough to exercise the prose measure and the body-lg step without pretending to be the real copy that Phase 5 will write.",
-  "email": "PLACEHOLDER@mukeremshifa.com",
+  "eyebrow": "AI engineering and full-stack delivery",
+  "headline": "I build AI systems that can show their work, and the products that carry them.",
+  "intro": "I work at the seam between a model and the system that has to carry it: retrieval that cites the passage it answered from, permissions enforced at query time rather than after ranking, and interfaces that stay usable at 320 pixels. Most of what I build is the unglamorous plumbing around the model, which is usually where the product actually lives.",
+  "email": "hello@mukeremshifa.com",
   "location": {
-    "label": "PLACEHOLDER — city, country",
+    "label": "Addis Ababa, Ethiopia",
     "remote": true
   },
   "availability": {
     "show": true,
     "state": "open",
-    "label": "PLACEHOLDER — availability"
+    "label": "Open to engineering roles and selected contract work"
+  },
+  "resume": {
+    "url": "/placeholders/placeholder-resume.pdf",
+    "updated": "2026-07"
+  },
+  "portrait": {
+    "src": "/placeholders/placeholder-portrait-4x5.svg",
+    "alt": "Placeholder standing in for a portrait photograph of Mukerem Shifa.",
+    "width": 1000,
+    "height": 1250
   },
   "socials": [
     {
       "platform": "github",
       "label": "GitHub",
-      "url": "https://github.com/PLACEHOLDER"
+      "url": "https://github.com/mukeremshifa"
     },
     {
       "platform": "linkedin",
       "label": "LinkedIn",
-      "url": "https://www.linkedin.com/in/PLACEHOLDER"
+      "url": "https://www.linkedin.com/in/mukeremshifa"
     }
   ],
   "featuredCaseStudySlug": "placeholder-project",
   "seo": {
-    "title": "PLACEHOLDER — site title",
-    "description": "PLACEHOLDER — a search-result description of roughly the right length, replaced during the Phase 5 content sweep before anything ships."
+    "title": "Mukerem Shifa — AI Engineer & Full-Stack Developer",
+    "description": "AI engineer and full-stack developer. I build retrieval systems that cite their sources, permission-aware search, and interfaces that hold up at every width."
   },
   "contact": {
-    "headline": "PLACEHOLDER — contact headline",
-    "body": "PLACEHOLDER — contact body copy."
+    "headline": "Tell me what you are building.",
+    "body": "I read everything that arrives. If you are hiring, scoping contract work, or stuck on a retrieval or systems problem, a few sentences about the constraint is enough to start a useful conversation."
   }
 }

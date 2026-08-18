@@ -2,12 +2,12 @@
   {
     "id": "languages",
     "title": "Languages",
-    "items": ["TypeScript", "Python", "SQL", "HTML and CSS"]
+    "items": ["TypeScript", "Python", "Go", "SQL", "Bash", "HTML and CSS"]
   },
   {
     "id": "web-and-product",
     "title": "Web and product",
-    "items": ["Next.js", "React", "Tailwind CSS", "Node.js"]
+    "items": ["Next.js", "React", "Tailwind CSS", "Node.js", "OpenAPI"]
   },
   {
     "id": "ai-and-retrieval",
@@ -16,22 +16,30 @@
       "Retrieval-Augmented Generation with Hybrid Reranking",
       "FastAPI",
       "Vector search",
+      "pgvector",
       "Evaluation harnesses"
     ]
   },
   {
     "id": "data-and-storage",
     "title": "Data and storage",
-    "items": ["PostgreSQL", "Redis", "Object storage (R2, S3)"]
+    "items": ["PostgreSQL", "SQLite", "Redis", "Object storage (R2, S3)"]
   },
   {
     "id": "platform-and-delivery",
     "title": "Platform and delivery",
-    "items": ["Docker", "Terraform", "Cloudflare Workers", "GitHub Actions", "Vercel"]
+    "items": [
+      "Docker",
+      "Kubernetes",
+      "Terraform",
+      "Cloudflare Workers",
+      "GitHub Actions",
+      "Vercel"
+    ]
   },
   {
     "id": "observability-and-testing",
     "title": "Observability and testing",
-    "items": ["OpenTelemetry", "Vitest", "Playwright", "axe"]
+    "items": ["OpenTelemetry", "Grafana", "Vitest", "Playwright", "axe"]
   }
 ]
