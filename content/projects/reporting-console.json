@@ -1,0 +1,84 @@
+{
+  "slug": "reporting-console",
+  "title": "Self-Serve Reporting Console",
+  "summary": "A reporting console that let an operations team answer its own questions, built around a small query vocabulary rather than a general query builder nobody would have used.",
+  "category": "Full-Stack",
+  "status": "completed",
+  "featured": false,
+  "order": 4,
+  "year": {
+    "start": "2023",
+    "end": "2024"
+  },
+  "role": "Engineer, working to an operations lead's question list",
+  "team": "Two engineers",
+  "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI", "Vitest"],
+  "links": {
+    "live": "https://reporting-console.mukeremshifa.com"
+  },
+  "cover": {
+    "src": "/placeholders/placeholder-project-cover-16x9.svg",
+    "alt": "Placeholder standing in for the reporting console cover image.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "The operations team was asking engineers for the same eleven reports, slightly varied, several times a week. The obvious answer was a general query builder. The answer that worked was a fixed vocabulary of dimensions and measures, with the eleven questions expressible in it and very little else.",
+    "Narrowing the surface is what made the rest tractable. Every query the console can produce is enumerable, so they are all covered by tests, all cacheable, and none of them can ask the database for something unbounded."
+  ],
+  "capabilities": [
+    "Composes reports from a fixed set of dimensions and measures",
+    "Answers the eleven standing questions without an engineer in the loop",
+    "Exports any report as a file, with the query that produced it recorded in the header",
+    "Refuses queries outside the vocabulary rather than degrading to a slow scan",
+    "Publishes its own schema as an OpenAPI document that the client is generated from"
+  ],
+  "features": [
+    {
+      "title": "A vocabulary, not a query builder",
+      "body": "Dimensions and measures are enumerated, and their valid combinations are enumerated too. A general builder would have shipped a hundred queries nobody asked for and one nobody could make fast."
+    },
+    {
+      "title": "Every export carries its query",
+      "body": "A report file states the dimensions, measures, and date range that produced it. A number in a spreadsheet with no provenance becomes an argument three weeks later, every time."
+    },
+    {
+      "title": "The client is generated",
+      "body": "The server publishes an OpenAPI document and the typed client comes out of it. Hand-writing the client is how the two drift, and the drift is always found by a user rather than by a test."
+    }
+  ],
+  "codeSnippets": [
+    {
+      "title": "The vocabulary, as a type",
+      "language": "typescript",
+      "file": "src/vocabulary.ts",
+      "note": "Enumerating the valid pairs is what makes every possible query testable.",
+      "code": "export const DIMENSIONS = [\"day\", \"week\", \"region\", \"channel\"] as const;\nexport const MEASURES = [\"volume\", \"resolved\", \"median_age\"] as const;\n\nexport type Dimension = (typeof DIMENSIONS)[number];\nexport type Measure = (typeof MEASURES)[number];\n\n// Not every pairing is meaningful, and the ones that are not would each be a slow\n// query with a confusing result rather than an error. Listing them is boring, and it\n// is the whole reason the query surface stays finite.\nexport const PERMITTED: Record<Measure, readonly Dimension[]> = {\n  volume: [\"day\", \"week\", \"region\", \"channel\"],\n  resolved: [\"day\", \"week\", \"region\"],\n  median_age: [\"week\", \"region\"],\n};"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholders/placeholder-screenshot-21x9.svg",
+      "alt": "Placeholder standing in for the console showing a wide report table.",
+      "caption": "Wide by nature: a report table is the one thing here that wants the width.",
+      "width": 2100,
+      "height": 900
+    },
+    {
+      "src": "/placeholders/placeholder-screenshot-4x3.svg",
+      "alt": "Placeholder standing in for the export dialog and its recorded query.",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "src": "/placeholders/placeholder-screenshot-9x16.svg",
+      "alt": "Placeholder standing in for the console at a narrow mobile width.",
+      "width": 900,
+      "height": 1600
+    }
+  ],
+  "lessons": [
+    "A narrow vocabulary that answers the real questions beats a general builder that answers all of them slowly.",
+    "Provenance in the export header ended more disagreements than any feature that shipped beside it."
+  ]
+}

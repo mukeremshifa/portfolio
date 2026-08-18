@@ -1,0 +1,88 @@
+{
+  "slug": "edge-rate-limiter",
+  "title": "Distributed Rate Limiter",
+  "summary": "A rate limiter that stays approximately correct under partition rather than exactly correct while everything is healthy, because the failure mode of the exact version was refusing everyone.",
+  "category": "Systems",
+  "status": "completed",
+  "featured": false,
+  "order": 5,
+  "year": {
+    "start": "2022",
+    "end": "2023"
+  },
+  "role": "Sole engineer",
+  "team": "Solo, reviewed by the platform team",
+  "technologies": [
+    "Go",
+    "Redis",
+    "Docker",
+    "Kubernetes",
+    "Terraform",
+    "Grafana",
+    "OpenTelemetry"
+  ],
+  "cover": {
+    "src": "/placeholders/placeholder-project-cover-16x9.svg",
+    "alt": "Placeholder standing in for the rate limiter project cover image.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "The limiter this replaced was exact, and it was exact by asking a shared counter on every request. When the counter was slow every request was slow, and when it was unreachable the safe default was to refuse. A limiter whose failure mode is refusing all traffic is a worse outage than the abuse it was protecting against.",
+    "This one keeps a local token budget per instance, leases more from the shared store in blocks, and tolerates being wrong at the edges of a window. Under partition it falls back to its local budget and keeps serving, which is the behaviour the whole design exists to buy."
+  ],
+  "capabilities": [
+    "Enforces per-key limits across a fleet without a shared counter on the hot path",
+    "Leases budget in blocks, so the shared store sees a fraction of the request rate",
+    "Falls back to the last known local budget when the shared store is unreachable",
+    "Reports its own approximation error as a metric rather than assuming it is zero",
+    "Emits a trace span per lease, so a slow limiter is visible in the request trace"
+  ],
+  "features": [
+    {
+      "title": "Leases instead of counters",
+      "body": "An instance takes a block of budget and spends it locally. The shared store sees one write per block rather than one per request, which is what takes it off the hot path without taking it out of the design."
+    },
+    {
+      "title": "Degradation is a designed path",
+      "body": "When the store is unreachable the limiter keeps serving on its local budget and marks those decisions degraded. Refusing all traffic because the thing that counts traffic is down is the failure this replaced."
+    },
+    {
+      "title": "The error is measured, not assumed",
+      "body": "Approximation error is reconciled against the shared store after the fact and published as a metric. An approximate system that does not report its own error is indistinguishable from a broken exact one."
+    },
+    {
+      "title": "One span per lease",
+      "body": "Lease acquisition is traced, so a request that was slow because the limiter was slow says so. Before that, limiter latency surfaced as unexplained tail latency in whichever handler happened to sit above it."
+    }
+  ],
+  "codeSnippets": [
+    {
+      "title": "Taking from the local budget, leasing when it runs out",
+      "language": "go",
+      "file": "limiter/lease.go",
+      "note": "The degraded path returns allow, not deny. That choice is the whole design.",
+      "code": "func (l *Limiter) Allow(ctx context.Context, key string) (bool, error) {\n\tb := l.local(key)\n\tif b.take() {\n\t\treturn true, nil\n\t}\n\n\tgranted, err := l.store.Lease(ctx, key, l.blockSize)\n\tif err != nil {\n\t\t// The store is unreachable. Serve from whatever the local budget last knew\n\t\t// and mark the decision degraded. Denying everything here is what the old\n\t\t// exact limiter did, and it turned a dependency blip into an outage.\n\t\tl.degraded.Add(ctx, 1)\n\t\treturn b.takeReserve(), nil\n\t}\n\n\tb.refill(granted)\n\treturn b.take(), nil\n}"
+    },
+    {
+      "title": "Publishing the approximation error",
+      "language": "go",
+      "file": "limiter/report.go",
+      "code": "// The reconciler compares what the fleet actually allowed against what an exact\n// counter would have allowed over the same window. An approximate limiter that does\n// not publish its own error cannot be told apart from a broken exact one.\nfunc (r *Reconciler) report(ctx context.Context, w Window) {\n\tallowed := r.fleetAllowed(w)\n\texact := r.storeAllowed(w)\n\tif exact == 0 {\n\t\treturn\n\t}\n\n\tdrift := float64(allowed-exact) / float64(exact)\n\tr.driftGauge.Record(ctx, drift, metric.WithAttributes(w.Attributes()...))\n}"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholders/placeholder-screenshot-1x1.svg",
+      "alt": "Placeholder standing in for the drift gauge on the limiter dashboard.",
+      "caption": "Drift against an exact count, published rather than assumed away.",
+      "width": 1000,
+      "height": 1000
+    }
+  ],
+  "lessons": [
+    "Decide what the limiter does when the thing that counts is down, before deciding how it counts.",
+    "An approximate system owes you a measurement of its own approximation.",
+    "Taking a dependency off the hot path is usually a batching problem, not an architecture problem."
+  ]
+}

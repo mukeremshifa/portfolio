@@ -1,28 +1,120 @@
 [
   {
     "id": "independent-engineering-2025",
-    "role": "PLACEHOLDER — role title",
-    "organization": "PLACEHOLDER — organization",
-    "organizationUrl": "https://example.com/placeholder-organization",
+    "role": "Independent engineer",
+    "organization": "Self-directed",
     "type": "independent",
     "start": "2025-01",
     "end": null,
-    "location": "PLACEHOLDER — city, country",
-    "summary": "PLACEHOLDER — a summary paragraph of roughly the right length, long enough to exercise the entry layout and the measure without pretending to be the real history that Phase 5 will write.",
+    "location": "Remote",
+    "summary": "I take a small number of engagements a year and spend the rest of the time building the tools the engagements keep showing me are missing. Retrieval that cites its sources and build tooling that is honest about its inputs are the two threads.",
     "achievements": [
-      "PLACEHOLDER — an achievement stated as verifiable scope rather than an invented metric",
-      "PLACEHOLDER — a second achievement, long enough to wrap on a narrow viewport",
-      "PLACEHOLDER — a third achievement"
+      "Designed and built a permission-aware retrieval platform end to end, from schema through deployment",
+      "Published a content-addressed build cache whose key is a hash of a task's declared inputs rather than its branch",
+      "Kept two earlier projects maintained rather than abandoned, which is where most of what I know about the first design came from"
     ],
     "technologies": [
       "TypeScript",
       "Next.js",
       "PostgreSQL",
+      "Go",
       "Docker",
       "Terraform",
-      "OpenTelemetry",
-      "GitHub Actions"
+      "OpenTelemetry"
     ],
     "featured": true
+  },
+  {
+    "id": "platform-engineer-2023",
+    "role": "Platform engineer",
+    "organization": "Northbound Systems",
+    "organizationUrl": "https://example.com/northbound-systems",
+    "type": "employment",
+    "start": "2023-03",
+    "end": null,
+    "location": "Addis Ababa, Ethiopia",
+    "summary": "I work on the layer between product teams and the infrastructure they deploy onto: request limiting, service templates, and the tracing that tells a team whether the slow part is theirs.",
+    "achievements": [
+      "Replaced an exact rate limiter whose failure mode was refusing all traffic with a lease-based one that degrades to a local budget",
+      "Wrote the service template that new services start from, including tracing and health checks that work before anyone edits them",
+      "Moved the shared counter off the request hot path, which removed limiter latency from three teams' tail latency reports",
+      "Ran the review that turned undeclared build inputs from a recurring mystery into a build-time failure",
+      "Added a drift metric to the limiter, so an approximate system reports its own error instead of being trusted to have none"
+    ],
+    "technologies": [
+      "Go",
+      "Redis",
+      "Kubernetes",
+      "Terraform",
+      "Grafana",
+      "OpenTelemetry"
+    ],
+    "featured": true
+  },
+  {
+    "id": "freelance-web-2022",
+    "role": "Freelance full-stack developer",
+    "organization": "Various clients",
+    "type": "freelance",
+    "start": "2022-02",
+    "end": "2023-02",
+    "summary": "Short engagements building internal tools for teams that had outgrown a spreadsheet. Most of the work was deciding what not to build, since every brief arrived described as a general system and every real need was a specific one.",
+    "achievements": [
+      "Built a self-serve reporting console around a fixed query vocabulary instead of the general builder the brief asked for",
+      "Delivered an appointment and roster tool that replaced a shared spreadsheet, with an export the previous process depended on",
+      "Handed over each project with a written runbook, because a solo engagement with no handover is a liability disguised as a delivery"
+    ],
+    "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI", "Vitest"],
+    "featured": true
+  },
+  {
+    "id": "research-assistant-2021",
+    "role": "Research assistant, information retrieval",
+    "organization": "Institute of Applied Computing",
+    "organizationUrl": "https://example.com/institute-of-applied-computing",
+    "type": "research",
+    "start": "2021-09",
+    "end": "2022-01",
+    "location": "Addis Ababa, Ethiopia",
+    "summary": "I maintained the evaluation harness for a retrieval group and ran the comparisons that went into two papers. Most of the job was keeping the question set and the judgements stable enough that a comparison meant something.",
+    "achievements": [
+      "Rebuilt the evaluation harness so a run was reproducible from a commit and a question set rather than from someone's shell history",
+      "Documented the judgement criteria that had until then lived in the head of whoever made them"
+    ],
+    "technologies": ["Python", "PostgreSQL", "pgvector", "Evaluation harnesses"],
+    "featured": false
+  },
+  {
+    "id": "software-intern-2021",
+    "role": "Software engineering intern",
+    "organization": "Meridian Data Works",
+    "organizationUrl": "https://example.com/meridian-data-works",
+    "type": "internship",
+    "start": "2021-06",
+    "end": "2021-08",
+    "location": "Remote",
+    "summary": "A summer on an internal tools team. I shipped a small feature end to end and spent the rest of the time reading a codebase considerably older than my experience of them.",
+    "achievements": [
+      "Shipped a saved-filters feature, including the migration and its rollback, with a senior engineer reviewing every step"
+    ],
+    "technologies": ["Python", "SQL", "Docker"],
+    "featured": false
+  },
+  {
+    "id": "bsc-computer-science-2017",
+    "role": "BSc, Computer Science",
+    "organization": "Northfield University",
+    "organizationUrl": "https://example.com/northfield-university",
+    "type": "education",
+    "start": "2017-09",
+    "end": "2021-06",
+    "location": "Addis Ababa, Ethiopia",
+    "summary": "Four years of the fundamentals, with a final-year project on retrieval over a corpus that was too small for the techniques I wanted to use and taught me more for it.",
+    "achievements": [
+      "Final-year project on passage retrieval, which is the thread most of the work since has followed",
+      "Teaching assistant for two semesters of introductory programming"
+    ],
+    "technologies": [],
+    "featured": false
   }
 ]

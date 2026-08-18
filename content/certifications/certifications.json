@@ -1,14 +1,58 @@
 [
   {
-    "id": "placeholder-certification-1",
-    "title": "PLACEHOLDER — certification title",
-    "issuer": "PLACEHOLDER — issuer",
-    "issuerUrl": "https://example.com/placeholder-issuer",
+    "id": "cloud-solutions-architect",
+    "title": "Cloud Solutions Architect, Associate",
+    "issuer": "Northbound Cloud Academy",
+    "issuerUrl": "https://example.com/northbound-cloud-academy",
     "issued": "2025-06",
     "expires": null,
-    "credentialId": "PLACEHOLDER-0000",
-    "credentialUrl": "https://example.com/placeholder-credential",
+    "credentialId": "NCA-SA-4471",
+    "credentialUrl": "https://example.com/verify/NCA-SA-4471",
     "skills": ["Cloud architecture", "Identity and access", "Cost management"],
     "featured": true
+  },
+  {
+    "id": "kubernetes-application-developer",
+    "title": "Certified Kubernetes Application Developer",
+    "issuer": "Meridian Certification Board",
+    "issuerUrl": "https://example.com/meridian-certification-board",
+    "issued": "2024-11",
+    "expires": "2027-11",
+    "credentialId": "CKAD-2024-83612",
+    "credentialUrl": "https://example.com/verify/CKAD-2024-83612",
+    "skills": ["Workload configuration", "Observability", "Service networking"],
+    "featured": true
+  },
+  {
+    "id": "applied-machine-learning",
+    "title": "Applied Machine Learning Specialisation",
+    "issuer": "Institute of Applied Computing",
+    "issued": "2024-04",
+    "expires": null,
+    "credentialUrl": "https://example.com/verify/IAC-AML-1902",
+    "skills": ["Model evaluation", "Feature engineering", "Retrieval systems"],
+    "featured": true
+  },
+  {
+    "id": "database-administration-professional",
+    "title": "Relational Database Administration, Professional",
+    "issuer": "Northfield University Extension",
+    "issuerUrl": "https://example.com/northfield-university-extension",
+    "issued": "2022-03",
+    "expires": "2025-03",
+    "credentialId": "NUE-RDA-0518",
+    "credentialUrl": "https://example.com/verify/NUE-RDA-0518",
+    "skills": ["Query planning", "Replication", "Backup and recovery"],
+    "featured": true
+  },
+  {
+    "id": "accessibility-practitioner",
+    "title": "Web Accessibility Practitioner",
+    "issuer": "Open Accessibility Guild",
+    "issuerUrl": "https://example.com/open-accessibility-guild",
+    "issued": "2023-08",
+    "expires": null,
+    "skills": ["WCAG 2.2 conformance", "Assistive technology testing"],
+    "featured": false
   }
 ]

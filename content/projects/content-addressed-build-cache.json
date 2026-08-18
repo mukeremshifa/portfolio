@@ -1,0 +1,71 @@
+{
+  "slug": "content-addressed-build-cache",
+  "title": "Content-Addressed Build Cache",
+  "summary": "A shared build cache keyed on the hash of a task's real inputs, so a hit means the same work, not merely the same branch and a hopeful timestamp.",
+  "category": "Systems",
+  "status": "in-progress",
+  "featured": false,
+  "order": 6,
+  "year": {
+    "start": "2025",
+    "end": null
+  },
+  "role": "Sole engineer, still building it",
+  "team": "Solo",
+  "technologies": ["Go", "Object storage (R2, S3)", "Bash", "GitHub Actions", "SQLite"],
+  "links": {
+    "github": "https://github.com/mukeremshifa/content-addressed-build-cache",
+    "docs": "https://mukeremshifa.com/docs/content-addressed-build-cache"
+  },
+  "cover": {
+    "src": "/placeholders/placeholder-project-cover-16x9.svg",
+    "alt": "Placeholder standing in for the build cache project cover image.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "Caching a build step is easy until you have to say what makes two runs the same. Branch name and a timestamp are the answers that produce a cache which is fast and occasionally wrong, and a build cache that is occasionally wrong costs more trust than it ever saves in minutes.",
+    "The key here is a hash over the declared inputs of a task: its source files, its tool versions, and the keys of the tasks it depends on. Anything not declared is not in the key, which means an undeclared input is a bug the cache will eventually expose rather than one it will paper over.",
+    "It is unfinished, and the unfinished part is the interesting one. Eviction is still first in, first out, which is the wrong policy for a cache where a small number of entries carry most of the value."
+  ],
+  "capabilities": [
+    "Hashes a task's declared inputs, its toolchain, and its dependencies into one key",
+    "Stores and retrieves artefacts from object storage by that key",
+    "Keeps a local index so a warm machine never asks the network",
+    "Refuses to serve a hit when a declared input is missing rather than hashing around it",
+    "Records which inputs produced each key, so a surprising hit can be explained"
+  ],
+  "features": [
+    {
+      "title": "The key is the whole contract",
+      "body": "Two runs are the same when their declared inputs hash the same. Everything else about the design follows from that sentence, including the parts that are inconvenient, such as pinning tool versions into the key."
+    },
+    {
+      "title": "Undeclared inputs fail loudly",
+      "body": "A task that reads a file it did not declare gets a hit it should not have. The sandbox makes that a failure at record time instead of a wrong artefact at replay time, which is the difference between a bug and a mystery."
+    },
+    {
+      "title": "A local index in front of the network",
+      "body": "Keys and their locations live in a local database, so a warm machine resolves a hit without a round trip. The index is disposable by construction, because anything that cannot be rebuilt from object storage would be a second source of truth."
+    },
+    {
+      "title": "Every key explains itself",
+      "body": "The inputs behind a key are recorded alongside it. When a hit is surprising the answer is a diff of two input sets, not an afternoon of bisecting."
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholders/placeholder-screenshot-16x9.svg",
+      "alt": "Placeholder standing in for the cache statistics view across recent runs.",
+      "caption": "Hit rate per task, which is the only number that says whether this is worth it.",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "src": "/placeholders/placeholder-screenshot-3x2.svg",
+      "alt": "Placeholder standing in for the input diff behind two differing cache keys.",
+      "width": 1500,
+      "height": 1000
+    }
+  ]
+}
