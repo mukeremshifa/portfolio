@@ -14,6 +14,21 @@ const eslintConfig = defineConfig([
     name: "jsx-a11y/recommended-rules",
     rules: jsxA11y.flatConfigs.recommended.rules,
   },
+  // `no-noninteractive-tabindex` allows `tabpanel` and nothing else out of the box. A
+  // scrollable region is the other case where a non-interactive element has to be
+  // focusable: a `<pre>` with `overflow-x: auto` is unreachable by keyboard without a tab
+  // stop, and §8.3 requires `tabindex="0"`, `role="region"`, and an `aria-label` on code
+  // blocks for exactly that reason. Allowing the role here states the decision once,
+  // rather than suppressing the rule at each site that implements it correctly.
+  {
+    name: "jsx-a11y/scrollable-regions-are-focusable",
+    rules: {
+      "jsx-a11y/no-noninteractive-tabindex": [
+        "error",
+        { tags: [], roles: ["tabpanel", "region"], allowExpressionValues: true },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
