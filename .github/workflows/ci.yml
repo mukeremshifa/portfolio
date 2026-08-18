@@ -3,8 +3,9 @@
 #
 # Deviation from §16.2: no `next build` step. Vercel builds every push through its Git
 # integration and reports on the commit and the PR, so repeating it here buys a minute
-# of runtime and no new signal. See docs/DECISIONS.md. Unit tests join this workflow in
-# Phase 2, when Vitest arrives.
+# of runtime and no new signal. See docs/DECISIONS.md. Unit tests joined the matrix in
+# Phase 2, when Vitest arrived; they run the §5.5 cross-file invariants and are advisory
+# for the same reason everything else here is.
 name: CI
 
 on:
@@ -26,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [format:check, lint, typecheck]
+        task: [format:check, lint, typecheck, test:unit]
     steps:
       - uses: actions/checkout@v5
 
