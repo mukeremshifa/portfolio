@@ -36,7 +36,7 @@ export function CertificationCard({
   const expired = certification.expires !== null && certification.expires < currentMonth;
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
+    <article className="group flex h-full flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="font-mono text-eyebrow text-text-muted uppercase">
           {formatMonth(certification.issued)}
@@ -57,7 +57,13 @@ export function CertificationCard({
         </Heading>
         <p className="font-sans text-body text-text-muted">
           {certification.issuerUrl ? (
-            <ExternalLink href={certification.issuerUrl}>
+            /* Same contrast fix as the project card: the card surface shifts under
+               these links on hover, and `brand` on `surface-alt` measures 4.17:1 in
+               dark mode, under AA. `brand-hover` there is 6.03:1. */
+            <ExternalLink
+              href={certification.issuerUrl}
+              className="group-hover:text-brand-hover"
+            >
               {certification.issuer}
             </ExternalLink>
           ) : (
@@ -78,7 +84,10 @@ export function CertificationCard({
 
       {certification.credentialUrl ? (
         <p className="font-sans text-body-sm">
-          <ExternalLink href={certification.credentialUrl}>
+          <ExternalLink
+            href={certification.credentialUrl}
+            className="group-hover:text-brand-hover"
+          >
             Verify credential <span aria-hidden="true">&#8599;</span>
           </ExternalLink>
         </p>

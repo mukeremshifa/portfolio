@@ -629,3 +629,22 @@ the test `CopyButton` and `lib/og.ts` passed in Phase 2.
 routes render it. One component is what stops the closing call to action saying one thing
 at the bottom of the home page and something else at the bottom of a project.
 **Affects:** §4, §5.1, §9.3
+
+## 2026-08-18 — `brand` on `surface-alt` fails AA in dark mode, so card links brighten on card hover
+
+**Context:** §6.8 shifts a card's background to `surface-alt` on hover, and Phase 3 is the
+first phase to put brand-coloured links *inside* cards. Measured across every pairing this
+phase introduces: `brand` (`#3b82f6`) on dark `surface-alt` (`#1d2536`) is **4.17:1**, under
+AA for body-size text. At rest, on `surface`, the same link is 4.63:1 and passes.
+**Decision:** Links inside a hover-shifting card carry `group-hover:text-brand-hover`, so
+they brighten with the background instead of being left behind by it. `brand-hover` on
+`surface-alt` measures 6.03:1 dark and 9.75:1 light. Applied in `ProjectCard` and
+`CertificationCard`.
+**Reason:** The failure only exists in the hover state, which is exactly the state a
+contrast check done by eye never catches — the pointer is on the element and the reviewer is
+looking at the cursor. It was found by computing all 36 pairings this phase introduces from
+the token values in `globals.css` rather than by inspection.
+**Also, for whoever adds the next card:** `brand` on `surface-alt` is not a usable pairing
+in dark mode. Anything brand-coloured that can end up on `surface-alt` needs `brand-hover`,
+which is the same shape of problem `brand-solid-hover` was added for in v2.1.2.
+**Affects:** §6.1, §6.3, §6.8, §11.4

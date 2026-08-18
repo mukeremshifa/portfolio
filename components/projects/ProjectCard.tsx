@@ -123,24 +123,39 @@ export function ProjectCard({
           // `relative z-10` lifts these above the title's stretched overlay. Without it
           // the overlay would swallow the clicks and every link on the card would
           // navigate to the project page instead.
+          //
+          // `group-hover:text-brand-hover` is a contrast fix, not a flourish. The card
+          // shifts to `surface-alt` whenever the pointer is anywhere on it, and in dark
+          // mode `brand` on `surface-alt` measures 4.17:1, under AA for body-size text.
+          // `brand-hover` there is 6.03:1 (9.75:1 light), so the links brighten with the
+          // background rather than being left behind by it.
           <ul className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 font-sans text-body-sm">
             {project.links.live ? (
               <li>
-                <ExternalLink href={project.links.live}>
+                <ExternalLink
+                  href={project.links.live}
+                  className="group-hover:text-brand-hover"
+                >
                   Live <span aria-hidden="true">&#8599;</span>
                 </ExternalLink>
               </li>
             ) : null}
             {project.links.github ? (
               <li>
-                <ExternalLink href={project.links.github}>
+                <ExternalLink
+                  href={project.links.github}
+                  className="group-hover:text-brand-hover"
+                >
                   Source <span aria-hidden="true">&#8599;</span>
                 </ExternalLink>
               </li>
             ) : null}
             {project.links.docs ? (
               <li>
-                <ExternalLink href={project.links.docs}>
+                <ExternalLink
+                  href={project.links.docs}
+                  className="group-hover:text-brand-hover"
+                >
                   Docs <span aria-hidden="true">&#8599;</span>
                 </ExternalLink>
               </li>
