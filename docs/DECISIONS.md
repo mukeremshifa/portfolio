@@ -586,17 +586,27 @@ The alternative was a visually hidden `h2` above each list, which puts a real el
 the accessibility tree purely to fill a gap in a prop type.
 **Affects:** §9.3, §11.1
 
-## 2026-08-18 — Every static route keeps the root OG card
+## 2026-08-18 — Every static route points at the root OG card, because the convention does not cascade
 
 **Context:** §13.4 targets 1200×630 per route plus one per project, but the card it
-specifies carries project title, category, and wordmark — content only projects have.
-**Decision:** The five static routes fall through to `app/opengraph-image.tsx`. Only
-projects get a generated card of their own.
-**Reason:** When someone shares `/about`, the accurate thing to show is the name and the
-role, which is exactly what the root card already renders. Five near-identical cards
-differing only in a page title is five build steps for no gain. Logged so Phase 6 revisits
-it deliberately rather than discovering it.
-**Affects:** §13.4
+specifies carries project title, category, and wordmark — content only projects have. The
+plan was to let the five static routes fall through to `app/opengraph-image.tsx`.
+**Decision:** They do not fall through, so `buildMetadata` defaults `image` to
+`/opengraph-image` and takes `image: null` from the two routes that generate a card in
+their own segment.
+**Reason:** The `opengraph-image` file convention sets the image **for the segment it sits
+in**, not for that segment's children. `app/opengraph-image.tsx` therefore covered `/`
+alone, and `/projects`, `/experience`, `/about`, `/certifications`, and `/contact` were
+emitting no `og:image` at all — worse than either option that had been weighed. Found by
+reading `og:image` off the built HTML rather than by reasoning about the convention. The
+alternative fix was five files re-exporting the root route, which generates five identical
+PNGs at build time to say one thing.
+**Cost:** The default URL carries no cache-busting hash, which only the convention can
+append. It resolves either way; revalidation after a redeploy is weaker.
+**Also:** When someone shares `/about`, the accurate thing to show is still the name and
+the role, which is what the root card renders. Phase 6 can revisit per-route cards
+deliberately rather than discovering the question.
+**Affects:** §13.1, §13.4
 
 ## 2026-08-18 — `jsonLdScript`'s escape was a no-op, and had been since Phase 2
 
