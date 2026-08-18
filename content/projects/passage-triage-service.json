@@ -15,7 +15,7 @@
   "technologies": ["Python", "PostgreSQL", "pgvector"],
   "links": {
     "github": "https://github.com/mukeremshifa/passage-triage-service",
-    "docs": "https://mukeremshifa.com/docs/passage-triage-service"
+    "docs": "https://docs.mukeremshifa.com/passage-triage-service"
   },
   "cover": {
     "src": "/placeholders/placeholder-project-cover-16x9.svg",
