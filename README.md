@@ -3,8 +3,10 @@
 Personal portfolio website for Mukerem Shifa, AI Engineer & Full-Stack Developer.
 Domain: [mukeremshifa.com](https://mukeremshifa.com)
 
-Status: **Phase 0 — foundations.** Toolchain, configuration, and hosting are wired up. The
-deployed page is a deliberate placeholder; design tokens and real content start in Phase 1.
+Status: **Phase 2 — golden sample.** The content model, its validation gate, and
+`/projects/[slug]/` are built against one deliberately hard sample project. Copy and
+imagery are placeholders under section 5.6 until the Phase 5 content sweep; crawling is
+blocked by `app/robots.ts` until Phase 6 flips `ALLOW_INDEXING`.
 
 ## Documentation
 
@@ -31,7 +33,8 @@ pnpm).
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3000
-pnpm check        # format:check + lint + typecheck
+pnpm check        # format:check + lint + typecheck + unit tests
+pnpm test:unit    # vitest — the section 5.5 cross-file invariants
 pnpm build        # production build
 pnpm start        # serve the production build
 ```
