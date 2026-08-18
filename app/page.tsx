@@ -23,6 +23,8 @@ export const metadata: Metadata = buildMetadata({
   title: getSite().seo.title,
   description: getSite().seo.description,
   path: "/",
+  // app/opengraph-image.tsx sits in this segment and supplies the card.
+  image: null,
 });
 
 // §8.1's "Experience snapshot" and "Credentials" are page-level filters over the existing

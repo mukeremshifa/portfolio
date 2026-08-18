@@ -39,6 +39,8 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
     title: project.seo?.title ?? project.title,
     description: project.seo?.description ?? project.summary,
     path: `/projects/${project.slug}`,
+    // This segment generates its own card from the project (§13.4).
+    image: null,
     type: "article",
   });
 }
