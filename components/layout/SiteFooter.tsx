@@ -3,10 +3,10 @@ import Link from "next/link";
 import type { NavItem } from "@/components/layout/MainNav";
 import { Container } from "@/components/ui/Container";
 import { ExternalLink } from "@/components/ui/ExternalLink";
-import type { SiteIdentity } from "@/lib/site";
+import type { Site } from "@/lib/schemas";
 
 type SiteFooterProps = {
-  site: SiteIdentity;
+  site: Site;
   nav: NavItem[];
 };
 
