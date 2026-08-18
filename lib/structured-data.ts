@@ -179,7 +179,13 @@ export function projectJsonLd(project: Project): JsonLd {
  * The `<` escape is not optional: `JSON.stringify` does not sanitise strings, and
  * content is authored input. Escaping the one character that can close the script
  * element is what keeps a stray `</script>` in a code snippet from ending the block.
+ *
+ * **The replacement is a backslash-escape, not a unicode escape.** Written with one
+ * backslash it is a unicode escape in *this* file, evaluates to `<`, and makes the whole
+ * call a no-op that reads exactly like a working one. Phase 2 shipped that version and it
+ * went unnoticed until `tests/unit/structured-data.test.ts` asserted on the output rather
+ * than on the intent. JSON reads the escape back as `<`, so the parsed value is unchanged.
  */
 export function jsonLdScript(data: JsonLd): string {
-  return JSON.stringify(data).replaceAll("<", "\u003c");
+  return JSON.stringify(data).replaceAll("<", "\\u003c");
 }
