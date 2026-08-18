@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="Placeholder, 16:9, 1600 by 900">
+  <rect width="1600" height="900" fill="#cfd3da"/>
+  <g stroke="#8a8f99" stroke-width="4" fill="none">
+    <path d="M0 0 L1600 900 M1600 0 L0 900"/>
+    <rect x="18" y="18" width="1564" height="864"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#3b414c" text-anchor="middle">
+    <text x="800" y="450" font-size="144" font-weight="700" dy="0.1em">16:9</text>
+    <text x="800" y="572.4" font-size="58" dy="0.8em">1600 × 900</text>
+    <text x="800" y="98" font-size="40" letter-spacing="6">PROJECT COVER PLACEHOLDER</text>
+  </g>
+</svg>

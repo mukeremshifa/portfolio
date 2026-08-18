@@ -1,0 +1,14 @@
+[
+  {
+    "id": "placeholder-certification-1",
+    "title": "PLACEHOLDER — certification title",
+    "issuer": "PLACEHOLDER — issuer",
+    "issuerUrl": "https://example.com/placeholder-issuer",
+    "issued": "2025-06",
+    "expires": null,
+    "credentialId": "PLACEHOLDER-0000",
+    "credentialUrl": "https://example.com/placeholder-credential",
+    "skills": ["Cloud architecture", "Identity and access", "Cost management"],
+    "featured": true
+  }
+]
