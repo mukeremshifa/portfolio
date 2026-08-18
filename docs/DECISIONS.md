@@ -448,3 +448,184 @@ which is the drift §6's token discipline exists to prevent.
 **Also:** `public/og/` in §4's tree is not created. OG cards are generated at build time by
 `ImageResponse`; there is no static asset to put there.
 **Affects:** §4, §9.1, §12.4, §13.4
+
+## 2026-08-18 — Stub content becomes the permanent operating assumption
+
+**Context:** Phase 3 builds five pages against a design the owner has not seen, and every
+resource they would eventually supply changes anyway: the résumé gets updated, the address
+changes, projects are added and retired, credentials expire.
+**Decision:** Treat stubs as the operating assumption rather than as a wait state. The
+requirement is not "use placeholders until the real thing arrives" but "every resource the
+owner would ever supply is swappable by editing `content/` or dropping a file into
+`public/`, and nothing they change requires touching a component." `docs/STUB-INVENTORY.md`
+carries the swap matrix and the inventory of what is currently synthetic.
+**Reason:** Phase 2 proved this for exactly one resource (adding a project) and tested it
+literally. Extending it to all of them turns four open §19 questions from blockers into
+values. Verified by performing every row: change the value, rebuild, confirm the site
+follows, confirm `git status` shows nothing outside `content/` and `public/`, revert. All
+rows pass, including removing `portrait` and `resume` entirely and adding and deleting a
+project file.
+**Cost:** Structurally realistic stubs are hard to tell from real content, which makes
+Phase 5's sweep larger and less visible rather than smaller. The inventory is the whole
+mitigation, and it stops being one the day it drifts. `tests/unit/stubs.test.ts` holds the
+half a machine can check.
+**Affects:** §5.2, §5.6, §18 Phases 3 and 5, §19
+
+## 2026-08-18 — `resume.url` accepts a root-relative path; `socials[].url` does not
+
+**Context:** §5.2 typed `resume.url` as `z.url()`, which `/placeholders/placeholder-resume.pdf`
+fails.
+**Decision:** A shared `AssetPathOrUrl` union accepts an absolute URL or a root-relative
+path, and `resume.url` uses it. `socials[].url` stays `z.url()`.
+**Reason:** The résumé is a same-origin asset. The only alternative was writing the
+production origin into a content file, which hard-codes the value `SITE_ORIGIN` exists to
+derive exactly once — it would break on localhost and emit a production URL from every
+preview (§16.4). The union is deliberately not applied to socials: those destinations are
+genuinely external, and a relative social link is always a mistake rather than a case worth
+admitting.
+**Affects:** §5.2, §16.4
+
+## 2026-08-18 — `site.portrait` added, and its optionality is the feature
+
+**Context:** §8.1 names `ProfileVisual` and requires the hero to collapse to a single
+column when it is absent, but §5.2 gave it no source at all.
+**Decision:** An optional `portrait` on `SiteSchema`, shaped like §5.3's images and
+carrying the same required `width`/`height`. Placeholder at
+`public/placeholders/placeholder-portrait-4x5.svg`, 1000×1250.
+**Reason:** Optional is load-bearing rather than incidental. Absence has to be reachable by
+deleting the field, because that is the state the owner lands in when the real photograph
+does not arrive, and §8.1 specifies what the layout does there. Verified by deleting the
+field and rebuilding: the hero renders one column and the `Person` graph carries no
+`image`.
+**Also:** The schema's `alt: z.string().min(10)` will want revisiting in Phase 5. A
+portrait beside its subject's own name and role is arguably decorative under §11.4, which
+would want `alt=""`, and the schema forbids it. Noted rather than weakened for a
+placeholder.
+**Affects:** §5.2, §8.1, §11.4
+
+## 2026-08-18 — `/contact/` ships in Phase 3, without the form
+
+**Context:** §18 gave `/contact/` to Phase 4, but §7.1 lists it as a route, Phase 3's exit
+criterion is that every route in §7.1 is built, and the header CTA, the footer, and every
+`ContactCallout` link to it.
+**Decision:** Build the page now on §8.7's degraded path: `h1`, lead, the direct `mailto:`,
+LinkedIn, GitHub. No form, no honeypot, no submission live region. Phase 4 adds
+`ContactForm` behind `site.contact.endpoint` at a marked slot, and nothing else moves.
+**Reason:** Shipping a phase whose most prominent call to action is a 404 is worse than
+shipping the page. This is not a Phase 4 behaviour built early: §8.7 already specifies that
+the form renders only when the endpoint exists and that without it the page shows the
+direct channels alone, and `content/site.json` carries no endpoint. §21 forbids "coming
+soon" sections, and the direct channels are a finished way to make contact rather than a
+stand-in for one.
+**Affects:** §8.7, §18 Phases 3 and 4
+
+## 2026-08-18 — The section rhythm is §6.7's, and the section dividers go
+
+**Context:** §6.7 specifies 64px mobile and 112px desktop section padding, and a 32px gap
+between a section heading and its content. Phase 2's `/projects/[slug]/` shipped 48 and 24.
+With one page that was invisible; with seven it is the thing that makes a site look
+unconsidered.
+**Decision:** Keep §6.7's numbers unchanged, name them once as `--spacing-section`,
+`--spacing-section-lg`, and `--spacing-heading` so every page spells the rhythm as
+`py-section md:py-section-lg` and `gap-heading`, and retrofit `/projects/[slug]/` in the
+same commit. Remove that page's per-section `border-t`.
+**Reason:** The alternative was re-deciding a design number the owner has not seen yet,
+which is exactly what this phase exists to let them do. Naming the values means changing
+the rhythm later is three lines in `globals.css` rather than a search. The dividers go
+because at 112px the space is already the break, and a rule on top of it made a long
+technical page read like a settings screen — §6.7 asks for a border on cards, not between
+sections. The one divider that survives is `CaseStudyNavigation`'s, where it separates the
+article from the way out of it.
+**Affects:** §6.7, §8.3
+
+## 2026-08-18 — The project filter is a toolbar with `aria-pressed`
+
+**Context:** §8.2 conveys selection with text weight, a border change, and `aria-pressed`,
+which is toggle-button semantics. §11.2 wants arrow keys between options with Enter or
+Space selecting, which is radiogroup or toolbar semantics. `aria-pressed` and a radiogroup
+are incompatible; the radiogroup spelling is `aria-checked`.
+**Decision:** `role="toolbar"` with `aria-pressed` buttons and a roving `tabindex`. One
+button holds `tabindex="0"` and the rest `-1`; arrow keys move focus, Home and End jump to
+the ends, and Enter and Space select by native button behaviour.
+**Reason:** It honours §8.2's explicit `aria-pressed` and gets §11.2's arrow keys from the
+pattern toolbars exist for, without either section having to give. Focus is moved
+imperatively only in response to a key press, never on mount — a component that focuses
+itself when it renders takes focus from wherever the reader actually was.
+**Also:** ESLint needed no widening. The `no-noninteractive-tabindex` rule that `CodeBlock`
+ran into is about non-interactive elements, and these are buttons.
+**Affects:** §8.2, §11.2
+
+## 2026-08-18 — §10.2's filter animation gets a third motion wrapper
+
+**Context:** §10.2 specifies that the project filter uses Motion `layout` so cards
+reposition over `base`. §9.4 makes `components/motion/*` the only importers of
+`motion/react`, and neither `Reveal` nor `Stagger` exposes `layout`.
+**Decision:** Add `components/motion/LayoutItem.tsx`, a thin `motion.div` or `motion.li`
+with `layout` and the `base` duration. `ProjectGrid` composes it and does not import Motion.
+**Reason:** §10's binding test first: remove the repositioning and filtering becomes a grid
+whose contents are replaced in place, with nothing to tell the reader which cards survived
+the filter from which are new. That is movement carrying information, unlike Phase 1's nav
+underline, which described a navigation the user had already completed. Given that it
+ships, it needs a home — §9.4's islands framing stops being true the moment one domain
+component reaches past it, and Phase 1 already paid to keep that honest once.
+**Also:** `MotionConfig reducedMotion="user"` covers reduced motion, since a `layout`
+animation is a transform: filtered cards jump rather than glide.
+**Affects:** §9.4, §10.2
+
+## 2026-08-18 — `headingLevel` widens to include `h2`
+
+**Context:** §9.3 types `headingLevel` as `"h3" | "h4"`, written when the only consumer was
+a section on the home page. Walking the heading outline of the built HTML showed
+`/projects/`, `/experience/`, and `/certifications/` each skipping from `h1` to `h3`.
+**Decision:** One shared `HeadingLevel = "h2" | "h3" | "h4"`, used by `ProjectCard`,
+`ProjectGrid`, `CertificationCard`, `CertificationGrid`, `ExperienceEntry`, and
+`ExperienceTimeline`. The three index routes pass `h2`.
+**Reason:** On an index route the item *is* a top-level item under the page `h1`, so `h2`
+is the correct level, and §11.1's "heading levels never skip" is not otherwise satisfiable.
+The alternative was a visually hidden `h2` above each list, which puts a real element into
+the accessibility tree purely to fill a gap in a prop type.
+**Affects:** §9.3, §11.1
+
+## 2026-08-18 — Every static route keeps the root OG card
+
+**Context:** §13.4 targets 1200×630 per route plus one per project, but the card it
+specifies carries project title, category, and wordmark — content only projects have.
+**Decision:** The five static routes fall through to `app/opengraph-image.tsx`. Only
+projects get a generated card of their own.
+**Reason:** When someone shares `/about`, the accurate thing to show is the name and the
+role, which is exactly what the root card already renders. Five near-identical cards
+differing only in a page title is five build steps for no gain. Logged so Phase 6 revisits
+it deliberately rather than discovering it.
+**Affects:** §13.4
+
+## 2026-08-18 — `jsonLdScript`'s escape was a no-op, and had been since Phase 2
+
+**Context:** `jsonLdScript` replaced `<` with a replacement written as a unicode escape. In
+a JavaScript source file that evaluates to the character `<`, so the call replaced `<` with
+itself.
+**Decision:** The replacement is now the escape sequence as literal characters. A test in
+`tests/unit/structured-data.test.ts` asserts on the serialised output rather than on the
+intent.
+**Reason:** Worth recording because the broken version reads exactly like the working one
+and survived review twice. It only mattered once content could contain markup — a snippet
+containing a closing script tag would have ended the JSON-LD block early — and Phase 3's
+snippets contain plenty of angle brackets. Logged so nobody simplifies it back.
+**Affects:** §13.2
+
+## 2026-08-18 — Phase 3 additions outside §4's file tree
+
+**Context:** Four modules exist that §4's repository layout does not list.
+**Decision:** `components/projects/ProjectExplorer.tsx` is the one client island holding
+filter state, so `app/projects/page.tsx` can stay a server component that reads content and
+passes it down. `components/projects/CaseStudySummary.tsx` is the challenge, decision, and
+outcome list, extracted when the home page needed the same three rows as
+`/projects/[slug]/`. `components/motion/LayoutItem.tsx` is above. `getCategoryFilters`
+lives in `lib/content.ts` rather than `lib/utils.ts` because it needs the `Category` enum at
+runtime, and `lib/utils.ts` is imported by client components — a value import of the schema
+module there would pull Zod into the browser bundle for a three-element array.
+**Reason:** Each is the smallest file that makes an already-specified thing work, which is
+the test `CopyButton` and `lib/og.ts` passed in Phase 2.
+**Also:** `ContactCallout` stays in `components/home/` where §4 puts it, even though three
+routes render it. One component is what stops the closing call to action saying one thing
+at the bottom of the home page and something else at the bottom of a project.
+**Affects:** §4, §5.1, §9.3

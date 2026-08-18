@@ -3,17 +3,24 @@
 Personal portfolio website for Mukerem Shifa, AI Engineer & Full-Stack Developer.
 Domain: [mukeremshifa.com](https://mukeremshifa.com)
 
-Status: **Phase 2 — golden sample.** The content model, its validation gate, and
-`/projects/[slug]/` are built against one deliberately hard sample project. Copy and
-imagery are placeholders under section 5.6 until the Phase 5 content sweep; crawling is
-blocked by `app/robots.ts` until Phase 6 flips `ALLOW_INDEXING`.
+Status: **Phase 3 — every page built.** All seven routes in section 7.1 exist and no
+internal link 404s. They are built against an expanded stub content set, so every layout is
+exercised at the lengths and in the combinations real content will have, and the design can
+be reviewed end to end before any of it is written.
+
+Every resource the owner supplies is a content change: the portrait, the resume, the
+address, the email, a project, a credential. Editing `content/` or dropping a file into
+`public/` is the whole procedure, and each row of that table was verified by doing it. Copy
+and imagery are stubs under section 5.6 until the Phase 5 sweep; crawling is blocked by
+`app/robots.ts` until Phase 6 flips `ALLOW_INDEXING`.
 
 ## Documentation
 
 | Document | What it covers |
 | --- | --- |
-| [docs/PORTFOLIO_SPEC.md](docs/PORTFOLIO_SPEC.md) | Specification v2.1: stack, content model, design system, page specs, accessibility, testing, deployment, and a seven-phase delivery plan |
+| [docs/PORTFOLIO_SPEC.md](docs/PORTFOLIO_SPEC.md) | Specification v2.1.5: stack, content model, design system, page specs, accessibility, testing, deployment, and a seven-phase delivery plan |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Append-only log of decisions that change the spec |
+| [docs/STUB-INVENTORY.md](docs/STUB-INVENTORY.md) | Where every owner-supplied resource lives and what swapping it costs, plus every field currently holding a stub. Phase 5 is done when the second table is empty |
 
 Start with section 18 (Delivery plan) for what to build next, and section 19 (Open
 questions) for what still needs an answer.
@@ -34,7 +41,7 @@ pnpm).
 pnpm install
 pnpm dev          # http://localhost:3000
 pnpm check        # format:check + lint + typecheck + unit tests
-pnpm test:unit    # vitest — the section 5.5 cross-file invariants
+pnpm test:unit    # vitest — section 5.5 invariants, the loader, derived data, JSON-LD
 pnpm build        # production build
 pnpm start        # serve the production build
 ```

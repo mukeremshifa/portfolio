@@ -295,8 +295,14 @@ export const SiteSchema = z.object({
     label: z.string().max(60),
   }),
   resume: z.object({
-    url: z.url(),
+    url: AssetPathOrUrl,                         // root-relative path or absolute URL
     updated: z.string().regex(/^\d{4}-\d{2}$/),
+  }).optional(),
+  portrait: z.object({                           // §8.1's ProfileVisual; absence collapses
+    src: z.string(),                             //   the hero to a single column
+    alt: z.string().min(10),
+    width: z.int().positive(),
+    height: z.int().positive(),
   }).optional(),
   socials: z.array(z.object({
     platform: z.enum(["github", "linkedin", "email", "x", "other"]),
@@ -315,6 +321,22 @@ export const SiteSchema = z.object({
   }),
 });
 ```
+
+`AssetPathOrUrl` is `z.union([z.url(), z.string().regex(/^\/[^\s]*$/)])`. `resume.url` needs
+it because the résumé is a same-origin asset: `z.url()` rejects `/placeholders/…`, and the
+only way to satisfy it was to write the production origin into a content file — which
+`SITE_ORIGIN` exists to derive exactly once, and which would break on localhost and emit a
+production URL from every preview (§16.4). `socials[].url` deliberately stays `z.url()`:
+those destinations are genuinely external, and a relative social link is always a mistake
+rather than a case worth admitting.
+
+`portrait` is optional, and the optionality is load-bearing rather than incidental. §8.1
+requires the hero to collapse to a single column when there is no `ProfileVisual`, so
+absence is a rendered state that has to be reachable by deleting the field. `width` and
+`height` are required for the same reason §5.3's images carry them. `alt` carries the same
+10-character floor, which is worth revisiting once a real photograph exists: a portrait
+beside its subject's own name and role is arguably decorative under §11.4, and `alt=""` is
+what §11.4 would then want. Do not weaken the floor for a placeholder.
 
 ### 5.3 `content/projects/<slug>.json`
 
@@ -471,6 +493,13 @@ During Phases 0 through 4, real content will not exist yet. That is expected, no
 - **Before launch**, everything under this policy gets swept: no placeholder image, no stub
   copy, no lorem-ipsum-style text ships in the final build. This sweep is the exit criterion
   for Phase 5 (§18), not a rule enforced on every commit before then.
+- **The sweep has a checklist, not a search.** From Phase 3, every stub is listed in
+  `docs/STUB-INVENTORY.md` and the exit criterion is that the inventory is empty. Phase 3's
+  stubs are deliberately realistic — a stub email looks like an email, so the design can be
+  judged through content that behaves like content — and the cost of that is that grepping
+  for the word "placeholder" no longer finds them. The inventory is the mitigation, and it
+  stops being one the moment it drifts out of date. A test in `tests/unit/` holds the half a
+  machine can check: every image `src` in `content/` still points under `/placeholders/`.
 
 ---
 
@@ -910,6 +939,15 @@ h1  Contact
   direct channels alone.
 - The direct `mailto:` link is always present regardless of form state.
 
+**The page ships in Phase 3 on the degraded path; the form arrives in Phase 4.** §18
+originally gave the whole route to Phase 4, but §7.1 lists it, Phase 3's exit criterion is
+that every route in §7.1 is built, and the header CTA, the footer, and every
+`ContactCallout` link to it — so deferring it meant shipping a phase whose most prominent
+call to action was a 404. Building it now is not a Phase 4 behaviour built early: the two
+clauses above already specify this exact state, and `content/site.json` carries no
+`endpoint`. Phase 4 adds `ContactForm` behind the endpoint check and nothing else on the
+page moves.
+
 ### 8.8 Not found — `/404`
 
 `h1` "Page not found," one line of explanation, three links: home, projects, contact.
@@ -992,13 +1030,16 @@ type VisuallyHiddenProps = { children: React.ReactNode; focusable?: boolean };
 ### 9.3 Domain components
 
 ```ts
+// HeadingLevel is "h2" | "h3" | "h4". An index route renders its items directly under the
+// page h1, so h2 is the correct level there, and §11.1's "heading levels never skip" is
+// not satisfiable without it. See docs/DECISIONS.md.
 type ProjectCardProps = {
   project: Project;
   variant?: "featured" | "standard";
-  headingLevel?: "h3" | "h4";
+  headingLevel?: HeadingLevel;
 };
 
-type ProjectGridProps = { projects: Project[]; headingLevel?: "h3" | "h4" };
+type ProjectGridProps = { projects: Project[]; headingLevel?: HeadingLevel };
 
 type ProjectFilterProps = {
   categories: { value: Category | "all"; label: string; count: number }[];
@@ -1010,9 +1051,16 @@ type ProjectFactsProps = { project: Project };
 
 type CaseStudyNavigationProps = { prev?: ProjectRef; next?: ProjectRef };
 
-type ExperienceTimelineProps = { entries: ExperienceEntry[]; compact?: boolean };
+type ExperienceTimelineProps = {
+  entries: ExperienceEntry[];
+  compact?: boolean;
+  headingLevel?: HeadingLevel;
+};
 
-type CertificationCardProps = { certification: Certification; headingLevel?: "h3" };
+type CertificationCardProps = {
+  certification: Certification;
+  headingLevel?: HeadingLevel;
+};
 
 type ContactFormProps = { endpoint: string; email: string };
 ```
@@ -1029,7 +1077,11 @@ type RevealProps = {
 type StaggerProps = {
   children: React.ReactNode;
   step?: number;
+  as?: "div" | "section" | "li";
 };
+
+// §10.2's project-filter row needs `layout`, which neither wrapper above exposes.
+type LayoutItemProps = { children: React.ReactNode; as?: "div" | "li" };
 ```
 
 These are the only components that import from `motion/react` outside `app/layout.tsx`.
@@ -1523,16 +1575,24 @@ component changes.
 - Home: all seven sections in order (§8.1).
 - `/projects/` with the filter and its live region.
 - `/experience/`, `/about/`, `/certifications/`.
+- `/contact/` on §8.7's degraded path: the direct channels, no form (moved from Phase 4).
 - `CaseStudyNavigation` and the contact callout on project pages (§8.3's last two rows;
   held back from Phase 2 because with one project prev/next renders two dead ends).
+- An expanded stub content set, so every layout is exercised at the lengths and in the
+  combinations real content will have, plus `docs/STUB-INVENTORY.md` to bound Phase 5's
+  sweep of it.
 
-**Exit:** every route in §7.1 is built and reads as finished (with placeholder content).
+**Exit:** every route in §7.1 is built and reads as finished (with placeholder content),
+and every resource the owner supplies is swappable by editing `content/` or dropping a file
+into `public/` — verified by performing each row of the swap matrix rather than asserting
+it.
 
 ### Phase 4 — Contact path
 
 - Contact endpoint implementing §14, on whatever host was chosen.
 - `ContactForm` with validation, error wiring, live regions, honeypot.
-- `/contact/` page with the direct channels always present.
+- `ContactForm` slotted into the `/contact/` page behind `site.contact.endpoint`. The page
+  itself was built in Phase 3; nothing else on it moves.
 
 **Exit:** a real message arrives; disabling the endpoint degrades to the email-only path.
 
@@ -1577,7 +1637,14 @@ Phase 0. **Typography roles** confirmed by the owner as specified — Source Ser
 display, Instrument Sans for body and UI, IBM Plex Mono for code, tags, and eyebrows —
 and built in Phase 1 (§6.6).
 
-What is left genuinely needs your input:
+**None of the four below blocks anything as of 2026-08-18.** Phase 3 made each of them a
+value rather than a decision: the mailbox, the handles, the résumé, the hero visual, and
+the project set are all rows of the swap matrix in `docs/STUB-INVENTORY.md`, each swapped
+by editing `content/` or dropping a file into `public/`. Q2 stays a one-file seam behind
+`sendEmail()`. Raise one of these again only if something makes it structural rather than
+a value.
+
+What is left genuinely needs your input, eventually:
 
 | # | Question | Why it matters | Needed by |
 |---|---|---|---|
@@ -1681,6 +1748,7 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1.5 | 2026-08-18 | §5.2 gains an optional `portrait` (§8.1 named `ProfileVisual` but no schema supplied it) and relaxes `resume.url` to a root-relative path or an absolute URL, since the résumé is a same-origin asset and the alternative hard-coded the origin into content. §8.7 and §18: `/contact/` ships in Phase 3 on the degraded path the section already specifies, with `ContactForm` still Phase 4. §9.3's `headingLevel` widens to include `h2`, which index routes need to avoid skipping a level. §9.4 gains `LayoutItem` for §10.2's filter animation. §5.6 points the launch sweep at `docs/STUB-INVENTORY.md`. §19's four questions are recorded as non-blocking. |
 | 2.1.4 | 2026-08-18 | §5.3 gains required `width`/`height` on `cover` and `screenshots[]`: `next/image` needs intrinsic dimensions and `unoptimized: true` does not change that. §18 Phase 2 gains OG image generation (moved from Phase 3) and the Vitest wiring; Phase 3's line about it is now scoped to `CaseStudyNavigation` and the contact callout. |
 | 2.1.3 | 2026-08-15 | §16.1 gains an explicit merge strategy (rebase into `dev`, fast-forward into `main`, never squash a branch that outlives the merge), a no-force-push rule for `dev` and `main`, phase tags, and a promotion cadence with the reasoning behind it. §13.3 gains the environment-flagged crawl block that makes promoting before launch safe. |
 | 2.1.2 | 2026-08-15 | `brand-solid-hover` added to §6.2, §6.3, and §6.4. §6.3 defined no hover fill for a filled button in dark mode, and reusing `brand-hover` there put white text on `#60A5FA` at 2.60:1. New token, no existing value changed. |
