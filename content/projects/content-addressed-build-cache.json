@@ -15,7 +15,7 @@
   "technologies": ["Go", "Object storage (R2, S3)", "Bash", "GitHub Actions", "SQLite"],
   "links": {
     "github": "https://github.com/mukeremshifa/content-addressed-build-cache",
-    "docs": "https://mukeremshifa.com/docs/content-addressed-build-cache"
+    "docs": "https://docs.mukeremshifa.com/content-addressed-build-cache"
   },
   "cover": {
     "src": "/placeholders/placeholder-project-cover-16x9.svg",
