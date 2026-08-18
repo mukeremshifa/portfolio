@@ -1,0 +1,28 @@
+[
+  {
+    "id": "independent-engineering-2025",
+    "role": "PLACEHOLDER — role title",
+    "organization": "PLACEHOLDER — organization",
+    "organizationUrl": "https://example.com/placeholder-organization",
+    "type": "independent",
+    "start": "2025-01",
+    "end": null,
+    "location": "PLACEHOLDER — city, country",
+    "summary": "PLACEHOLDER — a summary paragraph of roughly the right length, long enough to exercise the entry layout and the measure without pretending to be the real history that Phase 5 will write.",
+    "achievements": [
+      "PLACEHOLDER — an achievement stated as verifiable scope rather than an invented metric",
+      "PLACEHOLDER — a second achievement, long enough to wrap on a narrow viewport",
+      "PLACEHOLDER — a third achievement"
+    ],
+    "technologies": [
+      "TypeScript",
+      "Next.js",
+      "PostgreSQL",
+      "Docker",
+      "Terraform",
+      "OpenTelemetry",
+      "GitHub Actions"
+    ],
+    "featured": true
+  }
+]
