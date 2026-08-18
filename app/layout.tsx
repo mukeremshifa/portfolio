@@ -8,7 +8,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { ThemeScript } from "@/components/layout/ThemeScript";
 import { MotionProvider } from "@/components/motion/MotionProvider";
-import { getSite } from "@/lib/site";
+import { getSite } from "@/lib/content";
+import { INDEXING_ALLOWED, SITE_ORIGIN } from "@/lib/metadata";
 import "./globals.css";
 
 // §6.6 / §12.3: three families, self-hosted at build, `display: swap`. Each declares
@@ -40,36 +41,37 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
 });
 
-// Production sets NEXT_PUBLIC_SITE_URL to the canonical apex. Preview deployments
-// leave it unset on purpose (spec §16.4) so metadata resolves against the deployment's
-// own origin rather than emitting production canonicals from a preview.
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000");
+// The origin is derived once, in lib/metadata.ts, and consumed here. Production sets
+// NEXT_PUBLIC_SITE_URL to the canonical apex; preview deployments leave it unset on
+// purpose (§16.4) so metadata resolves against the deployment's own origin rather than
+// emitting production canonicals from a preview.
+const site = getSite();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Mukerem Shifa",
-  description:
-    "Portfolio of Mukerem Shifa, AI Engineer and Full-Stack Developer. Under construction.",
+  metadataBase: new URL(SITE_ORIGIN),
+  // §13.1: every page below this one gets "{title} — Mukerem Shifa". `default` is not
+  // run through the template, so the home page shows the bare site title, and any page
+  // needing the bare form asks for it with `title: { absolute }` (see `buildMetadata`).
+  title: { default: site.seo.title, template: `%s — ${site.name}` },
+  description: site.seo.description,
+  // §13.3, amended, and the companion to app/robots.ts. robots.txt stops a crawl; this
+  // is what stops a URL someone linked to from being indexed anyway. Phase 6 sets
+  // ALLOW_INDEXING=true and both go away together.
+  ...(INDEXING_ALLOWED ? {} : { robots: { index: false, follow: false } }),
 };
 
 // §7.1's route table. Structural, not content — the routes are fixed by the spec, and
 // Phase 3 builds the pages behind them.
 const NAV: NavItem[] = [
-  { href: "/projects/", label: "Projects" },
-  { href: "/experience/", label: "Experience" },
-  { href: "/about/", label: "About" },
-  { href: "/certifications/", label: "Certifications" },
+  { href: "/projects", label: "Projects" },
+  { href: "/experience", label: "Experience" },
+  { href: "/about", label: "About" },
+  { href: "/certifications", label: "Certifications" },
 ];
 
-const CTA: NavItem = { href: "/contact/", label: "Let us talk →" };
+const CTA: NavItem = { href: "/contact", label: "Let us talk →" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const site = getSite();
-
   return (
     // `suppressHydrationWarning` is required, not incidental: the inline script below
     // adds a class, a data attribute, and an inline `color-scheme` before React sees the

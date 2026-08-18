@@ -21,10 +21,10 @@ export default function NotFound() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Button href="/">Home</Button>
-          <Button href="/projects/" variant="secondary">
+          <Button href="/projects" variant="secondary">
             Projects
           </Button>
-          <Button href="/contact/" variant="secondary">
+          <Button href="/contact" variant="secondary">
             Contact
           </Button>
         </div>
