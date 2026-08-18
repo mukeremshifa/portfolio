@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger } from "@/components/motion/Stagger";
 import { Button } from "@/components/ui/Button";
+import { CodeBlock } from "@/components/ui/CodeBlock";
 import { Container } from "@/components/ui/Container";
 import { ExternalLink } from "@/components/ui/ExternalLink";
+import { Figure } from "@/components/ui/Figure";
 import { Prose } from "@/components/ui/Prose";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -53,6 +56,18 @@ const SURFACE_TOKENS = [
   { name: "success", className: "bg-success" },
   { name: "warning", className: "bg-warning" },
 ] as const;
+
+// Long enough on line 5 to overflow the demo container at every viewport, which is the
+// point: the scroll affordances on `CodeBlock` are unconditional, and this is where they
+// get looked at in both themes.
+const OVERFLOWING_SNIPPET = `type Answer =
+  | { kind: "answer"; text: string; citations: Citation[] }
+  | { kind: "no-answer"; reason: "no-passages" | "out-of-scope" };
+
+export const selectHighestScoringPassagePerDocument = (passages: Passage[]): Passage[] => Object.values(Object.groupBy(passages, (passage) => passage.documentId)).flatMap((group) => (group ?? []).slice(0, 1));`;
+
+const SHORT_SNIPPET = `def chunk(text: str, size: int = 512) -> list[str]:
+    return [text[i : i + size] for i in range(0, len(text), size)]`;
 
 const STATUSES = [
   { state: "completed", label: "Completed" },
@@ -199,7 +214,7 @@ export default function PrimitivesPage() {
               eyebrow="Eyebrow"
               title="With a lead and an action"
               lead="A lead paragraph sits under the title at body-lg and is capped at the prose measure so it never runs past 68 characters."
-              action={{ href: "/projects/", label: "All projects" }}
+              action={{ href: "/projects", label: "All projects" }}
             />
             <SectionHeading as="h3" title="As an h3, in Instrument Sans" />
           </div>
@@ -216,8 +231,8 @@ export default function PrimitivesPage() {
             </p>
             <h3>A heading inside prose</h3>
             <p>
-              Links in running prose are <a href="/projects/">brand-coloured</a> with a
-              1px underline that thickens on hover, per §6.8. Inline <code>code</code>{" "}
+              Links in running prose are <Link href="/projects">brand-coloured</Link> with
+              a 1px underline that thickens on hover, per §6.8. Inline <code>code</code>{" "}
               sits on the <code>code-bg</code> token.
             </p>
             <ul>
@@ -232,6 +247,43 @@ export default function PrimitivesPage() {
             <ExternalLink href="https://nextjs.org">This opens in a new tab</ExternalLink>{" "}
             — and says so, in text only a screen reader hears.
           </p>
+        </Section>
+
+        <Section title="Figure">
+          <div className="flex flex-col gap-8">
+            <Figure
+              src="/placeholders/placeholder-screenshot-16x9.svg"
+              alt="Placeholder image at a sixteen by nine aspect ratio."
+              width={1600}
+              height={900}
+              caption="A caption sits under the image at body-sm in the sans family. The step carries size, leading, and tracking but never a family (§6.6), so pairing it is the caller's job."
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+            <Figure
+              src="/placeholders/placeholder-screenshot-9x16.svg"
+              alt="Placeholder image at a nine by sixteen aspect ratio, with no caption."
+              width={900}
+              height={1600}
+              sizes="(min-width: 768px) 33vw, 100vw"
+            />
+          </div>
+        </Section>
+
+        <Section title="CodeBlock">
+          <div className="flex flex-col gap-8">
+            <CodeBlock
+              code={OVERFLOWING_SNIPPET}
+              language="typescript"
+              title="A block that overflows"
+              file="lib/answer.ts"
+              note="Tab to the block, then use the arrow keys. The copy button announces its result beside it."
+            />
+            <CodeBlock
+              code={SHORT_SNIPPET}
+              language="python"
+              title="A block with no filename and no note"
+            />
+          </div>
         </Section>
 
         <Section title="Container">
