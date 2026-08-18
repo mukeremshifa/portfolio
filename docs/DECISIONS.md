@@ -285,3 +285,166 @@ Ubuntu where `autocrlf` is off. A fresh clone on Windows would have hit it immed
 `.gitattributes` overrides `core.autocrlf` regardless of local configuration, so this does
 not depend on every machine setting the same git option.
 **Affects:** §16.2
+
+## 2026-08-18 — `cover` and `screenshots[]` gain required `width` and `height`
+
+**Context:** §5.3's image objects were `{ src, alt, caption? }`. `next/image` requires
+either intrinsic `width` plus `height`, or `fill` inside a sized parent. `images:
+{ unoptimized: true }` (§12.2) removes the optimization pipeline; it does not remove that
+requirement. A static import would supply the dimensions automatically, but `src` arrives
+from JSON as a string, so every content image is dynamic.
+**Decision:** Both fields are required positive integers in §5.3 and in
+`lib/schemas.ts`. `Figure` takes them as props and renders at the intrinsic ratio.
+**Reason:** The alternative is `fill` inside a fixed aspect-ratio box, and Appendix B
+rules it out by construction: the golden sample carries six screenshots from 21:9 to 9:16
+because mixed ratios are what break a grid, and a fixed box serves them only by
+letterboxing or cropping. Dimensions are a fact the author already knows, they are the
+only way to hold layout stable for content-driven images of unknown shape (§12.1), and
+they keep `Figure`'s contract honest rather than making it guess.
+**Cost:** Two more fields per image for whoever writes content, and a schema change that
+every future project file has to satisfy. Phase 5 pays this when it captures real assets.
+**Affects:** §5.3, §9.1, §12.1
+
+## 2026-08-18 — OG image generation moved from Phase 3 into Phase 2
+
+**Context:** §18 listed OG images under Phase 3, but §17.1 makes "metadata, canonical URL,
+and OG image present" part of a page being finished, and Phase 2's exit criterion is that
+adding a second project requires zero component changes.
+**Decision:** `app/opengraph-image.tsx` and `app/projects/[slug]/opengraph-image.tsx` ship
+in Phase 2, generated from content per §13.4.
+**Reason:** If generation had landed in Phase 3, adding project #2 during Phase 2 would
+have meant adding an OG asset by hand — which makes the exit criterion false on the day it
+is written. §13.4 already specifies the card as generated from content, so it is a
+component like any other and belongs with the components it depends on.
+**Also decided, because it costs an hour otherwise:** `ImageResponse` renders in its own
+context (Satori, then Resvg) and cannot see `next/font`'s CSS variables, the `@theme`
+tokens, or any Tailwind utility. So the card loads an actual font binary —
+`assets/fonts/SourceSerif4-SemiBold.ttf`, committed, because Satori reads `ttf`/`otf`/`woff`
+and `next/font` caches `woff2` — and repeats §6.2's light palette as literals in
+`lib/og.ts`. That is a real second copy of the palette with no compiler to keep it honest;
+it is contained to one file and commented there. One family, not three: the card is
+display type almost end to end.
+**Affects:** §13.4, §17.1, §18 Phase 2 and Phase 3
+
+## 2026-08-18 — `ProjectRef` is derived, not a fourth content file
+
+**Context:** §5.1's `getAdjacentProjects()` and §9.3's `CaseStudyNavigationProps` both
+reference a `ProjectRef` type that §5.3 never declares.
+**Decision:** `export type ProjectRef = Pick<Project, "slug" | "title">` in
+`lib/schemas.ts`. No schema, no content file, no separate parse.
+**Reason:** Prev/next navigation needs a URL and a label. That is a derived view of a
+project, not stored content, and inventing a fourth content file to hold two fields that
+already exist would create two places where a project's title lives. Deriving it means the
+type follows `Project` automatically.
+**Affects:** §5.1, §5.3, §9.3
+
+## 2026-08-18 — Internal routes are linked without a trailing slash
+
+**Context:** §4, §7.1, and §8 write every route with a trailing slash (`/projects/`), and
+Phase 1 wired the header, footer, and every `Button href` that way. Next's default
+`trailingSlash: false` therefore 308-redirected every internal navigation, which surfaced
+the moment Phase 2 started emitting canonical URLs and sitemap entries.
+**Decision:** Keep Next's default and strip the trailing slash from every internal `href`,
+canonical, sitemap entry, and JSON-LD URL. `trailingSlash: true` was tried first and
+reverted.
+**Reason:** Two things settled it. `MainNav`'s active-route check is
+`pathname.startsWith(`${item.href}/`)`, which only ever worked on the bare form —
+`trailingSlash: true` silently broke the active indicator on every nested route. And the
+`opengraph-image` file convention emits its URL without a trailing slash, so
+`trailingSlash: true` put a 308 in front of the one asset that is fetched by third-party
+crawlers I do not control. Redirects I own are cheap to remove; redirects other people's
+crawlers have to follow are not.
+**Cost:** The spec's prose still writes routes with a trailing slash. That is a directory
+convention in a file tree, not a URL format, and the served form is now the one canonical
+URLs, the sitemap, and the address bar all agree on.
+**Affects:** §7.1, §7.2, §13.1, §13.3
+
+## 2026-08-18 — The content gate reports every broken file, not the first
+
+**Context:** §5.1 requires `lib/content.ts` to throw on malformed content with a precise
+error. The simple implementation throws at the first failure.
+**Decision:** Each file is parsed into a failure list, and one error is thrown at the end
+naming every file that failed, each with `z.prettifyError()` output rather than a raw
+`ZodError`.
+**Reason:** A schema change breaks several project files at once, and fixing them one
+build at a time is one build per file. The parse is eager at module evaluation, so the
+throw happens once at first import with the offending path named rather than on whichever
+selector call happened to touch it first. Verified by breaking two files deliberately and
+confirming `next build` names both, then by breaking a file's JSON syntax and confirming
+that path is reported the same way.
+**Affects:** §5.1
+
+## 2026-08-18 — `noindex` ships alongside `robots.txt`, behind the same flag
+
+**Context:** §13.3, as amended, makes `app/robots.ts` disallow all crawling behind an
+environment flag so `dev` can be promoted to `main` at every phase boundary without an
+unfinished portfolio being indexed.
+**Decision:** `ALLOW_INDEXING` is read once in `lib/metadata.ts`. `app/robots.ts` blocks
+everything while it is unset, and `app/layout.tsx` emits `robots: { index: false, follow:
+false }` from the same flag. Phase 6 sets it to `true` in Production and both go away
+together. The flag opts *in*: unset means blocked.
+**Reason:** `robots.txt` stops a crawl. It does not stop a URL that someone links to from
+being indexed anyway — Google will index a disallowed URL it cannot fetch if it finds the
+link elsewhere. "Do not index an unfinished portfolio" is a claim about the page, and the
+meta tag is the mechanism that actually makes it true. One flag, two mechanisms, one thing
+to flip.
+**Affects:** §13.1, §13.3, §18 Phase 6
+
+## 2026-08-18 — Code blocks carry their scroll affordances unconditionally
+
+**Context:** §8.3 requires `tabindex="0"`, `role="region"`, and an `aria-label` on code
+blocks *that overflow*. Whether a block overflows is a property of the viewport, not of the
+content: the same snippet scrolls at 320px and does not at 1280px.
+**Decision:** `CodeBlock` applies all three to every block. `eslint.config.mjs` widens
+`jsx-a11y/no-noninteractive-tabindex` to allow `role="region"` alongside its default
+`tabpanel`, once, with the reasoning in the config rather than a suppression at each site.
+**Reason:** A measurement at mount is wrong the moment someone resizes, and a measurement
+at build time is wrong immediately. A `<pre>` with `overflow-x: auto` *is* a scrollable
+region regardless of whether this particular snippet exceeds this particular viewport. The
+cost is a tab stop on a block that may not need one; the alternative is content a keyboard
+user cannot reach at exactly the widths where it is hardest to read. Verified at 320px: all
+four blocks report `scrollWidth > clientWidth`, and the page's own `scrollWidth` is 305px
+against a 320px viewport, so the code blocks are §11.5's single permitted exception and
+nothing else overflows.
+**Affects:** §8.3, §11.2, §11.5, §12.4
+
+## 2026-08-18 — The screenshot gallery is CSS columns, not a grid
+
+**Context:** Appendix B demands six screenshots of mixed aspect ratios, from 21:9 to 9:16.
+**Decision:** `ScreenshotGallery` uses `columns-1 md:columns-2` with `break-inside-avoid`,
+not `grid`.
+**Reason:** A grid puts cells on a shared row height, so mixed ratios either letterbox
+inside a fixed box or leave large gaps beside the short ones — and the fixed box is exactly
+what the `width`/`height` decision above exists to avoid. Multi-column flow lets every
+figure keep its intrinsic height. Reading order stays top-to-bottom within a column, which
+is the order the DOM is in, so nothing diverges between what is seen and what is announced.
+**Cost:** Column balancing can leave one column short when heights differ sharply. That is
+visible with six ratios this extreme and is the honest result of not cropping anything.
+**Affects:** §8.3, §9.3
+
+## 2026-08-18 — Invariant 8's vocabulary covers technologies only
+
+**Context:** §5.5 invariant 8 says every technology string must appear in at least one
+skills group. `Certification.skills` is also an array of strings.
+**Decision:** The test checks `Project.technologies`, `ExperienceEntry.technologies`, and
+`FocusPillar.technologies`. `Certification.skills` is out of scope.
+**Reason:** Certification skills are competencies ("Cloud architecture"), not technologies.
+Forcing them into `skills.json` would make the shared vocabulary the invariant protects
+less precise rather than more, and §5.4 deliberately keeps skills grouped by use context
+with no proficiency dimension. Noted here so Phase 3 does not re-open it.
+**Affects:** §5.4, §5.5
+
+## 2026-08-18 — Phase 2 additions outside §4's file tree
+
+**Context:** Three files exist that §4's repository layout does not list.
+**Decision:** `components/ui/CopyButton.tsx` (the `"use client"` island `CodeBlock` needs,
+since a server component cannot contain one), `lib/og.ts` (the OG palette and font loader,
+shared by two `opengraph-image.tsx` routes), and `assets/fonts/` (the committed `ttf` those
+routes read). `vitest.config.mts` rather than `.ts`, because Vite warns that ESM syntax in
+a config loaded as CommonJS will break in a future major.
+**Reason:** Each is the smallest file that makes an already-specified thing work. The
+alternative to `lib/og.ts` is the palette and the font path duplicated across two routes,
+which is the drift §6's token discipline exists to prevent.
+**Also:** `public/og/` in §4's tree is not created. OG cards are generated at build time by
+`ImageResponse`; there is no static asset to put there.
+**Affects:** §4, §9.1, §12.4, §13.4

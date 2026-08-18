@@ -1,7 +1,7 @@
 # Portfolio — Specification v2.1 (Quality-First)
 
-**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 1 — design system & application shell
-**Spec version:** 2.1.3 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 2 — golden sample
+**Spec version:** 2.1.4 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
 
 ## Why this version exists
 
@@ -342,6 +342,8 @@ export const ProjectSchema = z.object({
   cover: z.object({
     src: z.string(),
     alt: z.string().min(10),
+    width: z.int().positive(),                   // intrinsic pixels — next/image needs them
+    height: z.int().positive(),
   }),
   overview: z.array(z.string()).min(1).max(3),
   capabilities: z.array(z.string()).min(3).max(8),
@@ -360,6 +362,8 @@ export const ProjectSchema = z.object({
     src: z.string(),
     alt: z.string().min(10),
     caption: z.string().optional(),
+    width: z.int().positive(),
+    height: z.int().positive(),
   })).max(8).default([]),
   lessons: z.array(z.string()).max(5).default([]),
   caseStudy: z.object({
@@ -373,6 +377,15 @@ export const ProjectSchema = z.object({
   }).optional(),
 });
 ```
+
+`width` and `height` are intrinsic pixel dimensions and they are required, not optional.
+`next/image` needs them (or `fill` inside a sized parent) to reserve space before the file
+arrives, and `images.unoptimized` does not change that — it removes the optimization
+pipeline, not the layout-stability requirement (§12.1). A static import would supply them
+automatically, but `src` arrives from JSON as a string, so the author supplies them
+instead. `fill` inside a fixed aspect-ratio box is the alternative and it is the wrong one
+here: Appendix B demands screenshots of mixed aspect ratios, which is precisely the case a
+fixed box cannot serve without letterboxing or cropping. See `docs/DECISIONS.md`.
 
 ### 5.4 Experience, certifications, skills, focus
 
@@ -1496,6 +1509,11 @@ navigation are keyboard-operable.
   complete `site.json` (placeholder values fine where real data is not ready).
 - Build `/projects/[slug]/` fully against this sample.
 - `lib/metadata.ts`, `lib/structured-data.ts`, `sitemap.ts`, `robots.ts`.
+- OG image generation (§13.4): a root default plus one per project slug. Moved here from
+  Phase 3 — §17.1 makes an OG image part of a page being finished, and if generation
+  landed later then adding project #2 would mean adding an asset, which makes this
+  phase's exit criterion false the day it is written.
+- Vitest, the §5.5 invariant tests, and `test:unit` folded into `pnpm check` and `ci.yml`.
 
 **Exit:** the golden project page is complete and adding a second project requires zero
 component changes.
@@ -1505,7 +1523,8 @@ component changes.
 - Home: all seven sections in order (§8.1).
 - `/projects/` with the filter and its live region.
 - `/experience/`, `/about/`, `/certifications/`.
-- `CaseStudyNavigation` and the contact callout on project pages.
+- `CaseStudyNavigation` and the contact callout on project pages (§8.3's last two rows;
+  held back from Phase 2 because with one project prev/next renders two dead ends).
 
 **Exit:** every route in §7.1 is built and reads as finished (with placeholder content).
 
@@ -1564,7 +1583,7 @@ What is left genuinely needs your input:
 |---|---|---|---|
 | 1 | **Contact mailbox.** The domain is settled, but which address should the site show and the form deliver to? A domain mailbox (`hello@mukeremshifa.com`, `mukerem@mukeremshifa.com`) reads more professional than a Gmail address and is free to set up once DNS exists. If you would rather keep Gmail, confirm the exact address so `site.email` is right. | It is printed on the contact page, the footer, the hero social links, and structured data | Phase 5 |
 | 2 | **Email delivery for the contact endpoint.** Whichever provider you already have an account for; it is a one-file swap behind `sendEmail()` regardless. | Determines Phase 4 secrets and setup | Phase 4 |
-| 3 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | Phase 2 cannot produce a golden sample without knowing the shape of the real thing | Phase 2 |
+| 3 | **The three v1 projects.** Carried over from v1.0, still unresolved: confirm LMS, RAG chatbot, and document pipeline are the three, and which one is the featured case study. | No longer blocking. Appendix B defines the golden sample as a stress test at maximum lengths, not as a real project: an 80-character title and 12 technologies exercise the layout identically whichever project it turns out to be. Phase 2 shipped a synthetic sample under the slug `placeholder-project`. The answer decides only whether Phase 5 renames that slug or writes a file beside it | Phase 5 |
 | 4 | **Low-stakes leftovers.** Résumé hosting (repo `public/` or Cloudflare R2), hero visual (portrait or illustration or none), and analytics. | Worth answering eventually, none of it blocks anything now | Phases 3 to 6 |
 
 ---
@@ -1662,6 +1681,7 @@ placeholder per §5.6.
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |
+| 2.1.4 | 2026-08-18 | §5.3 gains required `width`/`height` on `cover` and `screenshots[]`: `next/image` needs intrinsic dimensions and `unoptimized: true` does not change that. §18 Phase 2 gains OG image generation (moved from Phase 3) and the Vitest wiring; Phase 3's line about it is now scoped to `CaseStudyNavigation` and the contact callout. |
 | 2.1.3 | 2026-08-15 | §16.1 gains an explicit merge strategy (rebase into `dev`, fast-forward into `main`, never squash a branch that outlives the merge), a no-force-push rule for `dev` and `main`, phase tags, and a promotion cadence with the reasoning behind it. §13.3 gains the environment-flagged crawl block that makes promoting before launch safe. |
 | 2.1.2 | 2026-08-15 | `brand-solid-hover` added to §6.2, §6.3, and §6.4. §6.3 defined no hover fill for a filled button in dark mode, and reusing `brand-hover` there put white text on `#60A5FA` at 2.60:1. New token, no existing value changed. |
 | 2.1.1 | 2026-08-15 | §6 token names reconciled ahead of Phase 1: `surface-sunken` (§6.2) and `surface-raised` (§6.3) both become `surface-alt`, matching §6.4 and §6.8. `brand-soft` added to the §6.3 dark table (§6.4 already defined it). `brand-cream` and `code-bg` added to `@theme inline`; `ring`'s deliberate absence from it documented. No colour value changed. §19 question 2 (typography) resolved; list renumbered and the mailbox question reprioritised to Phase 5. |
