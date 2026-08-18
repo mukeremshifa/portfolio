@@ -4,12 +4,14 @@ import { join } from "node:path";
 import { z } from "zod";
 
 import {
+  CATEGORIES,
   CertificationSchema,
   FocusPillarSchema,
   ProjectSchema,
   SiteSchema,
   SkillGroupSchema,
   ExperienceSchema,
+  type Category,
   type Certification,
   type ExperienceEntry,
   type FocusPillar,
@@ -222,4 +224,35 @@ export function getExperience(): ExperienceEntry[] {
 
 export function getCertifications(): Certification[] {
   return CERTIFICATIONS;
+}
+
+/** §8.2's filter options: "All" first, then every `Category`, each with its count. */
+export type CategoryFilter = {
+  value: Category | "all";
+  label: string;
+  count: number;
+};
+
+/**
+ * Derives §8.2's filter options from a list of projects.
+ *
+ * Pure, and it takes the projects rather than reading them, so a test can hand it a
+ * constructed list and this module's own loaded set both. It lives here rather than in
+ * `lib/utils.ts` because it needs `CATEGORIES` at runtime, and `lib/utils.ts` is imported
+ * by client components — a value import of the schema module there would pull Zod into
+ * the browser bundle for the sake of a three-element array.
+ *
+ * **Every category is emitted, including one with a count of zero.** A filter that
+ * silently drops an empty category hides the fact that a whole section of the work is
+ * missing; a chip reading "Systems (0)" says it out loud.
+ */
+export function getCategoryFilters(projects: Project[]): CategoryFilter[] {
+  return [
+    { value: "all", label: "All", count: projects.length },
+    ...CATEGORIES.map((category) => ({
+      value: category,
+      label: category,
+      count: projects.filter((project) => project.category === category).length,
+    })),
+  ];
 }

@@ -1,14 +1,13 @@
-import { getSite } from "@/lib/content";
+import { getSite, getSkills } from "@/lib/content";
 import { absoluteUrl } from "@/lib/metadata";
-import type { Project } from "@/lib/schemas";
+import type { Certification, Project } from "@/lib/schemas";
 
 /**
  * §13.2's JSON-LD builders. Every value comes from `content/` — nothing here states a
  * fact the site does not already state in prose.
  *
- * Phase 2 builds only what the project route needs. The rest of §13.2's table
- * (`Person`, `WebSite`, `ItemList`, `ProfilePage`) lands as Phase 3 builds those routes,
- * so a builder never exists before the page that renders it.
+ * Each builder lands with the page that renders it, so a builder never exists before its
+ * consumer. Phase 2 built the project route's; Phase 3 completes the table.
  */
 export type JsonLd = Record<string, unknown>;
 
@@ -23,12 +22,131 @@ function personRef(): JsonLd {
 }
 
 /**
+ * §13.2's `/` graph: the full `Person`.
+ *
+ * Built from `personRef()` rather than beside it, so the two can never disagree about the
+ * name or the URL — the reference is the same node, and every other graph on the site
+ * points at it by those two properties.
+ *
+ * `address` appears **only if** `location` is set, per §13.2. `knowsAbout` is the skills
+ * vocabulary, which is already the one list every technology string on the site has to
+ * appear in (§5.5 invariant 8), so the graph claims exactly what the pages claim.
+ */
+export function personJsonLd(): JsonLd {
+  const site = getSite();
+
+  return {
+    "@context": "https://schema.org",
+    ...personRef(),
+    jobTitle: site.role,
+    description: site.intro,
+    email: `mailto:${site.email}`,
+    sameAs: site.socials.map((social) => social.url),
+    knowsAbout: getSkills().flatMap((group) => group.items),
+    ...(site.location.label
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: site.location.label,
+          },
+        }
+      : {}),
+    ...(site.portrait ? { image: absoluteUrl(site.portrait.src) } : {}),
+  };
+}
+
+/** §13.2's second `/` graph. Name and url, which is all a `WebSite` node honestly has. */
+export function webSiteJsonLd(): JsonLd {
+  const site = getSite();
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.name,
+    url: absoluteUrl("/"),
+    inLanguage: "en",
+  };
+}
+
+/**
+ * §13.2's `/about/` graph. `mainEntity` references the `Person` rather than restating it,
+ * which is the distinction a `ProfilePage` exists to draw: the page is about the person,
+ * it is not a second person.
+ */
+export function profilePageJsonLd(): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: absoluteUrl("/about"),
+    mainEntity: personRef(),
+  };
+}
+
+/**
+ * §13.2's `/projects/` graph: an `ItemList` of project URLs **in the order the page
+ * renders them**. A list whose positions do not match what a reader sees is a claim about
+ * ranking that the page does not make.
+ */
+export function projectListJsonLd(projects: Project[]): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: projects.length,
+    itemListElement: projects.map((project, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: absoluteUrl(`/projects/${project.slug}`),
+      name: project.title,
+    })),
+  };
+}
+
+/**
+ * §13.2's `/certifications/` graph: **only credentials with a verifiable URL**.
+ *
+ * The filter is the point rather than a detail. Structured data is a machine-readable
+ * assertion, and asserting a credential that offers nothing to check it against is the one
+ * thing this graph must not do. The page still renders every credential, verifiable or
+ * not; the page is prose and can be read with judgement.
+ */
+export function certificationListJsonLd(certifications: Certification[]): JsonLd {
+  const verifiable = certifications.filter(
+    (certification) => certification.credentialUrl !== undefined,
+  );
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: verifiable.length,
+    itemListElement: verifiable.map((certification, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "EducationalOccupationalCredential",
+        name: certification.title,
+        url: certification.credentialUrl,
+        credentialCategory: "certificate",
+        dateCreated: certification.issued,
+        ...(certification.expires ? { expires: certification.expires } : {}),
+        recognizedBy: {
+          "@type": "Organization",
+          name: certification.issuer,
+          ...(certification.issuerUrl ? { url: certification.issuerUrl } : {}),
+        },
+        ...(certification.credentialId ? { identifier: certification.credentialId } : {}),
+      },
+    })),
+  };
+}
+
+/**
  * §13.2: `SoftwareSourceCode` when there is a repository to point at, `CreativeWork`
  * otherwise. The distinction is not cosmetic — `SoftwareSourceCode` without
  * `codeRepository` claims source that nobody can reach.
  *
- * `site.email` is a marked placeholder until §19 Q1 is answered (Phase 5), which is why
- * it does not appear here yet.
+ * No `email` on this node: the address belongs to the `Person`, and repeating it per
+ * project would assert that each project has its own contact address.
  */
 export function projectJsonLd(project: Project): JsonLd {
   const repository = project.links.github;

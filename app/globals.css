@@ -145,6 +145,19 @@
   --radius-md: 10px;
   --radius-lg: 16px;
 
+  /* §6.7's section rhythm, as named steps on the `--spacing-*` namespace rather than as
+     a number every page spells for itself. Phase 2 shipped one page at 48/24 while §6.7
+     said 64/112 and 32, which was invisible with one page and would have been the thing
+     that made six pages look unconsidered.
+
+     `py-section md:py-section-lg` is a page's vertical padding, `gap-section
+     md:gap-section-lg` separates sections, and `gap-heading` is the space between a
+     section heading and its content. Changing the rhythm is these three values, in this
+     file, once — which is the only reason it is worth naming them at all. */
+  --spacing-section: 64px;
+  --spacing-section-lg: 112px;
+  --spacing-heading: 32px;
+
   /* §10.1 easings. `--ease-out` shadows a Tailwind default; that is intended, so that
      `ease-out` anywhere in the codebase means the system's curve and not two curves
      depending on who wrote the class. */

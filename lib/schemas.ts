@@ -247,6 +247,17 @@ export type SkillGroup = z.infer<typeof SkillGroupSchema>;
 export type FocusPillar = z.infer<typeof FocusPillarSchema>;
 
 export type Category = Project["category"];
+
+/**
+ * The `Category` enum's runtime members, in schema order.
+ *
+ * §8.2's filter has to render an option per category rather than an option per category
+ * that happens to have a project, so it needs the members themselves and not just the
+ * ones present in `content/`. Read off the schema rather than written out beside it,
+ * because a second list is a second place to add "Systems" to and only one of them would
+ * fail a build.
+ */
+export const CATEGORIES = ProjectSchema.shape.category.options;
 export type ProjectStatus = Project["status"];
 export type CodeSnippet = Project["codeSnippets"][number];
 export type Screenshot = Project["screenshots"][number];

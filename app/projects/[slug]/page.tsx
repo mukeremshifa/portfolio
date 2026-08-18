@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { ContactCallout } from "@/components/home/ContactCallout";
+import { CaseStudyNavigation } from "@/components/projects/CaseStudyNavigation";
+import { CaseStudySummary } from "@/components/projects/CaseStudySummary";
 import { CodeHighlight } from "@/components/projects/CodeHighlight";
 import { ProjectFacts } from "@/components/projects/ProjectFacts";
 import { ScreenshotGallery } from "@/components/projects/ScreenshotGallery";
@@ -11,7 +14,12 @@ import { Container } from "@/components/ui/Container";
 import { Figure } from "@/components/ui/Figure";
 import { Prose } from "@/components/ui/Prose";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { getProjectBySlug, getProjectSlugs } from "@/lib/content";
+import {
+  getAdjacentProjects,
+  getProjectBySlug,
+  getProjectSlugs,
+  getSite,
+} from "@/lib/content";
 import { buildMetadata } from "@/lib/metadata";
 import { jsonLdScript, projectJsonLd } from "@/lib/structured-data";
 import { formatYearRange } from "@/lib/utils";
@@ -44,9 +52,11 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
  * JSON file and nothing else, which is the phase's exit criterion, and every empty-array
  * guard here exists to keep that true for a project carrying less than this one does.
  *
- * `CaseStudyNavigation` and the contact callout are §8.3's last two rows and belong to
- * Phase 3 per §18. With one project, prev/next renders two dead ends, which is worse
- * than absent. `getAdjacentProjects()` is built and tested; it has no consumer yet.
+ * Phase 3 adds §8.3's last two rows: `CaseStudyNavigation`, which finally has a list to
+ * walk, and the shared `ContactCallout`, so this page is not a dead end (§7.4). It also
+ * brings the page onto §6.7's section rhythm — Phase 2 shipped 48px between sections and
+ * 24px under a heading against a spec that says 64/112 and 32, which was invisible with
+ * one page and would have been the thing that made six pages look unconsidered.
  */
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
@@ -54,6 +64,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   const project = getProjectBySlug(slug);
   const timeline = formatYearRange(project.year.start, project.year.end);
+  const adjacent = getAdjacentProjects(slug);
 
   return (
     <Container>
@@ -64,7 +75,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLdScript(projectJsonLd(project)) }}
       />
 
-      <div className="flex flex-col gap-12 py-12">
+      <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
         <div className="flex flex-col gap-6">
           <Link
             href="/projects"
@@ -177,34 +188,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.caseStudy ? (
           <Section title="Case study">
-            <dl className="flex max-w-measure flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <dt className="font-mono text-eyebrow text-text-muted uppercase">
-                  Challenge
-                </dt>
-                <dd className="font-sans text-body text-text">
-                  {project.caseStudy.challenge}
-                </dd>
-              </div>
-              <div className="flex flex-col gap-2">
-                <dt className="font-mono text-eyebrow text-text-muted uppercase">
-                  Decision
-                </dt>
-                <dd className="font-sans text-body text-text">
-                  {project.caseStudy.decision}
-                </dd>
-              </div>
-              <div className="flex flex-col gap-2">
-                <dt className="font-mono text-eyebrow text-text-muted uppercase">
-                  Outcome
-                </dt>
-                <dd className="font-sans text-body text-text">
-                  {project.caseStudy.outcome}
-                </dd>
-              </div>
-            </dl>
+            <CaseStudySummary caseStudy={project.caseStudy} />
           </Section>
         ) : null}
+
+        <CaseStudyNavigation prev={adjacent.prev} next={adjacent.next} />
+
+        <ContactCallout site={getSite()} />
       </div>
     </Container>
   );
@@ -214,10 +204,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
  * Each §8.3 section is an h2 and its body. Sections whose data is empty are not rendered
  * at all, which is why every call site above is guarded rather than this helper handling
  * emptiness: a heading with nothing under it is the failure the rule exists to prevent.
+ *
+ * **The `border-t` rule is gone.** Phase 2 drew one because 48px of space did not read as
+ * a break on its own. At §6.7's 112px it does, and a rule on top of that is belt and
+ * braces that makes a long technical page look like a settings screen. §6.7 asks for a
+ * border on cards, not between sections. The one divider that survives on this page is
+ * `CaseStudyNavigation`'s, where it separates the article from the way out of it.
  */
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-6 border-t border-border-subtle pt-12">
+    <section className="flex flex-col gap-heading">
       <SectionHeading title={title} />
       {children}
     </section>
