@@ -72,7 +72,6 @@ export function Hero({ site }: HeroProps) {
             </p>
           ) : null}
         </div>
-
       </div>
 
       {site.portrait ? (

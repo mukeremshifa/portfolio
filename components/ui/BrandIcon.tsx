@@ -67,7 +67,7 @@ export function BrandIcon({ name, size = 20 }: BrandIconProps) {
     return (
       <span
         aria-hidden="true"
-        className="inline-flex shrink-0 items-center justify-center font-mono text-[0.65em] font-semibold leading-none"
+        className="inline-flex shrink-0 items-center justify-center font-mono text-[0.65em] leading-none font-semibold"
         style={{ width: size, height: size }}
       >
         AI
@@ -79,7 +79,6 @@ export function BrandIcon({ name, size = 20 }: BrandIconProps) {
 }
 
 function IconSvg({ path, size }: { path: string; size: number }) {
-
   return (
     <svg
       aria-hidden="true"
