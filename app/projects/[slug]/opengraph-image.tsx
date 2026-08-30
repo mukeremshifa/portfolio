@@ -1,7 +1,13 @@
 import { ImageResponse } from "next/og";
 
 import { getProjectBySlug, getProjectSlugs, getSite } from "@/lib/content";
-import { loadOgFonts, OG_CONTENT_TYPE, OG_PALETTE, OG_SIZE } from "@/lib/og";
+import {
+  loadOgFonts,
+  loadOgMonogram,
+  OG_CONTENT_TYPE,
+  OG_PALETTE,
+  OG_SIZE,
+} from "@/lib/og";
 import { formatYearRange } from "@/lib/utils";
 
 export const alt = "Project card";
@@ -14,9 +20,10 @@ export function generateStaticParams() {
 
 /**
  * §13.4, and the reason OG generation is in this phase rather than Phase 3 (see
- * docs/DECISIONS.md). The card is generated from content — title, category, wordmark —
- * so adding a second project adds a second card without adding an asset, which is what
- * "adding a project requires zero component changes" has to mean to be true.
+ * docs/DECISIONS.md). The card is generated from content — title, category, year — so
+ * adding a second project adds a second card without adding an asset, which is what
+ * "adding a project requires zero component changes" has to mean to be true. The
+ * monogram signing the footer is the exception, and it is the same file on every card.
  *
  * Title sizing steps down for long titles rather than being clipped. The golden sample's
  * is exactly 80 characters, the schema maximum, so the smallest step is the one that has
@@ -26,6 +33,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const site = getSite();
   const project = getProjectBySlug(slug);
+  const monogram = await loadOgMonogram();
   const titleSize = project.title.length > 64 ? 62 : project.title.length > 40 ? 76 : 88;
 
   return new ImageResponse(
@@ -73,9 +81,12 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         }}
       >
         <div style={{ display: "flex" }}>{site.name}</div>
-        <div style={{ display: "flex", fontSize: 34, color: OG_PALETTE.brand }}>
-          {site.wordmark}
-        </div>
+        {/* Smaller than the default card's: here the name is set beside it, so the mark
+            is signing the card rather than carrying it. `alt` is empty for that reason —
+            it would only repeat the name to its left. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- Satori renders this,
+            not a browser; see the note on the default card. */}
+        <img src={monogram} alt="" width={92} height={92} />
       </div>
     </div>,
     { ...size, fonts: await loadOgFonts() },

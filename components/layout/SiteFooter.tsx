@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Monogram } from "@/components/brand/Monogram";
 import type { NavItem } from "@/components/layout/MainNav";
 import { Container } from "@/components/ui/Container";
 import { ExternalLink } from "@/components/ui/ExternalLink";
@@ -25,6 +26,17 @@ export function SiteFooter({ site, nav }: SiteFooterProps) {
       <Container>
         <div className="flex flex-col gap-8 py-12">
           <div className="flex flex-col gap-2">
+            {/* The monogram seals the footer where the name used to be set in serif.
+                Each mark gets exactly one job this way — "Mukerem." in the header, the
+                full signature in the hero, the monogram here — so no page ever shows the
+                same artwork twice, and on inner routes (which have no hero) this is the
+                only place the drawn identity appears at all.
+
+                `text-text-muted`, not `text-text`: it is a sign-off under the content,
+                not a second masthead. The name itself is still set, one line down and in
+                the copyright, so nothing is carried by the picture alone — which is why
+                the mark takes no label. */}
+            <Monogram height={52} className="mb-1 text-text-muted" />
             <p className="font-serif text-heading-1 font-semibold text-text">
               {site.name}
             </p>

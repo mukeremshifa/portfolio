@@ -15,8 +15,12 @@ import "./globals.css";
 // §6.6 / §12.3: three families, self-hosted at build, `display: swap`. Each declares
 // only the weights the scale actually uses — serif 600 for display and section headings;
 // sans 400 for body, 500 for UI chrome, 600 for headings; mono 400 for code and tags,
-// 500 for the wordmark. Adding a weight to a component means adding it here too, which
-// is the point: the cost of a new weight stays visible.
+// 500 for the header's fallback wordmark. Adding a weight to a component means adding it
+// here too, which is the point: the cost of a new weight stays visible.
+//
+// Still three. The brand marks are a fourth face by origin but not by delivery — they
+// ship as outlines, never as a font (docs/DECISIONS.md, 2026-08-30), so nothing here
+// loads for them and mono 500 is now only the fallback path in `SiteHeader`.
 //
 // Swapping a family is one line here: the CSS variable names are the only thing
 // globals.css knows about.
@@ -91,7 +95,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <MotionProvider>
           {/* §11.2: first focusable element in the DOM, above the header. */}
           <SkipLink />
-          <SiteHeader nav={NAV} cta={CTA} wordmark={site.wordmark} />
+          <SiteHeader nav={NAV} cta={CTA} siteName={site.name} wordmark={site.wordmark} />
           {/* §11.1: the layout owns the one <main> per page, so pages render sections
               and cannot accidentally produce a second one. `tabindex="-1"` makes it a
               focus target for the skip link without making it a tab stop. */}

@@ -509,17 +509,34 @@ Direction unchanged from the brief: modern, minimalist, warm beige canvas with w
 light mode, crisp black with near-black elevated surfaces in dark mode, orange used sparingly. Hierarchy
 comes from type, spacing, and hairline borders, not shadows or ornament.
 
-### 6.1 Two corrections to the original draft palette
+### 6.1 Three corrections to the original draft palette
 
 **(a) Borders need a second, stronger token.** Draft border values are decorative dividers
 and measure well below 3:1 against their backgrounds. WCAG 2.2 SC 1.4.11 wants 3:1 for the
 visual boundary of an actual control (inputs, outline buttons, filter chips), so the system
 keeps `border-subtle` (decorative) **and** `border-strong` (interactive): `#8A8279` light,
-`#333333` dark.
+`#7A7168` dark.
 
-**(b) Dark mode uses one orange accent.** `#FF5100` is the primary for links, focus, and
-filled buttons; `#E04700` is its hover value. The muted orange tint is `rgba(255, 81, 0, 0.15)`.
-Light mode is unchanged and continues to use the cobalt palette.
+The dark value was `#333333` here and `#524A42` in the stylesheet, and *neither ever met
+the 3:1 this correction exists to guarantee* — `#524A42` measured 2.04:1 on `surface` and
+1.72:1 on `surface-alt`, and `#333333` is worse. `#7A7168` is the lowest warm value that
+clears 3:1 against every surface it sits on (3.93 canvas, 3.71 surface, 3.12 surface-alt)
+while staying well below `text`, so a control boundary never reads as content. Measured
+2026-08-30.
+
+**(b) The accent is emerald, not cobalt or orange.** Light mode is deep emerald `#184E38`
+with `#103727` as its hover; dark mode lifts to warm sage `#52B788` with `#74C69D`, over an
+espresso-charcoal surface stack. This section previously described a cobalt light palette
+and an `#FF5100` orange dark accent; the stylesheet had moved off both without the spec
+following, so §6.2 and §6.3 below are re-derived from `app/globals.css` as shipped.
+
+**(c) Dark backgrounds come from a fixed list.** The `landing-page-design` skill (B4)
+permits exactly six dark background values: `#000000`, `#181818`, `#1F1F1F`, `#272727`,
+`#313131`, `#131209`. `#131209` is the only warm one and also the darkest, so it can only
+occupy `canvas` — which is exactly where the espresso character needs to survive. The
+layers above it are B4 neutrals; at these luminances (0.0059 → 0.0091 → 0.0203) the
+temperature break is not perceptible. Brand tints (`brand-soft`, `brand-solid`) read as
+accent fills rather than surfaces and are out of B4's scope — see `docs/DECISIONS.md`.
 
 ### 6.2 Colour tokens — light
 
@@ -530,48 +547,58 @@ Light mode is unchanged and continues to use the cobalt palette.
 | `surface-alt` | `#EDE5DA` | Code chrome, inset wells, card hover, chip background |
 | `text` | `#1E2229` | Primary text |
 | `text-muted` | `#5C6470` | Secondary text, metadata |
-| `brand` | `#0A39A6` | Links, primary fill, accents |
-| `brand-hover` | `#082D85` | Hover and active accent (text and links) |
-| `brand-solid-hover` | `#082D85` | Hover fill under `brand-contrast` text |
+| `brand` | `#184E38` | Links, primary fill, accents |
+| `brand-hover` | `#103727` | Hover and active accent (text and links) |
+| `brand-solid` | `#184E38` | Filled button surface only |
+| `brand-solid-hover` | `#103727` | Hover fill under `brand-contrast` text |
 | `brand-contrast` | `#FFFFFF` | Text on a brand fill |
-| `brand-soft` | `#E6EAF6` | Tinted badge background |
+| `brand-soft` | `#E4EFE9` | Tinted badge background |
 | `border-subtle` | `#E4DBD0` | Decorative dividers only |
-| `border-strong` | `#8A8279` | Control boundaries |
-| `ring` | `#0A39A6` | Focus indicator |
+| `border-strong` | `#8A8279` | Control boundaries (3.03:1 on `surface-alt`) |
+| `ring` | `#184E38` | Focus indicator |
 | `danger` | `#B42318` | Form errors |
 | `success` | `#05683F` | Form success |
 | `warning` | `#8A5A00` | Warnings |
 | `code-bg` | `#FBF8F3` | Code block background |
+| `hero-from` | `#000000` | B5 hero heading gradient, start |
+| `hero-to` | `#666666` | B5 hero heading gradient, end (4.90:1 on canvas) |
 
 ### 6.3 Colour tokens — dark
 
+Every background value below is one of B4's six, per §6.1(c).
+
 | Token | Value | Role |
 |---|---|---|
-| `canvas` | `#000000` | Page background (`bg-base`) |
-| `surface` | `#0A0A0A` | Cards, inputs, raised panels (`bg-surface`) |
-| `surface-alt` | `#141414` | Hover state for cards, popovers, chip background (`bg-elevated`) |
-| `text` | `#F3F4F6` | Primary text |
-| `text-muted` | `#9CA3AF` | Secondary text, metadata |
-| `brand` | `#FF5100` | Links and accent text (`primary`) |
-| `brand-hover` | `#E04700` | Hover and active accent (`primary-hover`) |
-| `brand-solid` | `#FF5100` | Filled button surface only (`primary`) |
-| `brand-solid-hover` | `#E04700` | Hover fill under `brand-contrast` text (`primary-hover`) |
+| `canvas` | `#131209` | Page background. B4's one warm value, and its darkest |
+| `surface` | `#181818` | Cards, inputs, raised panels |
+| `surface-alt` | `#272727` | Card hover, popovers, chip background |
+| `text` | `#F3ECE2` | Primary text (16.02:1 on canvas) |
+| `text-muted` | `#A3988C` | Secondary text, metadata (6.64:1 on canvas) |
+| `brand` | `#52B788` | Links and accent text (7.59:1 on canvas) |
+| `brand-hover` | `#74C69D` | Hover and active accent |
+| `brand-solid` | `#184E38` | Filled button surface only |
+| `brand-solid-hover` | `#216A4D` | Hover fill under `brand-contrast` text |
 | `brand-contrast` | `#FFFFFF` | Text on `brand-solid` |
-| `brand-soft` | `rgba(255, 81, 0, 0.15)` | Tinted badge background (`primary-muted`) |
-| `brand-cream` | `#FF5100` | Legacy alias for key tag accents |
-| `border-subtle` | `#222222` | Decorative dividers only |
-| `border-strong` | `#333333` | Control boundaries |
-| `ring` | `#FF5100` | Focus indicator |
-| `danger` | `#FCA5A5` | Form errors |
-| `success` | `#4ADE80` | Form success |
-| `warning` | `#FBBF24` | Warnings |
-| `code-bg` | `#0A0A0A` | Code block background |
+| `brand-soft` | `#172A21` | Tinted badge background |
+| `brand-cream` | `#F3ECE2` | Legacy alias for key tag accents |
+| `border-subtle` | `#313131` | Decorative dividers only |
+| `border-strong` | `#7A7168` | Control boundaries (3.12:1 on `surface-alt`) |
+| `ring` | `#52B788` | Focus indicator |
+| `danger` | `#F04438` | Form errors (4.73:1 on `surface`) |
+| `success` | `#12B76A` | Form success |
+| `warning` | `#F79009` | Warnings |
+| `code-bg` | `#181818` | Code block background |
+| `hero-from` | `#FFFFFF` | B5 hero heading gradient, start |
+| `hero-to` | `#9B9B9B` | B5 hero heading gradient, end (6.76:1 on canvas) |
 
 **Binding rules.**
 
 - `border-subtle` may never be the only thing identifying an interactive control.
 - Never place body text on `brand-solid` in dark mode except in `brand-contrast` white.
-- `brand-cream` remains dark-mode-only as a compatibility alias for the orange primary.
+- `brand-cream` remains dark-mode-only as a compatibility alias for the accent.
+- `danger` is body text on `canvas` or `surface` only; on `surface-alt` it is 3.98:1, under AA.
+- `hero-from`/`hero-to` are consumed by the hero `h1` and nothing else. B4 forbids
+  background gradients outright; B5's heading is the single exception, and it is on text.
 
 ### 6.4 Token wiring (Tailwind v4)
 
@@ -584,25 +611,27 @@ Light mode is unchanged and continues to use the cobalt palette.
 :root {
   --canvas: #f3ece2;  --surface: #ffffff;  --surface-alt: #ede5da;
   --text: #1e2229;    --text-muted: #5c6470;
-  --brand: #0a39a6;   --brand-hover: #082d85;  --brand-solid: #0a39a6;
-  --brand-solid-hover: #082d85;
-  --brand-contrast: #ffffff;  --brand-soft: #e6eaf6;
+  --brand: #184e38;   --brand-hover: #103727;  --brand-solid: #184e38;
+  --brand-solid-hover: #103727;
+  --brand-contrast: #ffffff;  --brand-soft: #e4efe9;
   --border-subtle: #e4dbd0;   --border-strong: #8a8279;
-  --ring: #0a39a6;
+  --ring: #184e38;
   --danger: #b42318;  --success: #05683f;  --warning: #8a5a00;
   --code-bg: #fbf8f3;
+  --hero-from: #000000;  --hero-to: #666666;
 }
 
 .dark {
-  --canvas: #000000;  --surface: #0a0a0a;  --surface-alt: #141414;
-  --text: #f3f4f6;    --text-muted: #9ca3af;
-  --brand: #ff5100;   --brand-hover: #e04700;  --brand-solid: #ff5100;
-  --brand-solid-hover: #e04700;
-  --brand-contrast: #ffffff;  --brand-soft: rgba(255, 81, 0, 0.15);  --brand-cream: #ff5100;
-  --border-subtle: #222222;   --border-strong: #333333;
-  --ring: #ff5100;
-  --danger: #fca5a5;  --success: #4ade80;  --warning: #fbbf24;
-  --code-bg: #0a0a0a;
+  --canvas: #131209;  --surface: #181818;  --surface-alt: #272727;
+  --text: #f3ece2;    --text-muted: #a3988c;
+  --brand: #52b788;   --brand-hover: #74c69d;  --brand-solid: #184e38;
+  --brand-solid-hover: #216a4d;
+  --brand-contrast: #ffffff;  --brand-soft: #172a21;  --brand-cream: #f3ece2;
+  --border-subtle: #313131;   --border-strong: #7a7168;
+  --ring: #52b788;
+  --danger: #f04438;  --success: #12b76a;  --warning: #f79009;
+  --code-bg: #181818;
+  --hero-from: #ffffff;  --hero-to: #9b9b9b;
 }
 
 @theme inline {
@@ -624,6 +653,8 @@ Light mode is unchanged and continues to use the cobalt palette.
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-code-bg: var(--code-bg);
+  --color-hero-from: var(--hero-from);
+  --color-hero-to: var(--hero-to);
 }
 ```
 
@@ -679,6 +710,12 @@ weights actually used in the type scale below.
 
 Rules: measure caps at 68 characters for prose; one `display-1` per page; the eyebrow is
 presentational and must never substitute for a real heading in the outline.
+
+**Still three families.** The brand marks (§13.5) are lettering from a fourth face, but it
+is never loaded as a font: the marks ship as outlines and the face is not in the repo. The
+`display-1` row above therefore describes the hero's *fallback*. On the home page the slot
+is filled by the drawn signature instead, which is artwork with the heading text kept
+underneath it. See `docs/DECISIONS.md`, 2026-08-30.
 
 ### 6.7 Space, layout, radius, elevation
 
@@ -1339,7 +1376,41 @@ All values come from `content/`.
 Target 1200×630 per route, plus one per project. `opengraph-image.tsx` with `ImageResponse`
 is the simplest option under a normal (non-static-export) Next.js deployment; use it. Each OG
 card is generated from content, not hand-designed per project: project title, category, and
-wordmark on the brand palette.
+year on the brand palette, signed with the monogram (§13.5).
+
+### 13.5 Brand marks and icons
+
+One identity, drawn rather than typeset, and reduced by size:
+
+| Mark | Where |
+|---|---|
+| `Mukerem.` lockup | header home link, and nowhere else |
+| Signature wordmark | the home hero's `display-1` slot |
+| `MS` monogram | footer sign-off, OG cards, `apple-icon.png`, manifest 192/512, social avatar |
+| `M` alone | `favicon.ico` (16/32/48), `app/icon.svg`, maskable icon |
+
+Each mark has one job on a page, so no page shows the same artwork twice. Two of the
+splits are forced rather than chosen:
+
+- **Below ~48px the monogram's `S` disappears into the `M`.** The face is a hairline
+  monoline; the single letter holds down to 16px where two do not. Rasters at or below
+  64px are dilated to survive the pixel grid.
+- **Tracking does not scale with type size.** The signature's -70 is a display value; at
+  the ~26px cap a header allows, it welds "m Shifa" into one shape. The header lockup is
+  therefore generated separately at -20, not cropped from the signature.
+
+The period in `Mukerem.` is **drawn, not set** — the face has no punctuation of any kind.
+It is the one letterform in the system that is not the designer's.
+
+The hero signature has its own gradient stops (`--signature-from` / `--signature-to`),
+separate from B5's `--hero-*`, because the fade has to be matched by eye per theme and the
+contrast measurements point the wrong way; `docs/DECISIONS.md` has the numbers.
+
+Everything is generated by `scripts/build_brand.py` and committed as outlines — SVG paths,
+`lib/brand-marks.ts`, and PNG/ICO rasters. **The source face is not a dependency of this
+repo and must not become one**, for weight and for licence; the licence is an open
+obligation before launch and is recorded in `docs/DECISIONS.md` (2026-08-30). Icon tiles
+are square, per §6.7's zero-radius rule.
 
 ---
 

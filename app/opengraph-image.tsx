@@ -1,19 +1,29 @@
 import { ImageResponse } from "next/og";
 
 import { getSite } from "@/lib/content";
-import { loadOgFonts, OG_CONTENT_TYPE, OG_PALETTE, OG_SIZE } from "@/lib/og";
+import {
+  loadOgFonts,
+  loadOgMonogram,
+  OG_CONTENT_TYPE,
+  OG_PALETTE,
+  OG_SIZE,
+} from "@/lib/og";
 
 export const alt = "Mukerem Shifa — portfolio";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 /**
- * §13.4's default card, inherited by every route that does not generate its own. Built
- * from `content/site.json`, so the day the role or the wordmark changes the card follows
- * without anyone opening an image editor.
+ * §13.4's default card, inherited by every route that does not generate its own. The
+ * name, role, and location are read from `content/site.json`, so the day any of them
+ * changes the card follows without anyone opening an image editor.
+ *
+ * The monogram at the top is the one fixed element: it is artwork, not content, and it
+ * is composited from a PNG rather than set as text — see `loadOgMonogram`.
  */
 export default async function Image() {
   const site = getSite();
+  const monogram = await loadOgMonogram();
 
   return new ImageResponse(
     <div
@@ -30,9 +40,15 @@ export default async function Image() {
         borderTop: `16px solid ${OG_PALETTE.brand}`,
       }}
     >
-      <div style={{ display: "flex", fontSize: 34, color: OG_PALETTE.brand }}>
-        {site.wordmark}
-      </div>
+      {/* The monogram replaced `site.wordmark` here. The card is the one surface where
+          the mark is doing the identifying on its own — a thumbnail in a feed, at a size
+          where nobody reads a two-letter caption — so it is worth the pixels the text
+          was not. `alt` is empty because the name is set in full below it. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- `next/image` does not
+          exist inside an ImageResponse. This tree is rendered by Satori, not by a
+          browser: there is no DOM, no loader, and no LCP to optimise. `<img>` with a
+          data URI is the only image primitive available here. */}
+      <img src={monogram} alt="" width={132} height={132} />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         <div style={{ display: "flex", fontSize: 84, lineHeight: 1.05 }}>{site.name}</div>

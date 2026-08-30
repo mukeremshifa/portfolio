@@ -41,6 +41,30 @@
   --warning: #8a5a00;
   --code-bg: #fbf8f3;
 
+  /* B5's hero heading stops. The one gradient the system allows, and only on text —
+     never on a background, which B4 forbids outright. #666666 on canvas is 4.90:1. */
+  --hero-from: #000000;
+  --hero-to: #666666;
+
+  /* The drawn signature's own stops (components/brand/Signature.tsx), and deliberately
+     not B5's pair above. Two reasons.
+
+     One: B5's stops were measured as *text* — `#666666` is there because it holds 4.90:1
+     — and the signature is `aria-hidden` artwork with the real heading text in a
+     `sr-only` span beside it. The bar it has to clear is SC 1.4.11's 3:1 for non-text,
+     and `#8a8279` is 3.23:1 on canvas. It is `border-strong`'s value, which is to say the
+     lowest the palette already trusts to be reliably perceivable; it is not a new number.
+
+     Two, and the reason the light value had to move at all: the fade is not symmetric
+     between the themes, and the measurements say the opposite of what the eye does. Dark
+     travels #ffffff → #9b9b9b, whose tail is still 6.76:1 — highly legible — yet reads as
+     the ink receding into the page. Light's #000000 → #666666 is the larger drop in
+     lightness, and reads as nothing at all: against a cream ground both stops are simply
+     "a dark line" and the eye normalises the difference away. Matching the *appearance*
+     costs contrast that matching the *numbers* does not. */
+  --signature-from: #000000;
+  --signature-to: #8a8279;
+
   /* Shadows & Motion */
   --overlay-shadow: 0 16px 40px -12px rgb(30 34 41 / 0.28);
   --duration-fast: 120ms;
@@ -51,10 +75,14 @@
 .dark {
   color-scheme: dark;
 
-  /* Espresso Charcoal Surfaces */
-  --canvas: #141210;
-  --surface: #1e1b18;
-  --surface-alt: #282420;
+  /* Espresso Charcoal Surfaces — landing-page-design B4 permits exactly six dark
+     background values, and #131209 is the only warm one. It is also the darkest, so
+     canvas is the one slot it can occupy; the layers above it are B4's neutrals. At
+     these luminances (0.0059 → 0.0091 → 0.0203) the temperature break is invisible
+     and the espresso character survives where it is actually seen. */
+  --canvas: #131209;
+  --surface: #181818;
+  --surface-alt: #272727;
   --text: #f3ece2;
   --text-muted: #a3988c;
 
@@ -67,16 +95,31 @@
   --brand-soft: #172a21;
   --brand-cream: #f3ece2;
 
-  /* Structure & Borders */
-  --border-subtle: #2d2823;
-  --border-strong: #524a42;
+  /* Structure & Borders. #524a42 measured 2.04:1 on surface and 1.72:1 on surface-alt
+     — §6.1(a) added border-strong precisely to hold 3:1 for SC 1.4.11, and it was not
+     holding it. #7a7168 is the lowest warm value that clears 3:1 against every surface
+     it sits on (3.93 canvas, 3.71 surface, 3.12 surface-alt) while staying well below
+     `text` so a control boundary never reads as content. */
+  --border-subtle: #313131;
+  --border-strong: #7a7168;
   --ring: #52b788;
 
   /* Status Tokens */
   --danger: #f04438;
   --success: #12b76a;
   --warning: #f79009;
-  --code-bg: #191714;
+  --code-bg: #181818;
+
+  /* B5's hero heading stops, dark. #9b9b9b on canvas is 6.76:1. */
+  --hero-from: #ffffff;
+  --hero-to: #9b9b9b;
+
+  /* Unchanged from the hero pair, and unchanged from what shipped: this is the version
+     that worked, and the light stops were re-derived to look like it. The tail is 6.76:1
+     on canvas — the fade here costs no legibility at all, which is exactly the asymmetry
+     documented on the light tokens. */
+  --signature-from: #ffffff;
+  --signature-to: #9b9b9b;
 
   /* Shadows */
   --overlay-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.72);
@@ -109,6 +152,11 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-code-bg: var(--code-bg);
+
+  /* B5. Mapped through --color-* so `from-hero-from` / `to-hero-to` exist as
+     utilities; nothing but the hero heading may consume them. */
+  --color-hero-from: var(--hero-from);
+  --color-hero-to: var(--hero-to);
 
   /* §6.7: one shadow in the whole system, reserved for the mobile nav panel and
      dialogs. Cards get a border and a surface change, never a shadow. It is mapped
@@ -239,6 +287,28 @@
      link, not a tab stop, so it must not draw a ring when clicked into. */
   main:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  /* B5's hero gradient is painted as a background and clipped to the glyphs, which
+     means the text itself is transparent. Forced-colors mode discards the background
+     and would leave the site's largest heading invisible, so the colour comes back and
+     the clip is dropped. Same reason `print` gets it: clipped backgrounds do not
+     print. */
+  @media (forced-colors: active), print {
+    .hero-heading {
+      background: none;
+      -webkit-text-fill-color: currentColor;
+      color: var(--text);
+    }
+
+    /* The drawn signature (components/brand/Signature.tsx) reaches the same cliff by a
+       different route: its glyphs are filled from a `<linearGradient>`, and a gradient
+       is as absent under forced-colors as a clipped background is. `currentColor` covers
+       both arms of this query without branching — it resolves to the user's forced text
+       colour in the first and to `--text`, inherited from the `h1`, in the second. */
+    .signature-ink {
+      fill: currentColor;
+    }
   }
 }
 

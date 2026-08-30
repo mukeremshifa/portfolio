@@ -124,11 +124,12 @@ export function ProjectCard({
           // the overlay would swallow the clicks and every link on the card would
           // navigate to the project page instead.
           //
-          // `group-hover:text-brand-hover` is a contrast fix, not a flourish. The card
-          // shifts to `surface-alt` whenever the pointer is anywhere on it, and in dark
-          // mode `brand` on `surface-alt` measures 4.17:1, under AA for body-size text.
-          // `brand-hover` there is 6.03:1 (9.75:1 light), so the links brighten with the
-          // background rather than being left behind by it.
+          // `group-hover:text-brand-hover` keeps the links legible as the card surface
+          // shifts to `surface-alt` under the pointer. Re-measured against B4's dark
+          // stack: `brand` on `surface-alt` is 6.04:1 dark and 7.70:1 light, so it now
+          // clears AA on its own — the earlier 4.17:1 was the orange palette's number
+          // and outlived it. `brand-hover` there is 7.33:1 dark and 10.53:1 light, so
+          // the links still brighten with the background rather than trailing it.
           <ul className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 font-sans text-body-sm">
             {project.links.live ? (
               <li>

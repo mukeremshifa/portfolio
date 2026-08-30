@@ -1,9 +1,11 @@
+import { Signature } from "@/components/brand/Signature";
 import { Button } from "@/components/ui/Button";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Figure } from "@/components/ui/Figure";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { VisuallyHidden } from "@/components/ui/VisuallyHidden";
+import { SIGNATURE } from "@/lib/brand-marks";
 import type { Site } from "@/lib/schemas";
 import { formatMonth } from "@/lib/utils";
 
@@ -11,6 +13,13 @@ type HeroProps = { site: Site };
 type HeroSocial = Site["socials"][number] & {
   platform: "github" | "linkedin";
 };
+
+/**
+ * The one string the signature artwork actually spells. Read off the generated mark
+ * rather than typed here, so the guard below cannot fall out of step with the drawing
+ * the next time `scripts/build_brand.py` runs.
+ */
+const SIGNED_NAME = SIGNATURE.text;
 
 /**
  * §8.1's hero, and the site's one `display-1`.
@@ -35,9 +44,27 @@ export function Hero({ site }: HeroProps) {
     <section className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-16">
       <div className="flex min-w-0 flex-1 flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="max-w-measure font-serif text-display-1 font-semibold text-text">
-            {site.name}
-          </h1>
+          {/* B5: the hero heading is the system's one gradient, and it is on text, not
+              on a background. Both branches below honour that — the difference is only
+              whether the gradient is clipped to glyphs or painted into outlines. */}
+          {site.name === SIGNED_NAME ? (
+            <h1 className="max-w-measure">
+              {/* The heading's text lives here, not in the artwork. `Signature` is
+                  `aria-hidden`, so this is what the accessibility tree, search, and a
+                  copy-paste all see, and there is exactly one copy of it. */}
+              <VisuallyHidden>{site.name}</VisuallyHidden>
+              <Signature className="w-full max-w-[34rem] text-text" />
+            </h1>
+          ) : (
+            // The signature is a fixed drawing of one string. If `site.name` is ever
+            // something else, the artwork would be quietly asserting the wrong name, so
+            // it steps aside for the typeset heading it replaced rather than shipping a
+            // lie. `hero-heading` (globals.css) restores a painted colour under
+            // forced-colors, where a clipped background leaves nothing to read.
+            <h1 className="hero-heading max-w-measure bg-linear-to-r from-hero-from to-hero-to bg-clip-text font-serif text-display-1 font-semibold text-transparent">
+              {site.name}
+            </h1>
+          )}
           <p className="font-sans text-heading-1 font-semibold text-text">{site.role}</p>
         </div>
 

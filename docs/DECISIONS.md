@@ -658,3 +658,194 @@ the token values in `globals.css` rather than by inspection.
 in dark mode. Anything brand-coloured that can end up on `surface-alt` needs `brand-hover`,
 which is the same shape of problem `brand-solid-hover` was added for in v2.1.2.
 **Affects:** §6.1, §6.3, §6.8, §11.4
+
+## 2026-08-30 — Dark surfaces re-anchored on the landing-page-design B4 list
+
+**Context:** The `landing-page-design` skill was added to the repo, and its B4 rule
+permits exactly six dark background values: `#000000`, `#181818`, `#1F1F1F`, `#272727`,
+`#313131`, `#131209`. The shipped espresso stack (`#141210` / `#1E1B18` / `#282420` /
+`#191714`) used none of them.
+**Decision:** `canvas` → `#131209`, `surface` → `#181818`, `surface-alt` → `#272727`,
+`code-bg` → `#181818`, `border-subtle` → `#313131`. Light mode is untouched; B4's list is
+dark-only.
+**Reason:** The existing stack mapped onto the list almost 1:1 by luminance, so the
+elevation ladder survives unchanged. `#131209` is B4's only warm value *and* its darkest,
+so it can occupy exactly one slot — `canvas` — which is the one that covers the most
+screen and carries the espresso character. The neutrals above it sit at L=0.0091 and
+0.0203, where the temperature break against a 0.0059 canvas is not perceptible. The cost
+is that a card no longer carries warmth on its own; on a page where cards are the majority
+surface that would have been the wrong trade, and here it is not.
+**Affects:** §6.1, §6.3, §6.4
+
+## 2026-08-30 — Dark `border-strong` was failing the rule it was added to satisfy
+
+**Context:** Re-measuring for the B4 change showed dark `border-strong` (`#524A42`) at
+2.04:1 on `surface` and 1.72:1 on `surface-alt`. §6.1(a) added the token specifically to
+hold 3:1 for WCAG 2.2 SC 1.4.11, and §6.1 claimed `#333333`, which measures worse still.
+The token is the sole boundary on secondary buttons, the theme toggle, the mobile nav
+toggle, the copy button, the skip link, and unselected filter chips.
+**Decision:** Dark `border-strong` → `#7A7168`.
+**Reason:** It is the lowest warm value that clears 3:1 against every surface it sits on
+(3.93 canvas, 3.71 surface, 3.12 surface-alt), including the `surface-alt` hover state that
+was the binding constraint. Going lighter would buy margin the rule does not ask for and
+start reading as content rather than boundary. This is a pre-existing defect that the
+token revision surfaced, not one it introduced.
+**Affects:** §6.1, §6.3, §6.8
+
+## 2026-08-30 — B4's background list does not govern brand tints
+
+**Context:** Read literally, "dark mode background colors: use only these" would outlaw
+`brand-soft` (`#172A21`) and `brand-solid` (`#184E38`), since both are painted as
+backgrounds.
+**Decision:** B4's list governs surface and page backgrounds. Brand tints and fills are
+accent colour and are out of its scope.
+**Reason:** The alternative reading deletes every tinted badge and every filled button from
+the system, which is plainly not what a rule about *background colors* in a list of neutral
+greys is reaching for. Recording the reading so a later audit does not re-open it — or
+apply the rule to `brand-solid` and wonder why the primary button turned grey.
+**Affects:** §6.1, §6.3
+
+## 2026-08-30 — Hero heading is the system's one gradient
+
+**Context:** B5 requires the hero heading to be gradient text: `#FFFFFF` → `#9B9B9B` dark,
+`#000000` → `#666666` light. The hero `h1` was flat `text-text`.
+**Decision:** Added `hero-from` / `hero-to` to both palettes, mapped them into
+`@theme inline`, and applied them to the hero `h1` via `bg-clip-text`. A `.hero-heading`
+rule restores a painted colour under `forced-colors` and `print`.
+**Reason:** B4 forbids background gradients outright and B5 carves out exactly one
+exception, on text. Keeping the stops as tokens rather than literals means the pairing is
+re-measurable like every other value in §6.2 and §6.3 (`#666666` is 4.90:1 on the light
+canvas, `#9B9B9B` is 6.76:1 on the dark one). The forced-colors fallback is not optional:
+`bg-clip-text` makes the glyphs transparent, and a mode that discards backgrounds would
+otherwise erase the largest heading on the site.
+**Affects:** §6.2, §6.3, §6.4, §8.1
+
+## 2026-08-30 — §6.2 and §6.3 re-derived from the stylesheet
+
+**Context:** The spec described a cobalt light palette (`#0A39A6`) and an orange dark
+accent (`#FF5100`) over a pure-black stack. The stylesheet had shipped deep emerald
+(`#184E38`) and warm sage (`#52B788`) over espresso charcoal for some time, with no entry
+here. Several measured ratios quoted in component comments were the orange palette's and
+had outlived it — `brand` on `surface-alt` was documented at 4.17:1 and actually measures
+6.04:1.
+**Decision:** §6.1(b), §6.2, §6.3, and §6.4's code block now match `app/globals.css`.
+Stale ratios in `ProjectCard`, `CertificationCard`, and `StatusBadge` were re-measured.
+**Reason:** `globals.css` opens by saying the ratios behind its values are quoted in §6.1
+and that changing a hex makes §6.1 a lie. §6.1 was already a lie, which made every quoted
+number in the codebase untrustworthy at exactly the moment a token revision needed to trust
+them. The palette change itself is not re-litigated here; only the record is corrected.
+**Affects:** §6.1, §6.2, §6.3, §6.4
+
+## 2026-08-30 — A drawn identity, and the font that is not in the repo
+
+**Context:** The site had no brand assets at all: no favicon, no app icons, no manifest,
+and an OG card that identified itself with the two letters in `site.wordmark`. A display
+face (Halimun, Creatype Studio) was chosen for a monogram and a signature wordmark.
+**Decision:** Every mark is generated once from the OTF by `scripts/build_brand.py` and
+committed as outlines — SVG paths, a generated `lib/brand-marks.ts`, and PNG/ICO rasters.
+The font is **not** vendored, is not a `next/font` family, and is not a build dependency.
+`site.wordmark` moved from `MK` to `MS`.
+**Reason:** The site needs eight fixed strings of this face, not the face. None of them is
+authored content — they are artwork that happens to be lettering — so nothing is lost by
+freezing them, and a fourth font family plus its weights is avoided entirely. The vector
+marks total ~18 KB.
+
+There is also a licence to respect, and it is the reason this entry exists rather than a
+comment: **the file the outlines were drawn from is Creatype Studio's demo release, which
+is personal-use only.** Outlining does not launder that — the artwork is still derived
+from the face. A commercial licence (creatypestudio.co/halimun) is an **open obligation
+before the site goes public**, and Phase 6's launch checklist should not pass without it.
+Not vendoring the binary at least keeps the repo from redistributing it in the meantime.
+**Affects:** §6.6, §13.4
+
+## 2026-08-30 — The mark reduces to one letter below 48px
+
+**Context:** Halimun is a ~29/1000em monoline. At a 32px favicon that stroke is under one
+device pixel, and the interlocked `MS` — whose S is set 30% into the M's ink — loses the S
+into the M's right stem entirely. Rendered at 16/32/48, it was a smudge.
+**Decision:** A two-tier mark. `MS` is the identity and takes every surface with room:
+header, hero, OG cards, apple-touch, the 192/512 manifest icons, the social avatar. The
+single `M` takes `favicon.ico`, `app/icon.svg`, and the maskable icon. Rasters at or below
+64px are additionally dilated by stroking each outline in its own colour, per
+`DILATE_BY_PX`.
+**Reason:** A mark that is not legible is not a mark, and the usual fix — thickening the
+strokes until they read — closes this face's loops and turns the S into a blob well before
+it turns it into a letter. Dropping to one letter is the standard responsive-logo answer
+and costs nothing: the tab is not where anyone learns your initials. The maskable icon is
+the `M` for a second reason — launchers crop it to an arbitrary shape, and two letters do
+not survive a circular crop.
+**Affects:** §6.7, §13.4
+
+## 2026-08-30 — The hero heading became artwork, with the text kept underneath
+
+**Context:** §6.6 fixes three families and B5 makes the hero `h1` the system's one
+gradient. Setting the hero in a fourth, unvendored face contradicts both.
+**Decision:** The `h1` renders `components/brand/Signature.tsx` — "Mukerem Shifa" as
+outlines — with a `sr-only` copy of the name beside it and `aria-hidden` on the SVG. The
+gradient survives the move: the `<linearGradient>` stops read `--hero-from` / `--hero-to`,
+the same two tokens `bg-clip-text` consumed. The branch is guarded on
+`site.name === SIGNATURE.text`; any other name falls back to the typeset gradient heading.
+**Reason:** The accessible name, the copy-paste, and what a crawler indexes all stay real
+text — the outlines are only what sighted users see, so this is a rendering change rather
+than a content one. Keeping the stops as tokens means §6.2/§6.3 still own both themes;
+had the SVG been referenced through `<img>`, they could not have reached inside it, which
+is also why `lib/brand-marks.ts` exists next to the `.svg` files. The guard matters more
+than it looks: the artwork spells one specific string, and without it a future edit to
+`site.name` would leave the largest element on the page quietly asserting the old one.
+Forced-colors and print are handled as B5's heading already was, one rule further down in
+`globals.css`.
+**Affects:** §6.6, §8.1
+
+## 2026-08-30 — The header takes a word, not the initials
+
+**Context:** The header home link drew the `MS` monogram at 36px. In a 64px bar it read as
+incidental rather than delicate — 61px of hairline against five nav items. The full
+signature was the obvious alternative and is worse: its -70 tracking is a display value,
+and at the ~26px cap a header allows it welds "m Shifa" into one unreadable shape.
+**Decision:** A third mark, `WORDMARK_FIRST` — "Mukerem." — set at -20 tracking and closed
+with a period. The monogram moves to the footer; the full signature stays in the hero.
+**Reason:** Tracking does not scale with type size, which is the whole reason the full name
+fails up there and the reason this mark is generated separately rather than cropped out of
+the signature. One word at 162px fills the slot without competing with the hero, and the
+period stops it reading as a truncated first name. It also gives each mark one job — header
+word, hero signature, footer monogram — so no page shows the same artwork twice.
+
+Note what this cost: **Halimun has no punctuation.** Its 71 glyphs are the Latin alphabet,
+the digits, and `!$?@`. The period is drawn — a circle at the pen's weight on the baseline,
+`Dot` in `scripts/build_brand.py`. That is the only letterform in this system that is mine
+rather than the designer's, and it is deliberately the simplest possible shape.
+**Affects:** §7.2, §13.5
+
+## 2026-08-30 — The signature's gradient is not B5's, and the two themes are not symmetric
+
+**Context:** The drawn signature inherited B5's hero stops: `#000000` → `#666666` light,
+`#ffffff` → `#9b9b9b` dark. In dark the fade reads as the ink receding into the page. In
+light it reads as nothing.
+**Decision:** New `--signature-from` / `--signature-to` in both palettes. Dark keeps the
+values that already worked. Light becomes `#000000` → `#8a8279`. B5's `--hero-*` pair is
+untouched and still drives the typeset fallback heading.
+**Reason:** The measurements say the opposite of what the eye does, which is why this is
+worth recording. Light's original `#000000` → `#666666` is the *larger* drop in lightness
+of the two, and its tail holds 4.90:1; dark's tail is 6.76:1, comfortably legible, and yet
+dark is the one that looks dramatic. Against a cream ground both light stops simply read as
+"a dark line" and the eye normalises the difference away, so matching the *appearance*
+costs contrast that matching the *numbers* does not.
+
+`#8a8279` is `border-strong`'s light value, not a new number: the lowest the palette
+already trusts to be reliably perceivable. At 3.23:1 on canvas it clears SC 1.4.11's 3:1
+for non-text, which is the correct bar — the signature is `aria-hidden` artwork and the
+heading's real text sits beside it in a `sr-only` span. Borrowing B5's stops would have
+meant holding artwork to a text threshold it does not owe, and looking wrong to do it.
+**Affects:** §6.2, §6.3, §8.1
+
+## 2026-08-30 — The monogram seals the footer
+
+**Context:** The footer opened with `site.name` in serif and carried none of the identity.
+**Decision:** The `MS` monogram sits above that line at 52px in `text-muted`. The name stays
+set, in the line below it and again in the copyright.
+**Reason:** It is where the monogram earns its place now that the header has a word: on
+inner routes, which have no hero, the footer is the only drawn mark on the page. `text-muted`
+and not `text` because it is a sign-off under the content rather than a second masthead, and
+it carries no accessible name because the name is set twice within a few lines of it —
+labelling the picture would only add a third.
+**Affects:** §7.3, §13.5

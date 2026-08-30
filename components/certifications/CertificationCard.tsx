@@ -57,9 +57,9 @@ export function CertificationCard({
         </Heading>
         <p className="font-sans text-body text-text-muted">
           {certification.issuerUrl ? (
-            /* Same contrast fix as the project card: the card surface shifts under
-               these links on hover, and `brand` on `surface-alt` measures 4.17:1 in
-               dark mode, under AA. `brand-hover` there is 6.03:1. */
+            /* Same treatment as the project card: the card surface shifts under these
+               links on hover. `brand` on `surface-alt` is 6.04:1 dark and 7.70:1
+               light, `brand-hover` 7.33:1 and 10.53:1. */
             <ExternalLink
               href={certification.issuerUrl}
               className="group-hover:text-brand-hover"

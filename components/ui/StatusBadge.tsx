@@ -11,8 +11,10 @@ type StatusBadgeProps = {
  * it still reads.
  *
  * Measured, since these are the smallest text in the system (§6.1's method, not its
- * numbers — these pairings are new): success on surface-alt is 5.50:1 light and 8.80:1
- * dark; brand on brand-soft is 8.13:1 light; brand-cream on brand-soft is 12.19:1 dark.
+ * numbers — these pairings are new), and re-measured against B4's dark stack: success
+ * on surface-alt is 5.50:1 light and 5.70:1 dark; brand on brand-soft is 8.15:1 light;
+ * brand-cream on brand-soft is 12.89:1 dark. text-muted on surface-alt, the smallest
+ * pairing here, is 4.79:1 light and 5.28:1 dark.
  */
 const states = {
   completed: "border-border-subtle bg-surface-alt text-text-muted",
