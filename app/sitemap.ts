@@ -24,7 +24,7 @@ const STATIC_ROUTES = [
   "/projects",
   "/experience",
   "/about",
-  "/certifications",
+  "/skills",
   "/contact",
 ] as const;
 

@@ -6,7 +6,7 @@ type CredentialsPreviewProps = { certifications: Certification[] };
 
 /**
  * §8.1's sixth section: up to four featured certifications, linking to
- * `/certifications/`.
+ * `/skills/`.
  *
  * The section is not rendered at all when nothing is featured. An owner with no
  * credentials should get a home page with six sections, not a seventh one announcing that
@@ -19,7 +19,7 @@ export function CredentialsPreview({ certifications }: CredentialsPreviewProps) 
     <section className="flex flex-col gap-heading">
       <SectionHeading
         title="Credentials"
-        action={{ href: "/certifications", label: "All credentials →" }}
+        action={{ href: "/skills", label: "All credentials →" }}
       />
       <CertificationGrid certifications={certifications} />
     </section>

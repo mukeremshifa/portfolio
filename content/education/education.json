@@ -1,0 +1,25 @@
+[
+  {
+    "id": "aurak-bsc-computer-science",
+    "credential": "Bachelor of Science, Computer Science",
+    "institution": "American University of Ras Al Khaimah",
+    "institutionUrl": "https://aurak.ac.ae",
+    "start": "2023-08",
+    "end": "2027-07",
+    "location": "Ras al-Khaimah, UAE",
+    "note": "My undergraduate degree, still in progress. The coursework is what sits underneath the Java, Python, and database work elsewhere on this site, and I spent two semesters of it teaching the object-oriented programming course.",
+    "highlights": [
+      "Expected to complete in July 2027.",
+      "Teaching assistant for the object-oriented programming course, 2024 to 2025."
+    ]
+  },
+  {
+    "id": "robe-secondary-school",
+    "credential": "High School Diploma",
+    "institution": "Robe Secondary School",
+    "start": "2019-09",
+    "end": "2022-06",
+    "note": "Secondary school in Ethiopia, finished with a final grade of 93.1 percent. It is where the maths that keeps turning up in the algorithms coursework actually got taught.",
+    "highlights": ["Graduated with a final grade of 93.1 percent."]
+  }
+]

@@ -5,11 +5,26 @@
   "eyebrow": "AI engineering and full-stack delivery",
   "headline": "I build multi-tenant products, and the AI features that live inside them.",
   "intro": "Most of what I build is multi-tenant: a chat platform that keeps one customer's documentation away from another's, a learning system where four roles mean four different things, a flashcard tool that gates generated cards behind review. The model is rarely the hard part. The access control and the migration are, and they are only cheap while the thing is still being written.",
+  "bio": "Hi, I'm Mukerem! I'm a Computer Science senior who loves building smart, production-grade AI and web applications. Whether architecting conversational AI platforms, crafting gamified web experiences, or mentoring student developers as Coding Club Tech Lead, I focus on creating tech that drives real engagement. Outside of Python and TypeScript, you'll usually find me experimenting with modern AI agents and cloud architectures.",
   "email": "hello@mukeremshifa.com",
   "location": {
     "label": "Ras al-Khaimah, UAE",
-    "remote": true
+    "remote": false
   },
+  "languages": [
+    {
+      "name": "English",
+      "level": "Fluent"
+    },
+    {
+      "name": "Amharic",
+      "level": "Native"
+    },
+    {
+      "name": "Arabic",
+      "level": "Conversational"
+    }
+  ],
   "availability": {
     "show": false,
     "state": "open",
@@ -24,6 +39,12 @@
     "alt": "Placeholder standing in for a portrait photograph of Mukerem Shifa.",
     "width": 1000,
     "height": 1250
+  },
+  "avatar": {
+    "src": "/placeholders/placeholder-avatar-1x1.svg",
+    "alt": "Placeholder standing in for a square portrait photograph of Mukerem Shifa.",
+    "width": 800,
+    "height": 800
   },
   "socials": [
     {

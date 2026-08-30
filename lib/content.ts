@@ -6,6 +6,7 @@ import { z } from "zod";
 import {
   CATEGORIES,
   CertificationSchema,
+  EducationSchema,
   FocusPillarSchema,
   ProjectSchema,
   SiteSchema,
@@ -13,6 +14,7 @@ import {
   ExperienceSchema,
   type Category,
   type Certification,
+  type Education,
   type ExperienceEntry,
   type FocusPillar,
   type Project,
@@ -112,6 +114,10 @@ const experience = load(
   join(CONTENT_DIR, "experience", "timeline.json"),
   z.array(ExperienceSchema),
 );
+const education = load(
+  join(CONTENT_DIR, "education", "education.json"),
+  z.array(EducationSchema),
+);
 const certifications = load(
   join(CONTENT_DIR, "certifications", "certifications.json"),
   z.array(CertificationSchema),
@@ -137,6 +143,7 @@ const SITE = site!;
 const FOCUS = focus!;
 const SKILLS = skills!;
 const EXPERIENCE = experience!;
+const EDUCATION = education!;
 const CERTIFICATIONS = certifications!;
 
 /**
@@ -210,6 +217,18 @@ export function getAdjacentProjects(slug: string): {
 
 export function getExperience(): ExperienceEntry[] {
   return EXPERIENCE;
+}
+
+/**
+ * Newest first, sorted here rather than in the file.
+ *
+ * `getExperience()` deliberately returns file order and lets `/experience/` sort, because
+ * the home preview and the full page want different things from it. Education has exactly
+ * one consumer and one sensible order, so the selector owns it and the page does not have
+ * to remember.
+ */
+export function getEducation(): Education[] {
+  return [...EDUCATION].sort((a, b) => b.start.localeCompare(a.start));
 }
 
 export function getCertifications(): Certification[] {

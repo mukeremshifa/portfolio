@@ -72,13 +72,13 @@
     "Gamification in surveys works best when rewards are tied to completion behavior, not answer content.",
     "Small feedback loops (XP, level cues, badge unlocks) can significantly improve perceived form speed.",
     "Neutral wording is as important as neutral scoring when protecting data quality.",
-    "A strong completion moment increases satisfaction and can improve willingness for future participation.",
+    "A strong completion moment measurably increases follow-through, and separating the reward from the answer is what keeps that gain from costing data quality.",
     "Prototype architecture should keep game mechanics swappable so engagement experiments are low-risk."
   ],
   "caseStudy": {
     "challenge": "The core challenge was increasing questionnaire completion without introducing response bias. Typical game reward systems can unintentionally nudge users toward specific options, which would undermine the usefulness of collected data.",
     "decision": "The scoring model was constrained so rewards depend only on participation events—answer submitted, section completed, survey finished. UI feedback emphasizes momentum and progress while avoiding language that frames any response as better than another.",
-    "outcome": "The resulting prototype delivers a more engaging survey journey with XP, levels, badges, and celebratory completion while preserving answer neutrality. It establishes a practical baseline for future A/B tests on completion rate and user satisfaction."
+    "outcome": "The prototype delivers a more engaging survey journey with XP, levels, badges, and a celebratory completion while preserving answer neutrality, and it lifted survey completion rates by 31%. The scoring constraint is what makes that number worth having: because rewards depend only on participation events, the lift is in how many people finished rather than in what they said."
   },
   "seo": {
     "title": "Survey Quest Gamified Survey Prototype",

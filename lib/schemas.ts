@@ -52,11 +52,40 @@ export const SiteSchema = z.object({
   eyebrow: z.string().min(1).max(60),
   headline: z.string().min(1).max(90),
   intro: z.string().min(80).max(400),
+  /**
+   * `/about/`'s opening passage: first person, and warmer than anything else on the site.
+   *
+   * **Separate from `intro` on purpose.** `intro` is the positioning paragraph, and three
+   * things read it — the home hero, this page's old lead, and `personJsonLd`'s
+   * `description`. Overloading it to carry a first-person greeting would have rewritten
+   * the hero and the search snippet as a side effect of editing the About page. Two
+   * fields, two registers, two audiences, and the hero moves on its own schedule.
+   *
+   * The 700 ceiling is higher than `intro`'s 400 because this one is the page rather than
+   * a lead into it.
+   */
+  bio: z.string().min(80).max(700),
   email: z.email(),
   location: z.object({
     label: z.string(),
     remote: z.boolean(),
   }),
+  /**
+   * §7.3's location says where. This says in what.
+   *
+   * `level` is a free string and optional rather than an enum, for the same reason
+   * `SkillGroupSchema` carries no proficiency field (§1.5): a fixed ladder invites a
+   * self-assessment nobody can check. A stated level is a claim the owner chose to make;
+   * an absent one renders as the bare language name rather than as a gap in the row.
+   */
+  languages: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        level: z.string().min(1).optional(),
+      }),
+    )
+    .min(1),
   availability: z.object({
     show: z.boolean(),
     state: z.enum(["available", "open", "unavailable"]),
@@ -79,6 +108,24 @@ export const SiteSchema = z.object({
    * photograph lands. Do not weaken the floor for a placeholder.
    */
   portrait: z
+    .object({
+      src: z.string(),
+      alt: z.string().min(10),
+      ...ImageDimensions,
+    })
+    .optional(),
+  /**
+   * The 1:1 crop `/about/` renders in a circle.
+   *
+   * A second image field rather than a reuse of `portrait`, because `portrait` is 4:5 and
+   * belongs to the hero — centre-cropping a 4:5 portrait to a circle is how a portrait
+   * loses the top of its head. The two slots take two exports of the same photograph.
+   *
+   * Optional on exactly `portrait`'s terms: remove the field and the About header
+   * collapses to one column rather than reserving space for something that is not there.
+   * `alt` carries the same 10-character floor, for the same reason.
+   */
+  avatar: z
     .object({
       src: z.string(),
       alt: z.string().min(10),
@@ -186,12 +233,16 @@ export const ExperienceSchema = z
     role: z.string(),
     organization: z.string(),
     organizationUrl: z.url().optional(),
+    // No `"education"`. A degree is not a job, and while the value existed the timeline
+    // was where degrees landed by default — §8.4 reads as a history of work, and a
+    // qualification sitting in it is a category error the badge only labelled rather than
+    // fixed. Education moved to `EducationSchema` and `/about/` on 2026-08-31; deleting
+    // the enum member is what stops the next one drifting back here.
     type: z.enum([
       "employment",
       "freelance",
       "internship",
       "research",
-      "education",
       "independent",
     ]),
     start: YearMonth,
@@ -201,6 +252,35 @@ export const ExperienceSchema = z
     achievements: z.array(z.string()).min(1).max(5),
     technologies: z.array(z.string()).max(10).default([]),
     featured: z.boolean().default(false),
+  })
+  .refine((e) => e.end === null || e.end >= e.start, {
+    message: "end must not precede start",
+  });
+
+/**
+ * Formal qualifications, split out of `ExperienceSchema` on 2026-08-31.
+ *
+ * The shape is deliberately *not* an experience entry with different labels. An experience
+ * entry has a `role` you performed and `achievements` you can be credited with; a degree
+ * has a `credential` you were awarded and, at most, a couple of things worth noting about
+ * how it went. Reusing the employment shape is what produced "role: Bachelor of Science"
+ * in the first place.
+ *
+ * `highlights` caps at 3 and has no floor, because most qualifications have nothing to add
+ * beyond the credential and the dates — and a schema that demands one bullet gets one
+ * invented.
+ */
+export const EducationSchema = z
+  .object({
+    id: z.string(),
+    credential: z.string(),
+    institution: z.string(),
+    institutionUrl: z.url().optional(),
+    start: YearMonth,
+    end: YearMonth.nullable(),
+    location: z.string().optional(),
+    note: z.string().min(40).max(300),
+    highlights: z.array(z.string()).max(3).default([]),
   })
   .refine((e) => e.end === null || e.end >= e.start, {
     message: "end must not precede start",
@@ -236,6 +316,7 @@ export const FocusPillarSchema = z.object({
 export type Site = z.infer<typeof SiteSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type ExperienceEntry = z.infer<typeof ExperienceSchema>;
+export type Education = z.infer<typeof EducationSchema>;
 export type Certification = z.infer<typeof CertificationSchema>;
 export type SkillGroup = z.infer<typeof SkillGroupSchema>;
 export type FocusPillar = z.infer<typeof FocusPillarSchema>;

@@ -38,7 +38,7 @@ export const INDEXING_ALLOWED = process.env.ALLOW_INDEXING === "true";
  *
  * **The `opengraph-image` file convention does not cascade.** It sets the image for the
  * route segment it sits in, not for that segment's children, so `app/opengraph-image.tsx`
- * covers `/` alone and `/about`, `/projects`, `/experience`, `/certifications`, and
+ * covers `/` alone and `/about`, `/projects`, `/experience`, `/skills`, and
  * `/contact` would otherwise share with no card at all. The fix is this constant rather
  * than five files re-exporting the root route, which would generate five identical PNGs at
  * build time to say one thing.

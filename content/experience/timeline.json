@@ -11,10 +11,18 @@
     "summary": "Building a game layer into an existing survey product alongside colleagues: XP, levels, badges, and a completion sequence, aimed at lifting response rates without distorting the responses themselves.",
     "achievements": [
       "Implemented the progression layer (XP, levels, badges, and a completion sequence) on top of a survey product already in use, rather than replacing it.",
+      "Lifted survey completion rates by 31% with the progression layer in place.",
       "Kept the incentive neutral by awarding progress for participation rather than for particular answers, so completion rate is not bought with response quality.",
       "Built the interface in React with Vite and Tailwind, with the animation work in Framer Motion."
     ],
-    "technologies": ["React", "Vite", "Tailwind CSS", "Framer Motion", "Docker", "nginx"],
+    "technologies": [
+      "React",
+      "Vite",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Docker",
+      "nginx"
+    ],
     "featured": true
   },
   {
@@ -75,7 +83,9 @@
       "Prepared course materials and facilitated discussion across two semesters.",
       "Tutored individually and in groups on inheritance, polymorphism, and encapsulation."
     ],
-    "technologies": ["Java"],
+    "technologies": [
+      "Java"
+    ],
     "featured": false
   },
   {
@@ -109,35 +119,6 @@
       "Served as an event coordinator for the Middle East QS Education Summit, assisting the university in hosting it.",
       "Represented the international student community at university events through the year."
     ],
-    "technologies": [],
-    "featured": false
-  },
-  {
-    "id": "aurak-bsc-computer-science-2023",
-    "role": "Bachelor of Science, Computer Science",
-    "organization": "American University of Ras Al Khaimah",
-    "organizationUrl": "https://aurak.ac.ae",
-    "type": "education",
-    "start": "2023-08",
-    "end": "2027-07",
-    "location": "Ras al-Khaimah, UAE",
-    "summary": "Undergraduate computer science degree, in progress. The coursework sits behind the Java, Python, and database work elsewhere on this site.",
-    "achievements": [
-      "Expected to complete in July 2027.",
-      "Held the teaching assistant post for the object-oriented programming course during the degree."
-    ],
-    "technologies": ["Python", "SQL", "Java"],
-    "featured": false
-  },
-  {
-    "id": "robe-secondary-school-2019",
-    "role": "High School Diploma",
-    "organization": "Robe Secondary School",
-    "type": "education",
-    "start": "2019-09",
-    "end": "2022-06",
-    "summary": "Secondary education completed with a final grade of 93.1 percent.",
-    "achievements": ["Graduated with a final grade of 93.1 percent."],
     "technologies": [],
     "featured": false
   }

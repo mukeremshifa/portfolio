@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { ContactCallout } from "@/components/home/ContactCallout";
@@ -38,13 +39,28 @@ export default function ExperiencePage() {
             Experience
           </h1>
           <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            Employment, freelance engagements, research, and independent work, in order.
-            Each entry says what the work was and what it left behind, and the badge says
-            which kind it was.
+            A blend of full-stack development, AI integrations, leadership, and community.
+            Focused on building scalable features, optimizing performance, and shipping
+            production-grade solutions.
           </p>
         </div>
 
         <ExperienceTimeline entries={entries} headingLevel="h2" />
+
+        {/* Education left this timeline on 2026-08-31 and a reader who scrolled looking
+            for it deserves to be told where it went rather than left to assume it is
+            missing. Below the list rather than in the lead: it answers a question the page
+            raises on its way out, so it belongs where that question gets asked. */}
+        <p className="font-sans text-body text-text-muted">
+          My degree is not on this list — it was never a job, so it lives on{" "}
+          <Link
+            href="/about"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+          >
+            the about page
+          </Link>{" "}
+          instead.
+        </p>
 
         {site.resume ? (
           <div className="flex flex-col gap-4">

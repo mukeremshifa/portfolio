@@ -1014,3 +1014,91 @@ Two Huawei credentials carry a credential ID but no verify URL, so §13.2 keeps 
 the JSON-LD while §8.6 still renders them in prose — nine of eleven reach the graph. That
 split is the existing design working as specified, not a gap.
 **Affects:** §5.4, §8.6, §13.2
+
+## 2026-08-31 — Education left the experience timeline, and the enum member left with it
+
+**Context:** `ExperienceSchema` carried `"education"` among its `type` values, so the AURAK
+BSc and a secondary-school diploma rendered as timeline entries beside jobs, under a `role`
+field holding "Bachelor of Science, Computer Science."
+**Decision:** New `EducationSchema` and `content/education/education.json`, rendered by
+`EducationList` in a new Education section on `/about/`. `"education"` is **deleted** from
+`ExperienceSchema`'s `type` enum.
+**Reason:** Moving only the rendering would have left the enum inviting the next degree
+straight back into the timeline, where it would have looked deliberate. Deleting the member
+makes the wrong placement a validation error instead of a judgement call, and because
+`EXPERIENCE_TYPE_LABELS` is keyed by the enum, the compiler names the one other place that
+had to change.
+
+The new schema is not an experience entry with renamed fields. An experience entry has a
+`role` you performed and `achievements` you can be credited with; a qualification has a
+`credential` you were awarded and at most a note about it. Reusing the employment shape is
+what produced "role: Bachelor of Science" in the first place. `highlights` caps at 3 with no
+floor, because most qualifications are the credential and the dates, and a schema that
+demands a bullet gets an invented one.
+
+**Cost:** The BSc's `technologies: ["Python", "SQL", "Java"]` had nowhere to go and was
+dropped. All three already appear in the Languages skill group, so §5.5 invariant 8 is
+unaffected — but the degree no longer contributes to the technology vocabulary, and if it
+ever should, that is a new field rather than a restored one. `/experience/` gained a
+sentence saying where the degree went, so the omission reads as a decision rather than a gap.
+**Affects:** §5.4, §5.5, §8.4, §8.5
+
+## 2026-08-31 — `/certifications` became `/skills`, and grew into the label
+
+**Context:** §7.2's nav labelled `/certifications/` **"Skills"** since Phase 3. The route
+rendered credentials and nothing else, while the actual skills content — the tool groups and
+the focus pillars — sat on `/about/`. The one link on the site promising skills delivered a
+list of courses.
+**Decision:** `app/skills/page.tsx` replaces `app/certifications/page.tsx`, composing focus
+pillars, then tool groups, then the certification grid. A permanent redirect in
+`next.config.ts` covers the old path. `components/certifications/*` keeps its name.
+**Reason:** Two ways to end the mismatch: relabel the nav to "Certifications," or build the
+page the label promised. The second is the better site — credentials alone are a weak answer
+to "what can this person do," and the pillars and tools were doing nothing for `/about/`
+except crowding out the personal content that page was missing.
+
+The section order is the argument the page makes. A bare tool list is not evidence any of
+those tools were used well, and shipping one to fix a bare credential list would have
+reproduced the same defect one noun over. The pillars say what the tools are *for*; the
+certificates are the only part a third party vouches for, so they close the page rather than
+open it.
+
+The components were not renamed along with the route. They render credentials, which is
+still exactly what they do — only the page composing them moved, and renaming them would
+have made a route change look like a component change in every future `git log`.
+**Cost:** A live, linked URL changed. The redirect is permanent (308) so accumulated ranking
+follows rather than splits, but anything outside this repo pointing at `/certifications` —
+the résumé PDF included — is now one hop from its destination.
+**Affects:** §7.1, §7.2, §7.4, §8.5, §8.6, §13.2, §13.4
+
+## 2026-08-31 — `/about/` got a second voice, and a `bio` field to hold it
+
+**Context:** `/about/` opened with `site.intro`, the same paragraph the home hero renders and
+`personJsonLd` uses as `description`. It carried no personal information at all — no
+languages, and the location already sitting in `site.json` was never rendered there.
+**Decision:** New `site.bio` (first person, 700-char ceiling), `site.languages`, and
+`site.avatar`. `/about/` opens with a circle avatar, an `h1` reading "Hi, I'm Mukerem", the
+bio, and a `<dl>` of location, languages, and email. `site.intro` is untouched.
+**Reason:** A new field rather than a rewrite, because `intro` has three consumers and two of
+them are not this page. Editing it to warm up `/about/` would have silently rewritten the
+home hero and the search snippet — the hero is scheduled for its own pass, and the JSON-LD
+`description` should stay the paragraph written to be read cold by someone who has not met
+the site yet. Two fields, two registers, two audiences.
+
+`languages[].level` is a free optional string rather than an enum, for the reason §5.4
+refuses proficiency scales on skills: a fixed ladder invites a self-assessment nobody can
+check. It is omitted from `knowsLanguage` in the JSON-LD for the same reason — schema.org has
+no property that would make "Conversational" machine-comparable, and emitting it would dress
+an unverifiable claim as structured data. `alumniOf` does join the graph, since an
+institution and its URL are checkable.
+
+`avatar` is a second image field rather than a reuse of `portrait`, which is 4:5 and belongs
+to the hero. Putting a 4:5 image behind `rounded-full` crops the top of a head off. The two
+slots take two exports of one photograph.
+**Cost:** The register now splits mid-site: `/about/` and `/skills/` are first person and
+warm, the project case studies stay declarative. That is defensible — the case-study voice is
+doing real work — but it is a seam, and the home hero is currently on the wrong side of it
+until its own pass lands. `availability` is rendered on `/about/` behind the existing
+`availability.show` flag rather than a new one, so the badge and the row stay one claim; the
+flag is `false` today, which means the row is not visible yet.
+**Affects:** §5.2, §5.4, §8.5, §13.2

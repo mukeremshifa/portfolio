@@ -23,7 +23,7 @@ type CertificationCardProps = {
  * the schema requires it.
  *
  * No `credentialUrl` means no "Verify credential" affordance at all — not a disabled one.
- * The same credential is also excluded from `/certifications/`'s JSON-LD, since §13.2
+ * The same credential is also excluded from `/skills/`'s JSON-LD, since §13.2
  * restricts that graph to credentials someone can actually verify.
  */
 export function CertificationCard({

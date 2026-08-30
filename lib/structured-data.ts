@@ -1,4 +1,4 @@
-import { getSite, getSkills } from "@/lib/content";
+import { getEducation, getSite, getSkills } from "@/lib/content";
 import { absoluteUrl } from "@/lib/metadata";
 import type { Certification, Project } from "@/lib/schemas";
 
@@ -31,6 +31,20 @@ function personRef(): JsonLd {
  * `address` appears **only if** `location` is set, per §13.2. `knowsAbout` is the skills
  * vocabulary, which is already the one list every technology string on the site has to
  * appear in (§5.5 invariant 8), so the graph claims exactly what the pages claim.
+ *
+ * `knowsLanguage` and `alumniOf` joined on 2026-08-31 with the About restructure, and both
+ * follow the same rule as everything else here: they restate content the page already
+ * renders in prose.
+ *
+ * **`knowsLanguage` carries the names only.** `site.languages[].level` is a free string
+ * precisely because no checkable scale exists for it (§5.4), and schema.org has no property
+ * that would make "Conversational" machine-comparable. Emitting it would dress an
+ * unverifiable self-assessment as structured data — the same line §13.2 already draws by
+ * keeping unverifiable credentials out of the credential graph.
+ *
+ * `description` stays `site.intro` rather than the warmer `site.bio`. This node is the
+ * search snippet, and `intro` is the paragraph written to be read cold by someone who has
+ * not met the site yet.
  */
 export function personJsonLd(): JsonLd {
   const site = getSite();
@@ -43,6 +57,12 @@ export function personJsonLd(): JsonLd {
     email: `mailto:${site.email}`,
     sameAs: site.socials.map((social) => social.url),
     knowsAbout: getSkills().flatMap((group) => group.items),
+    knowsLanguage: site.languages.map((language) => language.name),
+    alumniOf: getEducation().map((entry) => ({
+      "@type": "EducationalOrganization",
+      name: entry.institution,
+      ...(entry.institutionUrl ? { url: entry.institutionUrl } : {}),
+    })),
     ...(site.location.label
       ? {
           address: {
@@ -103,7 +123,7 @@ export function projectListJsonLd(projects: Project[]): JsonLd {
 }
 
 /**
- * §13.2's `/certifications/` graph: **only credentials with a verifiable URL**.
+ * §13.2's `/skills/` credential graph: **only credentials with a verifiable URL**.
  *
  * The filter is the point rather than a detail. Structured data is a machine-readable
  * assertion, and asserting a credential that offers nothing to check it against is the one

@@ -95,7 +95,6 @@ export const EXPERIENCE_TYPE_LABELS: Record<ExperienceEntry["type"], string> = {
   freelance: "Freelance",
   internship: "Internship",
   research: "Research",
-  education: "Education",
   independent: "Independent",
 };
 

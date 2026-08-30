@@ -272,6 +272,7 @@ getAdjacentProjects(slug: string): { prev?: ProjectRef; next?: ProjectRef }
 getFeaturedCaseStudy(): Project
 getExperience(): ExperienceEntry[]
 getCertifications(): Certification[]
+getEducation(): Education[]                       // added 2026-08-31, newest first
 ```
 
 ### 5.2 `content/site.json`
@@ -283,12 +284,19 @@ export const SiteSchema = z.object({
   role: z.string().min(1),
   eyebrow: z.string().min(1).max(60),
   headline: z.string().min(1).max(90),
-  intro: z.string().min(80).max(400),
+  intro: z.string().min(80).max(400),   // home hero + Person description; cool register
+  bio: z.string().min(80).max(700),     // added 2026-08-31 — /about/ only; first person
   email: z.email(),
   location: z.object({
     label: z.string(),
     remote: z.boolean(),
   }),
+  // Added 2026-08-31. `level` is a free optional string, not an enum, for the reason §5.4
+  // refuses proficiency scales: a fixed ladder invites an unfalsifiable self-assessment.
+  languages: z.array(z.object({
+    name: z.string().min(1),
+    level: z.string().min(1).optional(),
+  })).min(1),
   availability: z.object({
     show: z.boolean(),
     state: z.enum(["available", "open", "unavailable"]),
@@ -301,6 +309,12 @@ export const SiteSchema = z.object({
   portrait: z.object({                           // §8.1's ProfileVisual; absence collapses
     src: z.string(),                             //   the hero to a single column
     alt: z.string().min(10),
+    width: z.int().positive(),
+    height: z.int().positive(),
+  }).optional(),
+  avatar: z.object({                             // added 2026-08-31; §8.5's circle crop.
+    src: z.string(),                             //   1:1, a separate export from portrait —
+    alt: z.string().min(10),                     //   a 4:5 image in a circle loses a head
     width: z.int().positive(),
     height: z.int().positive(),
   }).optional(),
@@ -412,7 +426,8 @@ export const ExperienceSchema = z.object({
   role: z.string(),
   organization: z.string(),
   organizationUrl: z.url().optional(),
-  type: z.enum(["employment", "freelance", "internship", "research", "education", "independent"]),
+  // "education" removed 2026-08-31 — see EducationSchema below and DECISIONS.md
+  type: z.enum(["employment", "freelance", "internship", "research", "independent"]),
   start: YearMonth,
   end: YearMonth.nullable(),
   location: z.string().optional(),
@@ -420,6 +435,21 @@ export const ExperienceSchema = z.object({
   achievements: z.array(z.string()).min(1).max(5),
   technologies: z.array(z.string()).max(10).default([]),
   featured: z.boolean().default(false),
+}).refine((e) => e.end === null || e.end >= e.start, {
+  message: "end must not precede start",
+});
+
+// Added 2026-08-31. A degree has a credential you were awarded, not a role you performed.
+export const EducationSchema = z.object({
+  id: z.string(),
+  credential: z.string(),
+  institution: z.string(),
+  institutionUrl: z.url().optional(),
+  start: YearMonth,
+  end: YearMonth.nullable(),
+  location: z.string().optional(),
+  note: z.string().min(40).max(300),
+  highlights: z.array(z.string()).max(3).default([]),
 }).refine((e) => e.end === null || e.end >= e.start, {
   message: "end must not precede start",
 });
@@ -467,6 +497,7 @@ build-blocking gates during early development:
 | 6 | Exactly 3 focus pillars | A broken three-column layout |
 | 7 | At most one experience entry per organization has `end: null` | Two simultaneous "Present" roles |
 | 8 | Every technology string appears in at least one skills group, or is explicitly allowlisted | Vocabulary drift between pages |
+| 9 | **Added 2026-08-31.** `content/education/` is the only place a qualification appears | A degree rendering as a job. Enforced by the schema rather than by a test: `ExperienceSchema` no longer accepts `type: "education"` |
 
 The v1.0 invariant banning `TODO`/`Lorem`/bracketed placeholders **everywhere** is gone from
 this list. See §5.6.
@@ -759,7 +790,7 @@ easy way to make contact.** Every page ends with a route onward; no page is a de
 | `/projects/<slug>/` | `app/projects/[slug]/page.tsx` | Project title | Depth and evidence |
 | `/experience/` | `app/experience/page.tsx` | "Experience" | Progression and ownership |
 | `/about/` | `app/about/page.tsx` | "About" | Context the projects cannot give |
-| `/certifications/` | `app/certifications/page.tsx` | "Certifications" | Credentials |
+| `/skills/` | `app/skills/page.tsx` | "Skills" | Focus, tools, and credentials. **Renamed from `/certifications/` 2026-08-31**; `next.config.ts` redirects the old path permanently |
 | `/contact/` | `app/contact/page.tsx` | "Contact" | Convert interest |
 | `/404` | `app/not-found.tsx` | "Page not found" | Recover the visitor |
 | `/sitemap.xml` | `app/sitemap.ts` | — | Discovery |
@@ -770,7 +801,7 @@ Rendering mode per route is an implementation detail (§3). Pick whatever is sim
 ### 7.2 Navigation
 
 ```text
-[ MK ]        Projects   Experience   About   Certifications        [ Let us talk → ]
+[ MK ]        Projects   Experience   About   Skills        [ Let us talk → ]
 ```
 
 - Header is sticky above `md`; on mobile it scrolls away and the mobile trigger sits in the
@@ -801,7 +832,7 @@ Location and availability come from `site.json` so neither is overstated in mark
 - Every project card links to its detail page. Case-study and source links are never
   hover-only and never hidden behind an icon without an accessible name.
 - Project detail pages end with previous/next project navigation and a contact CTA.
-- The home page links to `/projects/`, `/experience/`, `/certifications/`, and `/contact/`.
+- The home page links to `/projects/`, `/experience/`, `/skills/`, and `/contact/`.
 - External links use `ExternalLink`, which adds `rel="noopener noreferrer"`, `target="_blank"`,
   and a visually hidden "(opens in a new tab)" suffix.
 
@@ -924,28 +955,49 @@ summary paragraph, 1 to 5 achievement bullets, technology tags.
 
 ### 8.5 About — `/about/`
 
-Prose-width page (720px), deliberately short.
+Prose-width page (720px). **Restructured 2026-08-31** — see `DECISIONS.md`.
 
 ```text
-h1  About
-    Lead paragraph, the professional story in 3 to 5 sentences.
+    [avatar, 1:1, circle]
+h1  Hi, I'm {first name}       (nav label and <title> both stay "About")
+    site.bio, first person
+    dl: Based in · Languages · Email · (Availability, gated on availability.show)
 
+h2  Education               (content/education/education.json)
 h2  How I work
-    - Build for real constraints
-    - Prefer maintainable systems over novelty
-    - Treat accessibility and clarity as product requirements
-
-h2  What I am focused on now
-h2  Tools I use            (skills groups from skills.json)
-h2  Outside engineering    (optional, one short paragraph)
+h2  Outside engineering     (optional, one short paragraph)
+    Link across to /skills/
+    ContactCallout
 ```
 
-Skills live here rather than on the home page: they support the evidence in projects, they
-are not the evidence. Groups render as definition lists with no proficiency indicators.
+This page is about the person. **"What I am focused on now" and "Tools I use" moved to
+§8.6's `/skills/`**, where the pillars explain the tools and the credentials evidence them;
+keeping them here left no room for the things a reader comes to an About page for. About
+links across rather than repeating the tag lists, so the vocabulary lives in one place.
 
-### 8.6 Certifications — `/certifications/`
+The register is first person and deliberately warmer than the rest of the site, which is
+what `site.bio` exists for — `site.intro` stays the cool positioning paragraph the hero and
+the `Person` graph use.
 
-Card grid, newest first. Each card: title, issuer (linked when available), issue date, 2 to 4
+### 8.6 Skills — `/skills/`
+
+**Was `/certifications/` until 2026-08-31**, when it absorbed the two sections §8.5 used to
+carry. §7.2 had labelled the route "Skills" since Phase 3 while it rendered credentials
+alone; this section is that label made true.
+
+```text
+h1  Skills
+h2  What I am focused on right now   (focus.json, pillars with their technologies)
+h2  Tools I reach for                (skills.json, definition lists, no proficiency scale)
+h2  Certifications                   (card grid)
+    ContactCallout
+```
+
+The order is the argument: a bare tool list is not evidence any of those tools were used
+well, the pillars say what the tools are *for*, and the credentials are the only part a
+third party vouches for, so they close the page rather than open it.
+
+Certification cards are unchanged: title, issuer (linked when available), issue date, 2 to 4
 relevant skills, "Verify credential ↗" link when `credentialUrl` exists. Expired credentials
 show an explicit "Expired {date}" badge rather than being silently dropped.
 
