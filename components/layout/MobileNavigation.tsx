@@ -56,7 +56,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(true)}
-        className="inline-grid min-h-11 min-w-11 place-items-center rounded-md border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt md:hidden"
+        className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt md:hidden"
       >
         <svg
           viewBox="0 0 24 24"
@@ -101,7 +101,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
                 <button
                   type="button"
                   onClick={close}
-                  className="inline-grid min-h-11 min-w-11 place-items-center rounded-md border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
+                  className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -132,10 +132,8 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
                           // same outcome, one render instead of a cascading one.
                           onClick={close}
                           aria-current={active ? "page" : undefined}
-                          className={`flex min-h-11 items-center border-b border-border-subtle font-sans text-body ${
-                            active
-                              ? "font-semibold text-text underline decoration-2 underline-offset-4"
-                              : "text-text-muted"
+                          className={`flex min-h-11 items-center font-sans text-body font-medium transition-colors duration-(--duration-fast) ease-standard hover:text-brand ${
+                            active ? "text-brand" : "text-text"
                           }`}
                         >
                           {item.label}
@@ -149,7 +147,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
               <Link
                 href={cta.href}
                 onClick={close}
-                className="mt-auto inline-flex min-h-11 items-center justify-center rounded-md bg-brand-solid px-4 py-3 font-sans text-body font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover"
+                className="mt-auto inline-flex min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 py-3 font-sans text-body font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover"
               >
                 {cta.label}
               </Link>

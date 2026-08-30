@@ -51,7 +51,7 @@ export function Figure({
         // `h-auto w-full` keeps the rendered box on the intrinsic ratio rather than
         // forcing a shape the asset does not have. Screenshots on this site run from
         // 21:9 to 9:16 and none of them are cropped to fit a grid.
-        className="h-auto w-full rounded-lg border border-border-subtle bg-surface-alt"
+        className="h-auto w-full rounded-none border border-border-subtle bg-surface-alt"
       />
       {caption ? (
         <figcaption className="max-w-measure font-sans text-body-sm text-text-muted">

@@ -32,13 +32,13 @@ type CodeBlockProps = {
  */
 export function CodeBlock({ code, language, title, file, note }: CodeBlockProps) {
   return (
-    <figure className="overflow-hidden rounded-lg border border-border-subtle bg-code-bg">
+    <figure className="overflow-hidden rounded-none border border-border-subtle bg-code-bg">
       <figcaption className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-border-subtle px-4 py-3">
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <h3 className="font-sans text-heading-3 font-semibold text-text">{title}</h3>
             {file ? (
-              <span className="rounded-sm border border-border-subtle bg-surface-alt px-2 py-0.5 font-mono text-body-sm text-text-muted">
+              <span className="rounded-none border border-border-subtle bg-surface-alt px-2 py-0.5 font-mono text-body-sm text-text-muted">
                 {file}
               </span>
             ) : null}

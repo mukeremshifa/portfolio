@@ -35,11 +35,11 @@ const dots = {
 export function StatusBadge({ state, label }: StatusBadgeProps) {
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-sm border px-2 py-1 font-mono text-body-sm ${states[state]}`}
+      className={`inline-flex items-center gap-2 rounded-none border px-2 py-1 font-mono text-body-sm ${states[state]}`}
     >
       <span
         aria-hidden="true"
-        className={`size-2 shrink-0 rounded-full ${dots[state]}`}
+        className={`size-2 shrink-0 rounded-none ${dots[state]}`}
       />
       {label}
     </span>

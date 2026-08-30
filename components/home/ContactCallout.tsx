@@ -19,7 +19,7 @@ export function ContactCallout({ site }: ContactCalloutProps) {
   return (
     <section
       aria-labelledby="contact-callout"
-      className="flex flex-col gap-heading rounded-lg border border-border-subtle bg-surface p-6 md:p-10"
+      className="flex flex-col gap-heading rounded-none border border-border-subtle bg-surface p-6 md:p-10"
     >
       <div className="flex flex-col gap-4">
         <h2

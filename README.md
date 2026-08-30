@@ -40,8 +40,6 @@ pnpm).
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3000
-pnpm check        # format:check + lint + typecheck + unit tests
-pnpm test:unit    # vitest — section 5.5 invariants, the loader, derived data, JSON-LD
 pnpm build        # production build
 pnpm start        # serve the production build
 ```

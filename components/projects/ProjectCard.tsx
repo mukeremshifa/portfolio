@@ -52,7 +52,7 @@ export function ProjectCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col gap-5 rounded-lg border border-border-subtle bg-surface p-6 transition-[border-color,background-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt ${
+      className={`group relative flex h-full flex-col gap-5 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt ${
         featured ? "md:flex-row md:items-start md:gap-8 md:p-8" : ""
       }`}
     >
@@ -94,7 +94,7 @@ export function ProjectCard({
         >
           <Link
             href={`/projects/${project.slug}`}
-            className="rounded-sm underline-offset-[3px] group-hover:underline after:absolute after:inset-0 after:rounded-lg focus-visible:underline"
+            className="rounded-none underline-offset-[3px] group-hover:underline after:absolute after:inset-0 after:rounded-none focus-visible:underline"
           >
             {project.title}
           </Link>

@@ -16,7 +16,7 @@ const tones = {
 export function Tag({ children, tone = "neutral" }: TagProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-sm border px-2 py-1 font-mono text-body-sm ${tones[tone]}`}
+      className={`inline-flex items-center rounded-none border px-2 py-1 font-mono text-body-sm ${tones[tone]}`}
     >
       {children}
     </span>

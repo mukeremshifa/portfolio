@@ -11,8 +11,7 @@ export type NavItem = { href: string; label: string };
  * `usePathname` — the active route cannot be known on the server for a statically
  * rendered page.
  *
- * §7.2: the active route carries `aria-current="page"` *and* a 2px underline. The
- * underline is the non-colour cue; the colour change alone would fail §11.4.
+ * §7.2: the active route carries `aria-current="page"` and uses the brand colour.
  */
 export function MainNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
@@ -27,10 +26,8 @@ export function MainNav({ items }: { items: NavItem[] }) {
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center rounded-md px-3 font-sans text-body-sm transition-colors duration-(--duration-fast) ease-standard hover:text-brand ${
-                active
-                  ? "border-b-2 border-brand text-text"
-                  : "border-b-2 border-transparent text-text-muted"
+              className={`inline-flex min-h-11 items-center rounded-none px-3 font-sans text-body transition-colors duration-(--duration-fast) ease-standard hover:text-brand ${
+                active ? "text-brand" : "text-text"
               }`}
             >
               {item.label}

@@ -12,7 +12,7 @@
   },
   "role": "Engineer, working to an operations lead's question list",
   "team": "Two engineers",
-  "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI", "Vitest"],
+  "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI"],
   "links": {
     "live": "https://reporting-console.mukeremshifa.com"
   },

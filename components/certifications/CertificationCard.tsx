@@ -36,7 +36,7 @@ export function CertificationCard({
   const expired = certification.expires !== null && certification.expires < currentMonth;
 
   return (
-    <article className="group flex h-full flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
+    <article className="group flex h-full flex-col gap-4 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="font-mono text-eyebrow text-text-muted uppercase">
           {formatMonth(certification.issued)}
@@ -45,7 +45,7 @@ export function CertificationCard({
           // Warning rather than danger: a lapsed credential is a state to disclose, not
           // an error. `warning` on `surface-alt` keeps the pairing off the card's own
           // background so the chip reads as a chip in both themes.
-          <span className="inline-flex items-center rounded-sm border border-border-subtle bg-surface-alt px-2 py-1 font-mono text-body-sm text-warning">
+          <span className="inline-flex items-center rounded-none border border-border-subtle bg-surface-alt px-2 py-1 font-mono text-body-sm text-warning">
             Expired {formatMonth(certification.expires)}
           </span>
         ) : null}

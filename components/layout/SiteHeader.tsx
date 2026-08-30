@@ -20,12 +20,12 @@ type SiteHeaderProps = {
  */
 export function SiteHeader({ nav, cta, wordmark }: SiteHeaderProps) {
   return (
-    <header className="border-b border-border-subtle bg-canvas md:sticky md:top-0 md:z-40">
+    <header className="bg-canvas md:sticky md:top-0 md:z-40">
       <Container>
         <div className="flex min-h-16 items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex min-h-11 items-center rounded-md font-mono text-body font-medium tracking-[0.08em] text-text"
+            className="inline-flex min-h-11 items-center rounded-none font-mono text-body font-medium tracking-[0.08em] text-text"
           >
             {wordmark}
           </Link>
@@ -38,7 +38,7 @@ export function SiteHeader({ nav, cta, wordmark }: SiteHeaderProps) {
             <ThemeToggle />
             <Link
               href={cta.href}
-              className="hidden min-h-11 items-center justify-center rounded-md bg-brand-solid px-4 font-sans text-body-sm font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover md:inline-flex"
+              className="hidden min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 font-sans text-body-sm font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover md:inline-flex"
             >
               {cta.label}
             </Link>

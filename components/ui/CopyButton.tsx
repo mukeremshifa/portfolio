@@ -75,7 +75,7 @@ export function CopyButton({ value, label }: CopyButtonProps) {
       <button
         type="button"
         onClick={copy}
-        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border-strong px-3 font-sans text-body-sm font-medium text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-none border border-border-strong px-3 font-sans text-body-sm font-medium text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
       >
         Copy
         <VisuallyHidden> {label}</VisuallyHidden>

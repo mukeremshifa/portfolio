@@ -38,8 +38,8 @@
     ]
   },
   {
-    "id": "observability-and-testing",
-    "title": "Observability and testing",
-    "items": ["OpenTelemetry", "Grafana", "Vitest", "Playwright", "axe"]
+    "id": "observability-and-delivery",
+    "title": "Observability and delivery",
+    "items": ["OpenTelemetry", "Grafana", "Vercel"]
   }
 ]

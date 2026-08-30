@@ -41,3 +41,10 @@ Full reasoning in `docs/PORTFOLIO_SPEC.md` §16.1. The short version:
   hand-aligned; do not reformat them.
 - `eslint-plugin-jsx-a11y` is wired as **rules only**. `eslint-config-next` already
   registers the package; registering it again is a flat-config error.
+
+## Active development gate
+
+- This repo is in a local-only dev phase. Use `pnpm dev` for iteration and visual checks.
+- Do not run build, start, test, deploy, or CI-style commands while actively iterating.
+- Agents may only do the bare minimum needed to validate a change, such as `pnpm typecheck`.
+- Full validation, tests, and release checks happen only at a real deployment checkpoint, not during day-to-day development.

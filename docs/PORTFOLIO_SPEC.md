@@ -506,7 +506,7 @@ During Phases 0 through 4, real content will not exist yet. That is expected, no
 ## 6. Design system
 
 Direction unchanged from the brief: modern, minimalist, warm beige canvas with white cards in
-light mode, obsidian with elevated slate cards in dark mode, cobalt used sparingly. Hierarchy
+light mode, crisp black with near-black elevated surfaces in dark mode, orange used sparingly. Hierarchy
 comes from type, spacing, and hairline borders, not shadows or ornament.
 
 ### 6.1 Two corrections to the original draft palette
@@ -515,12 +515,11 @@ comes from type, spacing, and hairline borders, not shadows or ornament.
 and measure well below 3:1 against their backgrounds. WCAG 2.2 SC 1.4.11 wants 3:1 for the
 visual boundary of an actual control (inputs, outline buttons, filter chips), so the system
 keeps `border-subtle` (decorative) **and** `border-strong` (interactive): `#8A8279` light,
-`#6B7385` dark.
+`#333333` dark.
 
-**(b) The dark accent splits into two roles.** `#2563EB` on the dark canvas is 3.71:1 (fails
-AA for body text); `#3B82F6` reaches 5.21:1. Conversely white on `#2563EB` is 5.17:1, making
-it a good solid button fill. So dark mode uses `#3B82F6` for links/accent text and `#2563EB`
-for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
+**(b) Dark mode uses one orange accent.** `#FF5100` is the primary for links, focus, and
+filled buttons; `#E04700` is its hover value. The muted orange tint is `rgba(255, 81, 0, 0.15)`.
+Light mode is unchanged and continues to use the cobalt palette.
 
 ### 6.2 Colour tokens — light
 
@@ -548,31 +547,31 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 
 | Token | Value | Role |
 |---|---|---|
-| `canvas` | `#0B0F19` | Page background |
-| `surface` | `#161C2A` | Cards, inputs, raised panels |
-| `surface-alt` | `#1D2536` | Hover state for cards, popovers, chip background |
+| `canvas` | `#000000` | Page background (`bg-base`) |
+| `surface` | `#0A0A0A` | Cards, inputs, raised panels (`bg-surface`) |
+| `surface-alt` | `#141414` | Hover state for cards, popovers, chip background (`bg-elevated`) |
 | `text` | `#F3F4F6` | Primary text |
 | `text-muted` | `#9CA3AF` | Secondary text, metadata |
-| `brand` | `#3B82F6` | Links and accent text |
-| `brand-hover` | `#60A5FA` | Hover and active accent |
-| `brand-solid` | `#2563EB` | Filled button surface only |
-| `brand-solid-hover` | `#1D4ED8` | Hover fill under `brand-contrast` text |
+| `brand` | `#FF5100` | Links and accent text (`primary`) |
+| `brand-hover` | `#E04700` | Hover and active accent (`primary-hover`) |
+| `brand-solid` | `#FF5100` | Filled button surface only (`primary`) |
+| `brand-solid-hover` | `#E04700` | Hover fill under `brand-contrast` text (`primary-hover`) |
 | `brand-contrast` | `#FFFFFF` | Text on `brand-solid` |
-| `brand-soft` | `#16243D` | Tinted badge background |
-| `brand-cream` | `#ECE3D4` | Warm highlight for key tags |
-| `border-subtle` | `#232D3F` | Decorative dividers only |
-| `border-strong` | `#6B7385` | Control boundaries |
-| `ring` | `#3B82F6` | Focus indicator |
+| `brand-soft` | `rgba(255, 81, 0, 0.15)` | Tinted badge background (`primary-muted`) |
+| `brand-cream` | `#FF5100` | Legacy alias for key tag accents |
+| `border-subtle` | `#222222` | Decorative dividers only |
+| `border-strong` | `#333333` | Control boundaries |
+| `ring` | `#FF5100` | Focus indicator |
 | `danger` | `#FCA5A5` | Form errors |
 | `success` | `#4ADE80` | Form success |
 | `warning` | `#FBBF24` | Warnings |
-| `code-bg` | `#0F1523` | Code block background |
+| `code-bg` | `#0A0A0A` | Code block background |
 
 **Binding rules.**
 
 - `border-subtle` may never be the only thing identifying an interactive control.
 - Never place body text on `brand-solid` in dark mode except in `brand-contrast` white.
-- `brand-cream` is dark-mode-only; do not fake it with beige on white in light mode.
+- `brand-cream` remains dark-mode-only as a compatibility alias for the orange primary.
 
 ### 6.4 Token wiring (Tailwind v4)
 
@@ -595,15 +594,15 @@ for filled buttons. Light mode needs no split, `#0A39A6` serves both roles well.
 }
 
 .dark {
-  --canvas: #0b0f19;  --surface: #161c2a;  --surface-alt: #1d2536;
+  --canvas: #000000;  --surface: #0a0a0a;  --surface-alt: #141414;
   --text: #f3f4f6;    --text-muted: #9ca3af;
-  --brand: #3b82f6;   --brand-hover: #60a5fa;  --brand-solid: #2563eb;
-  --brand-solid-hover: #1d4ed8;
-  --brand-contrast: #ffffff;  --brand-soft: #16243d;  --brand-cream: #ece3d4;
-  --border-subtle: #232d3f;   --border-strong: #6b7385;
-  --ring: #3b82f6;
+  --brand: #ff5100;   --brand-hover: #e04700;  --brand-solid: #ff5100;
+  --brand-solid-hover: #e04700;
+  --brand-contrast: #ffffff;  --brand-soft: rgba(255, 81, 0, 0.15);  --brand-cream: #ff5100;
+  --border-subtle: #222222;   --border-strong: #333333;
+  --ring: #ff5100;
   --danger: #fca5a5;  --success: #4ade80;  --warning: #fbbf24;
-  --code-bg: #0f1523;
+  --code-bg: #0a0a0a;
 }
 
 @theme inline {
@@ -689,8 +688,8 @@ presentational and must never substitute for a real heading in the outline.
 - **Containers:** `--container-content: 1200px` (grids, cards) and `--container-prose: 720px`
   (running text). Gutters: 20px mobile, 32px at `md`, 48px at `xl`.
 - **Breakpoints:** Tailwind defaults. Design and review at 320, 768, and 1280.
-- **Radii:** `sm 6px` (chips, inputs), `md 10px` (buttons), `lg 16px` (cards, media), `full`
-  (avatars, dots).
+- **Radii:** all radius tokens and radius utilities are `0px`; every surface, control, chip,
+  media element, and status marker has square edges.
 - **Elevation:** default is a 1px `border-subtle` plus a surface change. One shadow token,
   `--shadow-overlay`, reserved for the mobile navigation panel and any dialog. Cards do not
   get shadows in either theme.
@@ -702,11 +701,11 @@ presentational and must never substitute for a real heading in the outline.
 - **Buttons.** Three variants: `primary` (brand fill, `brand-contrast` text), `secondary`
   (transparent, `border-strong`, `text`), `ghost` (text-only, used inside cards). Minimum hit
   area 44×44 CSS px.
-- **Cards.** `surface` background, `border-subtle`, radius `lg`, padding 24px. Hover raises
+- **Cards.** `surface` background, `border-subtle`, zero radius, padding 24px. Hover raises
   the border to `border-strong` and shifts the background to `surface-alt`. The whole card
   is not a link; the title anchor carries a stretched pseudo-element.
 - **Tags / chips.** `body-sm` in **IBM Plex Mono** (technologies read like data, not prose),
-  `surface-alt` background, `border-subtle`, radius `sm`. In dark mode a key tag may use
+  `surface-alt` background, `border-subtle`, zero radius. In dark mode a key tag may use
   `brand-cream` text.
 - **Links.** In running prose, brand-coloured with a 1px underline offset by 3px; underline
   thickens on hover. Navigation and card links are not underlined at rest but gain one on

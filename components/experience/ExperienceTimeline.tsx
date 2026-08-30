@@ -39,7 +39,7 @@ export function ExperienceTimeline({
         <li key={entry.id} className="relative">
           <span
             aria-hidden="true"
-            className="absolute top-[0.45rem] -left-7 size-2 rounded-full bg-border-strong"
+            className="absolute top-[0.45rem] -left-7 size-2 rounded-none bg-border-strong"
           />
           <ExperienceEntryItem
             entry={entry}

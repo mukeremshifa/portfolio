@@ -129,7 +129,7 @@ export default function PrimitivesPage() {
               <li key={token.name} className="flex flex-col gap-2">
                 <span
                   aria-hidden="true"
-                  className={`h-16 rounded-lg border border-border-subtle ${token.className}`}
+                  className={`h-16 rounded-none border border-border-subtle ${token.className}`}
                 />
                 <span className="font-mono text-body-sm text-text-muted">
                   {token.name}
@@ -149,13 +149,13 @@ export default function PrimitivesPage() {
             <li className="font-sans text-body text-danger">danger — form errors</li>
             <li className="font-sans text-body text-success">success — form success</li>
             <li className="font-sans text-body text-warning">warning</li>
-            <li className="rounded-md border border-border-subtle p-3 font-sans text-body-sm text-text-muted">
+            <li className="rounded-none border border-border-subtle p-3 font-sans text-body-sm text-text-muted">
               border-subtle — decorative dividers only
             </li>
-            <li className="rounded-md border border-border-strong p-3 font-sans text-body-sm text-text">
+            <li className="rounded-none border border-border-strong p-3 font-sans text-body-sm text-text">
               border-strong — control boundaries
             </li>
-            <li className="rounded-md bg-surface p-3">
+            <li className="rounded-none bg-surface p-3">
               <span className="font-sans text-body-sm text-text">
                 On surface, for the §6.1 contrast spot-check
               </span>
@@ -288,12 +288,12 @@ export default function PrimitivesPage() {
 
         <Section title="Container">
           <div className="flex flex-col gap-4">
-            <div className="rounded-lg border border-border-subtle bg-surface p-4">
+            <div className="rounded-none border border-border-subtle bg-surface p-4">
               <p className="font-sans text-body-sm text-text-muted">
                 content — 1200px, for grids and cards
               </p>
             </div>
-            <div className="max-w-prose rounded-lg border border-border-subtle bg-surface p-4">
+            <div className="max-w-prose rounded-none border border-border-subtle bg-surface p-4">
               <p className="font-sans text-body-sm text-text-muted">
                 prose — 720px, for running text
               </p>
@@ -315,7 +315,7 @@ export default function PrimitivesPage() {
               {Array.from({ length: 6 }, (_, index) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-border-subtle bg-surface p-6 transition-[background-color,border-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt"
+                  className="rounded-none border border-border-subtle bg-surface p-6 transition-[background-color,border-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt"
                 >
                   <p className="font-sans text-heading-2 font-semibold text-text">
                     Card {index + 1}
@@ -330,7 +330,7 @@ export default function PrimitivesPage() {
         </Section>
 
         <Section title="Overlay shadow">
-          <div className="rounded-lg border border-border-subtle bg-surface p-6 shadow-overlay">
+          <div className="rounded-none border border-border-subtle bg-surface p-6 shadow-overlay">
             <p className="font-sans text-body-sm text-text-muted">
               The only shadow in the system, reserved for the mobile nav panel and
               dialogs. Shown here so it is reviewable in both themes; it belongs nowhere

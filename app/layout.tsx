@@ -63,10 +63,12 @@ export const metadata: Metadata = {
 // §7.1's route table. Structural, not content — the routes are fixed by the spec, and
 // Phase 3 builds the pages behind them.
 const NAV: NavItem[] = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
   { href: "/experience", label: "Experience" },
-  { href: "/about", label: "About" },
-  { href: "/certifications", label: "Certifications" },
+  { href: "/certifications", label: "Skills" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const CTA: NavItem = { href: "/contact", label: "Let us talk →" };

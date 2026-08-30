@@ -7,6 +7,7 @@ import { FeaturedCaseStudy } from "@/components/home/FeaturedCaseStudy";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { ExperiencePreview } from "@/components/home/ExperiencePreview";
 import { Hero } from "@/components/home/Hero";
+import { TechnologyList } from "@/components/home/TechnologyList";
 import { Container } from "@/components/ui/Container";
 import {
   getCertifications,
@@ -71,6 +72,7 @@ export default function Home() {
         <FeaturedCaseStudy project={getFeaturedCaseStudy()} />
         <ExperiencePreview entries={featuredExperience} />
         <CredentialsPreview certifications={featuredCertifications} />
+        <TechnologyList />
         <ContactCallout site={site} />
       </div>
     </Container>

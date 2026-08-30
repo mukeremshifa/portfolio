@@ -87,7 +87,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={cycle}
-      className="theme-toggle inline-grid min-h-11 min-w-11 place-items-center rounded-md border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
+      className="theme-toggle inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
     >
       <span aria-hidden="true" className="grid size-5 grid-cols-1 grid-rows-1">
         <SystemIcon />

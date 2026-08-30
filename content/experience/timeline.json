@@ -64,7 +64,7 @@
       "Delivered an appointment and roster tool that replaced a shared spreadsheet, with an export the previous process depended on",
       "Handed over each project with a written runbook, because a solo engagement with no handover is a liability disguised as a delivery"
     ],
-    "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI", "Vitest"],
+    "technologies": ["TypeScript", "Node.js", "SQLite", "OpenAPI"],
     "featured": true
   },
   {
