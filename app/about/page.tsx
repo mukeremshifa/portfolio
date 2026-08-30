@@ -57,9 +57,9 @@ export default function AboutPage() {
               parts that were enjoyable to build.
             </p>
             <p>
-              I would rather maintain something than ship it and move on. Two of the
-              projects listed here are still mine to fix, and almost everything I believe
-              about the first design came out of the second year rather than the first.
+              I would rather maintain something than ship it and move on. Four of the
+              projects listed here are still in progress, and most of what I believe about
+              any of their first designs came out of having to change it later.
             </p>
             <p>
               Accessibility and clarity are product requirements, not a pass at the end.
@@ -128,9 +128,10 @@ export default function AboutPage() {
           <SectionHeading title="Outside engineering" />
           <Prose>
             <p>
-              I read a lot of long-form non-fiction, walk further than is strictly
-              necessary, and spend more time than I should reading other people&rsquo;s
-              incident write-ups. The last one is arguably still engineering.
+              I watch a lot of mystery and thriller films, and I follow soccer closely. I
+              do walk further than is strictly necessary. I try to give people the benefit
+              of the doubt, and I like finding out how things work underneath the
+              abstraction. The last one is arguably still engineering.
             </p>
           </Prose>
         </section>

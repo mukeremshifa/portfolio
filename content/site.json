@@ -3,15 +3,15 @@
   "wordmark": "MS",
   "role": "AI Engineer & Full-Stack Developer",
   "eyebrow": "AI engineering and full-stack delivery",
-  "headline": "I build AI systems that can show their work, and the products that carry them.",
-  "intro": "I work at the seam between a model and the system that has to carry it: retrieval that cites the passage it answered from, permissions enforced at query time rather than after ranking, and interfaces that stay usable at 320 pixels. Most of what I build is the unglamorous plumbing around the model, which is usually where the product actually lives.",
+  "headline": "I build multi-tenant products, and the AI features that live inside them.",
+  "intro": "Most of what I build is multi-tenant: a chat platform that keeps one customer's documentation away from another's, a learning system where four roles mean four different things, a flashcard tool that gates generated cards behind review. The model is rarely the hard part. The access control and the migration are, and they are only cheap while the thing is still being written.",
   "email": "hello@mukeremshifa.com",
   "location": {
     "label": "Ras al-Khaimah, UAE",
     "remote": true
   },
   "availability": {
-    "show": true,
+    "show": false,
     "state": "open",
     "label": "Open to engineering roles and selected contract work"
   },
@@ -37,13 +37,12 @@
       "url": "https://www.linkedin.com/in/mukeremshifa"
     }
   ],
-  "featuredCaseStudySlug": "placeholder-project",
   "seo": {
     "title": "Mukerem Shifa — AI Engineer & Full-Stack Developer",
-    "description": "AI engineer and full-stack developer. I build retrieval systems that cite their sources, permission-aware search, and interfaces that hold up at every width."
+    "description": "AI engineer and full-stack developer. I build multi-tenant web products, LLM features that stay grounded and swappable, and services that run on edge runtimes."
   },
   "contact": {
     "headline": "Tell me what you are building.",
-    "body": "I read everything that arrives. If you are hiring, scoping contract work, or stuck on a retrieval or systems problem, a few sentences about the constraint is enough to start a useful conversation."
+    "body": "I read everything that arrives. If you are hiring, scoping a project, or stuck on a multi-tenancy or LLM integration problem, a few sentences about the constraint is enough to start a useful conversation."
   }
 }

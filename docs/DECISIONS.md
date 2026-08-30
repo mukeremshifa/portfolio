@@ -849,3 +849,168 @@ and not `text` because it is a sign-off under the content rather than a second m
 it carries no accessible name because the name is set twice within a few lines of it —
 labelling the picture would only add a third.
 **Affects:** §7.3, §13.5
+
+## 2026-08-30 — The availability badge ships off, and one flag was never enough to silence it
+
+**Context:** Phase 5's first pass asked the owner for the identity facts. Availability came
+back as "hide the badge entirely." The swap matrix promised that was one edit: "`show: false`
+and it disappears everywhere."
+**Decision:** `availability.show: false`. `location.remote` stays `true`, so the footer still
+reads "Based in Ras al-Khaimah, UAE · Available remotely". `state` and `label` keep their
+Phase 3 stub strings and go inert.
+**Reason:** The matrix was wrong, and the error is the reason this is worth an entry.
+`SiteFooter` never reads `availability` at all — its remote line is `location.remote`. Hiding
+the badge silences the hero and nothing else, so "does the site still say you are available?"
+had a second answer nobody had noticed. Put to the owner as two separate claims — "open to
+roles" versus "this is how I work" — the answer was to drop the first and keep the second,
+which the one-flag model could not express.
+
+`state` and `label` stay rather than being blanked because the schema requires both and there
+is no honest value for a string that renders nowhere. The inventory records them as inert so
+that flipping `show` back on is understood as writing them fresh, not as revealing something
+already true.
+
+**Cost:** one concept now lives in two objects with nothing enforcing agreement between them.
+Going quiet site-wide is two edits in two places and easy to half-do — precisely the failure
+that just happened in the docs. The alternative, folding `remote` into `availability`, would
+collapse a distinction the owner used, so the split stays and the comment in `Hero.tsx` plus
+both matrix rows now name the other half.
+**Affects:** §5.2, §7.3, §8.1
+
+## 2026-08-30 — The project page loses two sections and merges two more
+
+**Context:** §8.3 gave a project page six body sections: Overview, What it does, Key features,
+Code highlights, Screenshots, Lessons learned, then the case study. Phase 5 began authoring
+real projects against that shape and it did not survive contact.
+**Decision:** Three fields leave `ProjectSchema`. `capabilities` folds into `features`;
+`codeSnippets` and `screenshots` are removed outright. A project carries one image, its
+`cover`. The merged section keeps the name "Key features" and the title-plus-body shape, and
+bullets are now reserved for "Lessons learned".
+**Reason:** "What it does" and "Key features" were two headings over one idea. Rendered as a
+bulleted list directly above a grid of titled blocks, the page asked the reader to find a
+distinction the author had not drawn — and authoring real content is where that surfaced,
+because the second list is only hard to write when the facts are real. Reserving bullets for
+lessons leaves each list shape meaning one thing.
+
+The screenshots went for a reason the stub set actively hid: six placeholder SVGs at mixed
+aspect ratios exercise a column layout beautifully and look nothing like six real captures of
+one application, which are near-identical rectangles of dense UI that no reader studies. One
+cover, chosen deliberately, carries more than a gallery nobody scrolls.
+
+**Cost, and it is real.** `CodeHighlight` and `ScreenshotGallery` are now reachable from no
+page. Both are kept — the accessible `<pre>` scroll region and the mixed-ratio column layout
+are correct and slow to rebuild — so the tree now contains two components nothing imports,
+which every convention here otherwise treats as a defect. §9.3 and `lib/schemas.ts` both say
+so at the point a reader would find them. `CodeSnippet` and `Screenshot` survive as standalone
+schemas for the same reason: a component with no type does not compile.
+
+`projectJsonLd` also loses `programmingLanguage`. It was derived from the snippet languages —
+the honest answer, being the code actually on the page. The only remaining candidate is
+`technologies`, a superset carrying databases and infrastructure, and asserting that is worse
+than omitting the property.
+
+Appendix B's golden sample is amended rather than deleted, and §5.3's intrinsic-dimensions
+rule is restated rather than dropped: its original argument rested on mixed-ratio screenshots
+that no longer exist, but the conclusion holds harder than before, since the cover is
+`priority`, above the fold, and now the only image on the page.
+**Affects:** §5.3, §8.3, §9.3, §13.2, Appendix B
+
+## 2026-08-31 — The home page stops previewing a case study, and `cover` becomes optional
+
+**Context:** The real project set landed: four projects the owner wrote, replacing six
+synthetic ones. Two things did not survive the substitution. The home page's "Featured case
+study" section promoted one project to a full `challenge`/`decision`/`outcome` block, and
+`cover` was required on every project — including work too small to justify sourcing an
+image for.
+**Decision:** `<FeaturedCaseStudy>`, `getFeaturedCaseStudy()`, `site.featuredCaseStudySlug`,
+and §5.5 invariant 4 are all removed; the component file is deleted. `cover` becomes
+optional, which defines a second content shape — a *brief* project — without a second
+schema. Templates for both shapes live in `docs/templates/`.
+**Reason:** Every project page is now written as a case study, and `CaseStudySummary` renders
+the same three fields under the same three labels on both pages. The home section was a
+preview of a page that a card one section above it already linked to, and one content field
+decided which project got told twice. Removing it also removed the invariant most likely to
+take the site down: `getFeaturedCaseStudy()` threw when its slug stopped resolving, so
+deleting a project file could break every route, including routes with no relationship to it.
+
+Optional `cover` costs almost nothing to support because `ProjectCard` only ever rendered a
+cover in its `featured` variant. A brief project is therefore indistinguishable on
+`/projects/` — the absence shows on its own page and in its JSON-LD, not in the grid. The
+alternative, a `kind: "full" | "brief"` discriminator, would have bought enforcement of a
+convention that needs none and cost a second code path: as it stands, adding a `caseStudy`
+block promotes a project and deleting one demotes it, with no migration in between.
+
+**Cost.** `FeaturedCaseStudy.tsx` is deleted rather than retained, which is the opposite of
+the treatment `CodeHighlight` and `ScreenshotGallery` got the day before. The distinction is
+deliberate and worth stating: those two hold craft that is slow to rebuild — an accessible
+`<pre>` scroll region, a mixed-ratio column layout — while `FeaturedCaseStudy` was a heading,
+a `CaseStudySummary`, and a link. Retaining it would have made three orphans, and §9.3 says
+two is already the limit.
+
+`projectJsonLd` now omits `image` for a coverless project rather than falling back to the
+site's OG card, which would assert that a generic graphic depicts specific work.
+**Affects:** §5.2, §5.3, §5.5, §8.1, §13.2
+
+## 2026-08-31 — One vocabulary across three pages, derived from the projects rather than aspiration
+
+**Context:** The site described its own stack in three places and they disagreed. The home
+page's `TechnologyList` advertised LangChain, TensorFlow and Keras; `skills.json` claimed
+Kubernetes, Terraform, Grafana, OpenTelemetry, FastAPI and pgvector; the seven real project
+files used 46 technology strings, 38 of which appeared in no skills group. All three were
+written before the real projects existed.
+**Decision:** `skills.json` and `focus.json` are rebuilt from `content/projects/` alone.
+Eight skill groups covering exactly the 43 strings the projects use — nothing more, nothing
+less. Three focus pillars derived from what recurs across the work. `TechnologyList` becomes
+a curated 18 drawn from the same set, plus Next.js.
+**Reason:** Invariant 8 now closes in both directions, which it never has before: no project
+technology is missing from a group, and no group lists something no project uses. The second
+half is the new part and the more useful one — the old file's failure was not that it omitted
+Hono, it was that it claimed Kubernetes. A skills page is a claim a reader can check against
+the case studies one click away, and that is the only reason to have one.
+
+Four near-duplicate strings were normalised first, because otherwise the skills page would
+have had to list both halves of each pair to satisfy the invariant: `React 19` → `React`,
+`Groq LLM API` → `Groq`, `Supabase (Auth, RLS, Edge Functions)` and `Supabase PostgreSQL` →
+`Supabase`, `Tailwind CSS v4` → `Tailwind CSS`, plus `ts-fsrs`, `AWS S3` and `RAG` losing
+their parentheticals. Version numbers and feature lists belong in a project's prose, where
+they can be qualified, not in a tag that has to match another page exactly.
+
+**Next.js is the one entry on the home row no project supports**, and it is called out in
+the file. It is defensible because this site is the evidence — but it is the bar, not a
+precedent: the previous list's TensorFlow had no such backing.
+**Cost:** `focus.json`'s three pillars are a claim about emphasis, not a fact derivable from
+the files. The evidence supports them; another three could also be supported. That one is
+the owner's to confirm, and the inventory says so rather than marking the row closed.
+
+Simple Icons was evaluated for replacement and kept: at 3445 icons it covers the entire real
+stack including Hono, Drizzle, shadcn/ui, Deno, Cloudflare Workers and TanStack. It carries
+no OpenAI, Groq, AWS or Java mark — all withdrawn over trademark policy — so those cannot
+appear on the home row with an icon. `java` left `BrandIconName` for a related reason: it
+was mapped to `siOpenjdk`, putting an OpenJDK duke on a chip labelled "Java". `Claude` now
+uses `siClaude` rather than `siAnthropic`, the company mark having stood in for the product.
+**Affects:** §5.4, §5.5, §8.1, §8.5, §13.5
+
+## 2026-08-31 — The credential schema's `skills` floor met four credentials that have none
+
+**Context:** The owner's eleven real certifications replaced five invented ones. Four of them
+— HCIA-Security V4.0, Formal Languages and Applications, Operating Systems, and Advanced
+Algorithms and Complexity — carry no skill tags at their source. `CertificationSchema`
+requires between two and four.
+**Decision:** Two skills were derived per credential from the credential's own title, and
+every one is recorded in `docs/STUB-INVENTORY.md` as unverified. The schema floor stays.
+**Reason:** The floor exists for the card: one chip under a credential title reads as a
+rendering fault rather than a fact, and zero chips leaves a gap the layout has to absorb.
+Lowering `min(2)` to fix four rows would weaken the constraint for every future credential to
+accommodate the four that happen to be sparse today — the same trade §5.2 already refused for
+`portrait.alt`, and refusing it consistently is the point.
+
+Deriving from the title is a narrow enough operation to be defensible: "Operating Systems"
+yields *Operating Systems* and *Concurrency*, "Advanced Algorithms and Complexity" yields
+*Algorithms* and *Computational Complexity*. These restate the credential rather than
+characterising what the holder can do with it. **They are still the only claims in that file
+nobody has checked**, which is why they are inventoried rather than treated as done.
+
+Two Huawei credentials carry a credential ID but no verify URL, so §13.2 keeps them out of
+the JSON-LD while §8.6 still renders them in prose — nine of eleven reach the graph. That
+split is the existing design working as specified, not a gap.
+**Affects:** §5.4, §8.6, §13.2

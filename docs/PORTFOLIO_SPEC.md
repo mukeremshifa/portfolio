@@ -309,7 +309,7 @@ export const SiteSchema = z.object({
     label: z.string(),
     url: z.url(),
   })).min(2),
-  featuredCaseStudySlug: z.string(),
+  // featuredCaseStudySlug removed 2026-08-31 with the home section it fed.
   seo: z.object({
     title: z.string().max(60),
     description: z.string().min(70).max(160),
@@ -361,32 +361,17 @@ export const ProjectSchema = z.object({
     live: z.url().optional(),
     docs: z.url().optional(),
   }).default({}),
-  cover: z.object({
+  cover: z.object({                              // optional since 2026-08-31
     src: z.string(),
     alt: z.string().min(10),
     width: z.int().positive(),                   // intrinsic pixels — next/image needs them
     height: z.int().positive(),
-  }),
+  }).optional(),
   overview: z.array(z.string()).min(1).max(3),
-  capabilities: z.array(z.string()).min(3).max(8),
-  features: z.array(z.object({
+  features: z.array(z.object({                   // absorbed `capabilities` on 2026-08-30
     title: z.string(),
     body: z.string(),
   })).min(2).max(8),
-  codeSnippets: z.array(z.object({
-    title: z.string(),
-    language: z.string(),                        // plain label: the class="language-*" hook
-    file: z.string().optional(),
-    note: z.string().optional(),
-    code: z.string().min(1),
-  })).max(4).default([]),
-  screenshots: z.array(z.object({
-    src: z.string(),
-    alt: z.string().min(10),
-    caption: z.string().optional(),
-    width: z.int().positive(),
-    height: z.int().positive(),
-  })).max(8).default([]),
   lessons: z.array(z.string()).max(5).default([]),
   caseStudy: z.object({
     challenge: z.string(),
@@ -406,8 +391,16 @@ arrives, and `images.unoptimized` does not change that — it removes the optimi
 pipeline, not the layout-stability requirement (§12.1). A static import would supply them
 automatically, but `src` arrives from JSON as a string, so the author supplies them
 instead. `fill` inside a fixed aspect-ratio box is the alternative and it is the wrong one
-here: Appendix B demands screenshots of mixed aspect ratios, which is precisely the case a
-fixed box cannot serve without letterboxing or cropping. See `docs/DECISIONS.md`.
+here: it cannot serve an asset whose shape it does not already know without letterboxing or
+cropping. See `docs/DECISIONS.md`.
+
+**Amended 2026-08-30.** `capabilities`, `codeSnippets`, and `screenshots` were removed. A
+project carries one image, its `cover`, so this requirement now applies to that field alone
+— but it applies no less: the cover is `priority` and above the fold, and it is the one
+image on the site whose missing dimensions would shift the page a reader is already looking
+at. The original argument rested on Appendix B's mixed-aspect-ratio screenshots, which no
+longer exist; the conclusion outlives the argument, so the rule stays and the reasoning is
+restated rather than left pointing at something deleted.
 
 ### 5.4 Experience, certifications, skills, focus
 
@@ -469,7 +462,7 @@ build-blocking gates during early development:
 | 1 | Project slugs are unique | Two pages competing for one URL |
 | 2 | Project filename equals its `slug` | Drift between the file tree and routes |
 | 3 | `featured: true` count is between 1 and 3 | Home grid layout breaking |
-| 4 | `site.featuredCaseStudySlug` resolves and that project has a `caseStudy` block | An empty home section |
+| 4 | ~~`site.featuredCaseStudySlug` resolves and that project has a `caseStudy` block~~ **Retired 2026-08-31** with the field and the home section. The numbering is kept so 5 to 8 still mean what other documents say they mean | — |
 | 5 | Every `cover.src` and `screenshots[].src` exists | Broken images |
 | 6 | Exactly 3 focus pillars | A broken three-column layout |
 | 7 | At most one experience entry per organization has `end: null` | Two simultaneous "Present" roles |
@@ -818,15 +811,18 @@ Location and availability come from `site.json` so neither is overstated in mark
 
 ### 8.1 Home — `/`
 
-Section order walks the visitor from who, to proof, to how, to depth, to history, to
-credibility, to contact.
+Section order walks the visitor from who, to proof, to how, to history, to credibility, to
+contact.
+
+**Amended 2026-08-31.** "Depth" — a fourth section promoting one project to a full
+case-study block — was removed. Every project page is written as a case study now, so it
+restated a page the "Selected work" cards already link to. See `docs/DECISIONS.md`.
 
 | # | Section | Component | Data | Heading |
 |---|---|---|---|---|
 | 1 | Hero | `Hero` | `site` | `h1` (headline) |
 | 2 | Selected work | `FeaturedProjects` | `getFeaturedProjects()` | `h2` "Selected work" |
 | 3 | Engineering focus | `EngineeringFocus` | `getFocus()` | `h2` "Engineering focus" |
-| 4 | Featured case study | `FeaturedCaseStudy` | `getFeaturedCaseStudy()` | `h2` "Featured case study" |
 | 5 | Experience snapshot | `ExperiencePreview` | `getExperience()` filtered to `featured` | `h2` "Experience" |
 | 6 | Credentials | `CredentialsPreview` | `getCertifications()` filtered to `featured` | `h2` "Credentials" |
 | 7 | Contact callout | `ContactCallout` | `site.contact` | `h2` |
@@ -847,8 +843,12 @@ category, title, one-sentence summary, 3 to 6 technologies, links.
 **Engineering focus.** Exactly three pillars from `focus.json`, each a title plus a 2 to 3
 line body. No icons that carry meaning, no percentage bars, no skill clouds.
 
-**Featured case study.** Renders `caseStudy.challenge`, `.decision`, `.outcome` under visible
-sub-labels, then a link to the full project page.
+**Featured case study.** *Removed 2026-08-31.* It rendered `caseStudy.challenge`,
+`.decision`, `.outcome` under visible sub-labels, then linked to the full project page — a
+page which now opens with the same three fields under the same three labels, because
+`CaseStudySummary` renders both. The home page was showing a preview of a page one card
+above it already linked to, and `site.featuredCaseStudySlug` decided which project got told
+twice. `CaseStudySummary` itself stays: §8.3 still uses it.
 
 **Experience snapshot.** Up to three `featured` entries. Heading row links to `/experience/`.
 
@@ -890,25 +890,26 @@ Project facts:  Role · Timeline · Team · Status · Stack
 [ Cover visual ]
 
 h2  Overview
-h2  What it does          (capabilities list)
 h2  Key features          (h3 per feature)
-h2  Code highlights       (h3 per snippet)
-h2  Screenshots
-h2  Lessons learned
+h2  Lessons learned       (the page's only bulleted list)
+h2  Case study            (challenge · decision · outcome)
 
 [ ← Previous project ]  [ Next project → ]
 [ Contact CTA ]
 ```
 
+**Amended 2026-08-30.** Three sections left this page: "What it does" merged into "Key
+features", and "Code highlights" and "Screenshots" were removed outright. A project now
+carries exactly one image — its cover. See `docs/DECISIONS.md`.
+
 - Sections whose data is empty are not rendered. No empty headings.
 - `ProjectFacts` is a description list (`dl`/`dt`/`dd`), not a table.
-- `CodeHighlight` renders semantic markup only: `<pre><code class="language-*">` holding the
-  raw source as text, with no colouring (§12.4). Each block has a visible title, an optional
-  filename chip, an optional one-line note, and a copy button.
-- Code blocks that overflow horizontally get `tabindex="0"`, `role="region"`, and an
-  `aria-label` naming the snippet.
-- Screenshots use `Figure` with required alt text and optional visible captions. No lightbox
-  in v1.
+- **Bullets are reserved for "Lessons learned".** It is the only list on the page whose
+  items are peers of one another and carry no internal structure. Everything else that
+  was a bullet list is now a titled block, which is what stops the page reading as four
+  variations on the same list.
+- `CodeHighlight` and `ScreenshotGallery` remain in `components/projects/` and are
+  reachable from no page. That is deliberate, not an oversight — see §9.3.
 
 ### 8.4 Experience — `/experience/`
 
@@ -1099,7 +1100,20 @@ type CertificationCardProps = {
 };
 
 type ContactFormProps = { endpoint: string; email: string };
+
+// Retained, and reachable from no page as of 2026-08-30. `CodeSnippet` and `Screenshot`
+// were `Project` fields; they are now standalone schemas in lib/schemas.ts existing for
+// exactly these two components, because a component with no type does not compile.
+type CodeHighlightProps = { snippets: CodeSnippet[] };
+type ScreenshotGalleryProps = { screenshots: Screenshot[] };
 ```
+
+**Two components are deliberately unreferenced.** `CodeHighlight` and `ScreenshotGallery`
+lost their callers when §8.3 dropped the code and screenshot sections. They were kept on
+purpose: the work in them is the accessible `<pre>` scroll region and the mixed-aspect-ratio
+column layout, neither of which is quick to rebuild, and both of which are correct. A future
+reader finding two components nothing imports should read this line rather than a dead-code
+report. Nothing else in the tree is allowed to be in this state.
 
 ### 9.4 Motion wrappers — `components/motion/`
 
@@ -1805,11 +1819,16 @@ pnpm test:a11y        # axe sweep, run periodically
 ## Appendix B — Golden sample definition
 
 The Phase 2 sample project must simultaneously exercise: an 80-character title, a
-200-character summary, 12 technologies, 4 code snippets in at least 3 languages including one
-with long lines that force horizontal scroll, 6 screenshots of mixed aspect ratios, 5 lessons,
-a full case-study block, one missing optional link, and one very long technology name. If the
-layout survives that, it survives the real content, even while every asset in it is a
-placeholder per §5.6.
+200-character summary, 12 technologies, 8 features, 5 lessons, a full case-study block, one
+missing optional link, and one very long technology name. If the layout survives that, it
+survives the real content, even while every asset in it is a placeholder per §5.6.
+
+**Amended 2026-08-30.** The original list also demanded 4 code snippets in 3+ languages with
+one forcing horizontal scroll, and 6 screenshots of mixed aspect ratios. Both sections were
+removed from §8.3, so neither can be exercised. This appendix records what the sample was
+*for* — a stress test at maximum lengths — and that purpose is now served by a shorter list.
+Its work is done regardless: the design review it existed to enable happened in Phases 2
+through 4.
 
 ## Appendix C — Change log
 

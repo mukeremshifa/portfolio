@@ -1,0 +1,94 @@
+{
+  "slug": "synapsedeck-ai-flashcards",
+  "title": "SynapseDeck: AI-Powered Flashcards with Spaced-Repetition",
+  "summary": "Paste your notes, get LLM-generated flashcards, review them through a quality gate, and practice them with a real FSRS spaced-repetition scheduler. Cards stream in as the model writes them.",
+  "category": "AI/ML",
+  "status": "in-progress",
+  "featured": true,
+  "order": 2,
+  "year": {
+    "start": "2025",
+    "end": null
+  },
+  "role": "Sole engineer, from schema design through deployment",
+  "team": "Solo",
+  "technologies": [
+    "TypeScript",
+    "React",
+    "Tailwind CSS",
+    "shadcn/ui",
+    "PostgreSQL",
+    "Supabase",
+    "Deno",
+    "Groq",
+    "ts-fsrs",
+    "TanStack Query",
+    "Vercel",
+    "Zod"
+  ],
+  "links": {
+    "github": "https://github.com/mukeremshifa/synapse-deck",
+    "live": "https://synapsedeck.mukeremshifa.com"
+  },
+  "cover": {
+    "src": "/projects/synapsedeck-cover-16x9.png",
+    "alt": "SynapseDeck dashboard and practice interface",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "SynapseDeck bridges the gap between note-taking and learning. Students paste study material, an LLM generates flashcards in real time, and a human-in-the-loop review gate ensures only quality cards enter the deck. Nothing that enters is wasted: every card is scheduled with FSRS, a scientifically-validated spacing algorithm that maximizes retention with minimum review time.",
+    "The architecture prioritizes honesty about what is measured and what is estimated. The progress dashboard pulls every number from an append-only review log — retention rates, due forecasts, stability trends — so there is no invented data. Undo is a first-class feature, not an afterthought, because mis-hitting a rating on a mature card damages its schedule permanently without recovery.",
+    "The generation pipeline streams cards from Groq's free tier as they arrive, persists drafts server-side before they reach the browser, and validates each with Zod schemas shared between client and Edge Function. Rate limits protect the shared key, not bills; a refusal is designed as a visible message, never as an empty state that fell out of an error handler."
+  ],
+  "features": [
+    {
+      "title": "Streaming LLM generation with review gate",
+      "body": "Cards appear one at a time as the model writes them. Every card can be edited, accepted, or rejected before entering the deck. LLM output is ~80% good; the review gate is the highest-leverage quality feature in the product."
+    },
+    {
+      "title": "FSRS spaced-repetition scheduler",
+      "body": "Real scheduling, not a guessed algorithm. FSRS (Free Spaced Repetition Scheduler) is the current state of the art in SRS research and is implemented via ts-fsrs. Every review logs complete pre- and post-state, enabling undo and future parameter optimization."
+    },
+    {
+      "title": "Three card types with discriminated union content",
+      "body": "Basic Q&A, cloze deletion, and multiple-choice. Content shape varies by type; scheduling state does not. The scheduler is type-agnostic, so adding a fourth type later touches only rendering and validation."
+    },
+    {
+      "title": "First-class undo with complete snapshots",
+      "body": "A mis-hit rating on a mature card irreversibly damages its schedule in other apps. Here, undo restores the complete pre-review FSRS state from the log, so one wrong tap is not a month-long punishment."
+    },
+    {
+      "title": "Honest progress tracking",
+      "body": "Every metric on /progress — heatmap, streak, retention, due forecast, card state distribution — is counted from the review log. No estimated data, no invented XP. What the user sees is what they actually did."
+    },
+    {
+      "title": "Timezone-correct day boundaries",
+      "body": "A day boundary is 04:00 in the user's timezone, following SRS convention. Streaks and heatmaps stay consistent across DST transitions and midnight-to-dawn study sessions."
+    },
+    {
+      "title": "Keyboard-first practice interface",
+      "body": "Space to reveal, 1–4 to rate, E to edit, U to undo. Practice is built for speed. Every card is one keystroke away from the next."
+    },
+    {
+      "title": "Draft persistence and resumable generation",
+      "body": "Cards are written to the database as they arrive, not held in React state. Refreshing mid-generation does not burn a paid generation; closing the browser leaves a resumable deck."
+    }
+  ],
+  "lessons": [
+    "A review gate is not a nicety—it is the product's quality floor. Reviewing an LLM card for months costs more than not having it.",
+    "Append-only logs are worth every row. The same table that powers scheduling also enables undo, progress tracking, and future optimizer training without migration.",
+    "One Zod schema, enforced at every boundary. Client form, LLM output, database write—shared validation prevents the silent shape mismatches that corrupt data later.",
+    "Honest metrics build trust. Users remember invented numbers; they trust data they can reason about.",
+    "Streaming is not just UX—it is stability. The user watching cards appear knows the generation is working, and seeing the first card in 3 seconds instead of 20 changes the product's entire feel."
+  ],
+  "caseStudy": {
+    "challenge": "Flashcard apps lock users into one scheduler and one card type forever. Changing either requires rebuilding the database. But the real hard problem is the 80% of generated cards that are useless—reviewing them for months because they exist is worse than not having them, and no LLM is good enough to skip the review gate.",
+    "decision": "Build the review gate first. Make it fast to use, let users edit before accepting, and persist drafts server-side so a refresh mid-generation is not catastrophic. Separate content from scheduling state at the database level, so the scheduler never reads the card payload and stays type-agnostic. Log every review completely—state before and after—so undo is exact and the app never corrupts a schedule silently.",
+    "outcome": "The result is a system where the user is in control. They decide what enters their deck and what stays out. Mis-hitting a rating is recoverable. Cards are retrieved at the right time, not guessed. And everything is measurable—the progress dashboard has no estimated data because every number came from the review log."
+  },
+  "seo": {
+    "title": "SynapseDeck: AI-Powered Flashcards with Spaced-Repetition",
+    "description": "Generate flashcards from your notes, review them with a quality gate, and practice with real FSRS scheduling. Progress tracked from an immutable review log."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "slug": "amteclinks-website-seo",
+  "title": "SEO Optimization for Amtec Links Website",
+  "summary": "Comprehensive SEO and content enhancement project for an IT services company website, including metadata optimization, keyword research, and technical SEO improvements to boost search visibility.",
+  "category": "Full-Stack",
+  "status": "completed",
+  "featured": false,
+  "order": 10,
+  "year": { "start": "2025", "end": "2025" },
+  "role": "SEO Analyst & Content Optimizer",
+  "team": "Solo",
+  "technologies": [
+    "SEO Audit",
+    "Keyword Research",
+    "Content Strategy",
+    "Metadata Optimization",
+    "Technical SEO",
+    "Analytics"
+  ],
+  "links": {
+    "github": "https://github.com/mukeremshifa/amteclinks-website-seo"
+  },
+  "overview": [
+    "A comprehensive SEO optimization project for Amtec Links, an IT services company. The work involved conducting a full technical SEO audit, performing keyword research to identify 25 high-potential keywords, mapping keywords to existing pages and new blog content opportunities, optimizing metadata and on-page elements, and implementing technical improvements for better search engine visibility and user experience."
+  ],
+  "features": [
+    {
+      "title": "Technical SEO Audit & Analysis",
+      "body": "Conducted a comprehensive technical SEO audit identifying critical issues including duplicate meta descriptions, oversized title tags, pages blocked from search engines, and missing H1 headings. Analyzed site speed, crawlability, indexability, and on-page SEO factors to establish a baseline for improvements."
+    },
+    {
+      "title": "Strategic Keyword Research & Selection",
+      "body": "Generated and evaluated over 25 high-potential keywords aligned with business intent using tools like Ahrefs, Keyword Surfer, and Google Keyword Planner. Keywords were filtered for relevance to IT services, monthly search volume, competition level, and localized ranking feasibility for the UAE market."
+    },
+    {
+      "title": "Content Mapping & Blog Strategy",
+      "body": "Mapped keywords to existing service pages and identified content gaps requiring new blog posts. Developed content outlines for high-value topics like cloud migration, cybersecurity threats, and managed IT support for SMEs to capture informative search queries."
+    },
+    {
+      "title": "Metadata & On-Page Optimization",
+      "body": "Optimized title tags, meta descriptions, H1-H6 headings, and image alt attributes across all pages. Implemented internal linking improvements, enhanced content structure with primary and supporting keywords, and added keyword-friendly image naming conventions."
+    }
+  ]
+}

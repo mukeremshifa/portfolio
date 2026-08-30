@@ -1,0 +1,29 @@
+{
+  "slug": "little-lemon-capstone",
+  "title": "Little Lemon Capstone",
+  "summary": "Django REST Framework back end for the Little Lemon restaurant implementing role-based permissions across four user groups, cart and order flows, request throttling, and 24 acceptance tests.",
+  "category": "Full-Stack",
+  "status": "completed",
+  "featured": false,
+  "order": 10,
+  "year": { "start": "2025", "end": "2025" },
+  "role": "Backend developer",
+  "team": "Solo",
+  "technologies": ["Python", "Django", "Django REST Framework", "HTML", "CSS", "pytest"],
+  "links": {
+    "github": "https://github.com/mukeremshifa/little-lemon-capstone"
+  },
+  "overview": [
+    "A Django REST Framework backend built as a capstone project for the Little Lemon restaurant. The API implements role-based permissions across four user groups, supports cart and order flows, and applies request throttling. The codebase includes 24 acceptance tests to validate end-to-end behavior."
+  ],
+  "features": [
+    {
+      "title": "Role-based permissions",
+      "body": "Fine-grained access control implemented across four distinct user groups to enforce authorization rules for different API endpoints and actions. Permissions are applied consistently to protect administrative, staff, and customer functionality."
+    },
+    {
+      "title": "Cart and order flows with throttling and tests",
+      "body": "Complete cart and ordering flows with server-side validation and state management, plus DRF throttling to guard against abusive traffic. The project includes 24 acceptance tests that exercise critical end-to-end scenarios to ensure reliability."
+    }
+  ]
+}

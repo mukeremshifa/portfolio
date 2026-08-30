@@ -1,0 +1,32 @@
+{
+  "slug": "java-shopping-cart",
+  "title": "Java Shopping Cart",
+  "summary": "A simple Java Swing shopping cart system for users who need a basic desktop storefront and cart workflow.",
+  "category": "Full-Stack",
+  "status": "completed",
+  "featured": false,
+  "order": 10,
+  "year": {
+    "start": "2025",
+    "end": "2025"
+  },
+  "role": "Built a desktop shopping cart application with Java Swing UI and core cart functionality",
+  "team": "Solo",
+  "technologies": ["Java", "Java Swing", "Desktop Application"],
+  "links": {
+    "github": "https://github.com/mukeremshifa/JavaShoppingCart"
+  },
+  "overview": [
+    "Java Shopping Cart is a simple desktop shopping cart system built with Java Swing. It is intended for demonstrating a basic GUI-based shopping workflow in a Java application."
+  ],
+  "features": [
+    {
+      "title": "Swing-based interface",
+      "body": "Provides a simple desktop GUI for browsing and interacting with shopping cart actions. The interface is built entirely with Java Swing for a lightweight Java desktop experience."
+    },
+    {
+      "title": "Cart workflow",
+      "body": "Supports the core shopping cart flow, letting users add items and manage their selections in the application. It is designed as a straightforward example of cart logic in a desktop project."
+    }
+  ]
+}

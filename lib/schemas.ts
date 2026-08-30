@@ -94,7 +94,10 @@ export const SiteSchema = z.object({
       }),
     )
     .min(2),
-  featuredCaseStudySlug: z.string(),
+  // No `featuredCaseStudySlug`. The home page's dedicated case-study section was removed
+  // on 2026-08-31: every project page is written as a case study now, so promoting one of
+  // them to a second home-page section restated a page the "Selected work" cards already
+  // link to. §5.5 invariant 4 went with it — see docs/DECISIONS.md.
   seo: z.object({
     title: z.string().max(60),
     description: z.string().min(70).max(160),
@@ -128,13 +131,30 @@ export const ProjectSchema = z.object({
       docs: z.url().optional(),
     })
     .default({}),
-  cover: z.object({
-    src: z.string(),
-    alt: z.string().min(10),
-    ...ImageDimensions,
-  }),
+  /**
+   * Optional since 2026-08-31, which is what makes the brief project shape possible.
+   *
+   * Absence is invisible on `/projects`: `ProjectCard` renders a cover only in its
+   * `featured` variant, so a standard card never had one to lose. What a coverless
+   * project gives up is the hero image on its own page and `image` in its JSON-LD —
+   * both acceptable for work that does not merit sourcing a picture, neither acceptable
+   * for a featured project, which is why the three featured ones all carry one.
+   */
+  cover: z
+    .object({
+      src: z.string(),
+      alt: z.string().min(10),
+      ...ImageDimensions,
+    })
+    .optional(),
   overview: z.array(z.string()).min(1).max(3),
-  capabilities: z.array(z.string()).min(3).max(8),
+  /**
+   * The merged section. `capabilities` — a 3-to-8 string array rendered as bullets
+   * beside this — was folded in here, because "what it does" and "key features" were
+   * two headings over one idea and the page asked the reader to spot a distinction the
+   * author had not made. Bullets are now reserved for `lessons`, which is the one list
+   * on the page whose items really are peers of each other and nothing more.
+   */
   features: z
     .array(
       z.object({
@@ -144,32 +164,6 @@ export const ProjectSchema = z.object({
     )
     .min(2)
     .max(8),
-  codeSnippets: z
-    .array(
-      z.object({
-        title: z.string(),
-        // A plain label (§12.4). It feeds the `class="language-*"` hook and the
-        // filename chip; nothing validates it against a highlighter's language list,
-        // because there is no highlighter.
-        language: z.string(),
-        file: z.string().optional(),
-        note: z.string().optional(),
-        code: z.string().min(1),
-      }),
-    )
-    .max(4)
-    .default([]),
-  screenshots: z
-    .array(
-      z.object({
-        src: z.string(),
-        alt: z.string().min(10),
-        caption: z.string().optional(),
-        ...ImageDimensions,
-      }),
-    )
-    .max(8)
-    .default([]),
   lessons: z.array(z.string()).max(5).default([]),
   caseStudy: z
     .object({
@@ -259,9 +253,40 @@ export type Category = Project["category"];
  */
 export const CATEGORIES = ProjectSchema.shape.category.options;
 export type ProjectStatus = Project["status"];
-export type CodeSnippet = Project["codeSnippets"][number];
-export type Screenshot = Project["screenshots"][number];
 export type CaseStudy = NonNullable<Project["caseStudy"]>;
+
+/**
+ * `CodeHighlight` and `ScreenshotGallery` are no longer reachable from any page.
+ *
+ * Both used to be `Project` fields. A project now carries one cover image and no code,
+ * so the fields are gone from `ProjectSchema` — but the components were kept
+ * deliberately, and a component with no type does not compile. These two schemas are
+ * what they are typed against now.
+ *
+ * **They are not dead code by accident.** Deleting them deletes the components, which is
+ * the opposite of the decision on record (see docs/DECISIONS.md, 2026-08-30). Anything
+ * that wants a gallery or a snippet block again starts here rather than from scratch.
+ */
+export const CodeSnippetSchema = z.object({
+  title: z.string(),
+  // A plain label (§12.4). It feeds the `class="language-*"` hook and the filename chip;
+  // nothing validates it against a highlighter's language list, because there is no
+  // highlighter.
+  language: z.string(),
+  file: z.string().optional(),
+  note: z.string().optional(),
+  code: z.string().min(1),
+});
+
+export const ScreenshotSchema = z.object({
+  src: z.string(),
+  alt: z.string().min(10),
+  caption: z.string().optional(),
+  ...ImageDimensions,
+});
+
+export type CodeSnippet = z.infer<typeof CodeSnippetSchema>;
+export type Screenshot = z.infer<typeof ScreenshotSchema>;
 
 /**
  * §5.1 and §9.3 both name `ProjectRef` and §5.3 declares no schema for it, because it is

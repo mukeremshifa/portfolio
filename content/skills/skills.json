@@ -2,44 +2,96 @@
   {
     "id": "languages",
     "title": "Languages",
-    "items": ["TypeScript", "Python", "Go", "SQL", "Bash", "HTML and CSS"]
-  },
-  {
-    "id": "web-and-product",
-    "title": "Web and product",
-    "items": ["Next.js", "React", "Tailwind CSS", "Node.js", "OpenAPI"]
-  },
-  {
-    "id": "ai-and-retrieval",
-    "title": "AI and retrieval",
     "items": [
-      "Retrieval-Augmented Generation with Hybrid Reranking",
-      "FastAPI",
-      "Vector search",
-      "pgvector",
-      "Evaluation harnesses"
+      "TypeScript",
+      "JavaScript",
+      "Python",
+      "Java",
+      "SQL",
+      "HTML",
+      "CSS"
+    ]
+  },
+  {
+    "id": "frontend",
+    "title": "Front end",
+    "items": [
+      "React",
+      "Vite",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "TanStack Query",
+      "Axios",
+      "Framer Motion"
+    ]
+  },
+  {
+    "id": "backend-and-apis",
+    "title": "Back end and APIs",
+    "items": [
+      "Hono",
+      "Node.js",
+      "Deno",
+      "Django",
+      "Django REST Framework",
+      "Zod"
     ]
   },
   {
     "id": "data-and-storage",
     "title": "Data and storage",
-    "items": ["PostgreSQL", "SQLite", "Redis", "Object storage (R2, S3)"]
+    "items": [
+      "PostgreSQL",
+      "Supabase",
+      "Drizzle ORM",
+      "AWS S3"
+    ]
+  },
+  {
+    "id": "ai-and-retrieval",
+    "title": "AI and retrieval",
+    "items": [
+      "OpenAI",
+      "Anthropic",
+      "Google Gemini",
+      "Groq",
+      "Workers AI",
+      "RAG",
+      "ts-fsrs"
+    ]
   },
   {
     "id": "platform-and-delivery",
     "title": "Platform and delivery",
     "items": [
-      "Docker",
-      "Kubernetes",
-      "Terraform",
       "Cloudflare Workers",
-      "GitHub Actions",
-      "Vercel"
+      "Vercel",
+      "Docker",
+      "pytest",
+      "nginx"
     ]
   },
   {
-    "id": "observability-and-delivery",
-    "title": "Observability and delivery",
-    "items": ["OpenTelemetry", "Grafana", "Vercel"]
+    "id": "search-and-content",
+    "title": "Search and content",
+    "items": [
+      "Technical SEO",
+      "SEO Audit",
+      "Keyword Research",
+      "Metadata Optimization",
+      "Content Strategy",
+      "Analytics",
+      "WordPress"
+    ]
+  },
+  {
+    "id": "product-and-interaction",
+    "title": "Product and interaction",
+    "items": [
+      "Gamification Design",
+      "Survey UX",
+      "Java Swing",
+      "Desktop Application"
+    ]
   }
 ]

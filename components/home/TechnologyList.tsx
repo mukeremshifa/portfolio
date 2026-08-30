@@ -1,21 +1,38 @@
 import { BrandIcon, type BrandIconName } from "@/components/ui/BrandIcon";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
+/**
+ * Curated, not exhaustive — the full list is `content/skills/skills.json` on `/about/`.
+ *
+ * **Every entry here is used by a project in `content/projects/`, with one exception.**
+ * Next.js is the framework this site is built on and appears in no project file, which is
+ * the only claim on this row that rests on the page the reader is looking at rather than
+ * on a case study they can open. That is the bar for adding anything else: the earlier
+ * version of this list advertised LangChain, TensorFlow and Keras, none of which appear
+ * anywhere in the content, and a homepage that names tools the work does not use is the
+ * one inconsistency a reader can actually catch.
+ *
+ * Ordered as a stack rather than alphabetically: language, front end, runtime, data,
+ * platform, then models.
+ */
 const technologies: { name: string; icon: BrandIconName }[] = [
-  { name: "Supabase", icon: "supabase" },
-  { name: "Cloudflare", icon: "cloudflare" },
-  { name: "GitHub", icon: "github" },
   { name: "TypeScript", icon: "typescript" },
-  { name: "Python", icon: "python" },
-  { name: "Java", icon: "java" },
   { name: "React", icon: "react" },
   { name: "Next.js", icon: "next" },
+  { name: "Tailwind CSS", icon: "tailwind" },
+  { name: "shadcn/ui", icon: "shadcn" },
   { name: "Node.js", icon: "node" },
-  { name: "LangChain", icon: "langchain" },
-  { name: "TensorFlow", icon: "tensorflow" },
-  { name: "Keras", icon: "keras" },
-  { name: "Claude", icon: "anthropic" },
-  { name: "OpenAI", icon: "openai" },
+  { name: "Hono", icon: "hono" },
+  { name: "Deno", icon: "deno" },
+  { name: "Python", icon: "python" },
+  { name: "Django", icon: "django" },
+  { name: "PostgreSQL", icon: "postgresql" },
+  { name: "Supabase", icon: "supabase" },
+  { name: "Drizzle ORM", icon: "drizzle" },
+  { name: "Cloudflare Workers", icon: "cloudflareworkers" },
+  { name: "Vercel", icon: "vercel" },
+  { name: "Docker", icon: "docker" },
+  { name: "Claude", icon: "claude" },
   { name: "Gemini", icon: "gemini" },
 ];
 

@@ -1,0 +1,50 @@
+{
+  "slug": "REPLACE-kebab-case-and-match-this-filename",
+  "title": "REPLACE — up to 80 characters",
+  "summary": "REPLACE — between 60 and 200 characters. One sentence saying what this is and who it is for. This is the only prose shown on the projects index card.",
+  "category": "AI/ML",
+  "status": "in-progress",
+  "featured": true,
+  "order": 1,
+  "year": { "start": "2025", "end": null },
+  "role": "REPLACE — what you actually did",
+  "team": "REPLACE — honest team size, e.g. Solo",
+  "technologies": ["REPLACE", "at least three", "at most twelve"],
+  "links": {
+    "github": "https://github.com/mukeremshifa/REPLACE",
+    "live": "https://REPLACE.mukeremshifa.com"
+  },
+  "cover": {
+    "src": "/projects/REPLACE-cover-16x9.png",
+    "alt": "REPLACE — at least 10 characters, describing what the image shows",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "REPLACE — first paragraph. One to three total.",
+    "REPLACE — second paragraph."
+  ],
+  "features": [
+    {
+      "title": "REPLACE — short noun phrase",
+      "body": "REPLACE — two or three sentences. Two to eight of these blocks."
+    },
+    {
+      "title": "REPLACE — short noun phrase",
+      "body": "REPLACE — two or three sentences."
+    }
+  ],
+  "lessons": [
+    "REPLACE — up to five. This is the only bulleted list on the page.",
+    "REPLACE — what the second year taught you that the first did not."
+  ],
+  "caseStudy": {
+    "challenge": "REPLACE — the constraint you were working against.",
+    "decision": "REPLACE — what you chose, and what you gave up to choose it.",
+    "outcome": "REPLACE — what actually happened. No invented metrics (§21)."
+  },
+  "seo": {
+    "title": "REPLACE — up to 60 characters",
+    "description": "REPLACE — up to 160 characters."
+  }
+}

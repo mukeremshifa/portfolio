@@ -57,8 +57,13 @@ export function ProjectCard({
       }`}
     >
       {/* The featured card is the one place a cover earns its space: it spans the full
-          grid width, so without the image it is a short paragraph in a very wide box. */}
-      {featured ? (
+          grid width, so without the image it is a short paragraph in a very wide box.
+
+          `cover` became optional with the brief project shape (§5.3), so this is now two
+          conditions rather than one. A standard card never rendered the image anyway,
+          which is exactly why a coverless project is invisible as such on `/projects` —
+          the absence shows up on its own page, not in the grid. */}
+      {featured && project.cover ? (
         <div className="md:w-2/5 md:shrink-0">
           <Figure
             src={project.cover.src}

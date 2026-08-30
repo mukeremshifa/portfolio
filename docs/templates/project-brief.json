@@ -1,0 +1,29 @@
+{
+  "slug": "REPLACE-kebab-case-and-match-this-filename",
+  "title": "REPLACE — up to 80 characters",
+  "summary": "REPLACE — between 60 and 200 characters. One sentence saying what this is and who it is for. This is the only prose shown on the projects index card.",
+  "category": "Full-Stack",
+  "status": "completed",
+  "featured": false,
+  "order": 10,
+  "year": { "start": "2025", "end": "2025" },
+  "role": "REPLACE — what you actually did",
+  "team": "REPLACE — honest team size, e.g. Solo",
+  "technologies": ["REPLACE", "at least three", "at most twelve"],
+  "links": {
+    "github": "https://github.com/mukeremshifa/REPLACE"
+  },
+  "overview": [
+    "REPLACE — one paragraph. A brief project gets one; the schema allows up to three if it grows."
+  ],
+  "features": [
+    {
+      "title": "REPLACE — short noun phrase",
+      "body": "REPLACE — two or three sentences. Minimum two of these blocks."
+    },
+    {
+      "title": "REPLACE — short noun phrase",
+      "body": "REPLACE — two or three sentences."
+    }
+  ]
+}

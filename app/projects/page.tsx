@@ -39,8 +39,9 @@ export default function ProjectsPage() {
         <div className="flex flex-col gap-4">
           <h1 className="font-serif text-display-2 font-semibold text-text">Projects</h1>
           <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            A selection of AI, full-stack, and systems work. Each one has a page with the
-            decisions behind it, including the ones that turned out to be wrong.
+            AI and full-stack work, from multi-tenant platforms to smaller pieces worth
+            keeping. Each one has a page with the decisions behind it, including the ones
+            that turned out to be wrong.
           </p>
         </div>
 

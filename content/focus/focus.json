@@ -1,20 +1,20 @@
 [
   {
-    "id": "systems-that-hold-up",
-    "title": "Systems that hold their shape under real constraints",
-    "body": "Most of what makes a product hard is not the feature list. It is permissions, migrations, partial failure, and the second environment. I design for those first, because retrofitting them means rewriting the parts that were fun to build.",
-    "technologies": ["TypeScript", "PostgreSQL", "Terraform"]
+    "id": "multi-tenancy-and-access",
+    "title": "Multi-tenant products, with access control underneath",
+    "body": "Three of these projects separate tenants or roles at the data layer rather than in the interface: row-level security in Supabase, a four-group permission model in Django, per-tenant isolation in the chat platform. Retrofitting that is a rewrite.",
+    "technologies": ["PostgreSQL", "Supabase", "Drizzle ORM", "Django REST Framework", "Hono"]
   },
   {
-    "id": "retrieval-that-cites",
-    "title": "Retrieval that can show its work",
-    "body": "A language model is only as trustworthy as the passages behind it. I build retrieval that carries citations through to the answer, refuses when nothing is relevant, and can be replayed against a fixed question set to see what actually changed.",
-    "technologies": ["Python", "FastAPI", "Docker"]
+    "id": "llm-features-that-stay-grounded",
+    "title": "LLM features that stay grounded and swappable",
+    "body": "A model is a dependency, not an architecture. The chat platform routes several vendors behind one interface and answers from retrieved documentation; the flashcard tool puts generated cards behind a review gate before a scheduler ever sees them.",
+    "technologies": ["OpenAI", "Anthropic", "Google Gemini", "Groq", "RAG", "Workers AI"]
   },
   {
-    "id": "interfaces-people-can-use",
-    "title": "Interfaces that stay usable at the edges",
-    "body": "Keyboard paths, focus order, contrast, and behaviour at 320 pixels are not a pass at the end. They are part of whether the thing works, so they get decided while the component is being written rather than audited after it ships.",
-    "technologies": ["Next.js", "React", "OpenTelemetry"]
+    "id": "edge-first-delivery",
+    "title": "Edge-first delivery on small runtimes",
+    "body": "Most of this runs on workers and edge functions rather than a long-lived server: Hono on Cloudflare, Deno on Supabase, front ends on Vercel. Small runtimes keep the cold path cheap and make deployment boring, which is the goal.",
+    "technologies": ["Cloudflare Workers", "Hono", "Deno", "Vercel", "Docker"]
   }
 ]

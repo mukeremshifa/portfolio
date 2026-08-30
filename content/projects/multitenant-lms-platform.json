@@ -1,0 +1,93 @@
+{
+  "slug": "multitenant-lms-platform",
+  "title": "Multi-Tenant Learning Management System",
+  "summary": "A role-based learning management system for managing courses, enrollments, progress, and academic workflows, with a React client and a Hono/TypeScript API backed by PostgreSQL and Drizzle ORM.",
+  "category": "Full-Stack",
+  "status": "in-progress",
+  "featured": false,
+  "order": 4,
+  "year": {
+    "start": "2025",
+    "end": null
+  },
+  "role": "Full-stack engineer, responsible for architecture, API design, and frontend integration",
+  "team": "Solo",
+  "technologies": [
+    "TypeScript",
+    "JavaScript",
+    "React",
+    "Vite",
+    "TanStack Query",
+    "Axios",
+    "Node.js",
+    "Hono",
+    "PostgreSQL",
+    "Drizzle ORM",
+    "Zod",
+    "AWS S3"
+  ],
+  "links": {
+    "github": "https://github.com/mukeremshifa/bb-lms"
+  },
+  "cover": {
+    "src": "/placeholders/bb-lms-cover-16x9.svg",
+    "alt": "BB LMS dashboard and course management interface.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "BB LMS is built as a two-package workspace: a React 19 + Vite single-page app in `client/` and a Hono + TypeScript backend in `server/`. The frontend handles role-based user experiences and server-state synchronization, while the backend exposes modular domain APIs for authentication, users, courses, and related workflows.",
+    "The client communicates through a shared Axios layer with interceptors that attach authentication context and normalize error responses. Data access is organized through service modules and hooks, with TanStack Query used for caching, request lifecycle handling, and consistent async UX patterns across screens.",
+    "The backend applies a deliberate middleware and route-order strategy: public auth routes first, then global guards (`authGuard`, followed by `passGuard`) before protected modules. Business logic lives in service layers and surfaces expected failures via structured `AppError` objects so central error handling can return uniform API error contracts."
+  ],
+  "features": [
+    {
+      "title": "Layered modular backend architecture",
+      "body": "Domain modules are organized under `server/src/modules/<name>/` with route, schema, and service separation. This keeps transport concerns, validation, and business logic isolated, making features easier to evolve without cross-module coupling."
+    },
+    {
+      "title": "Guard-driven access flow",
+      "body": "Authentication and account-state checks are enforced globally in a strict order. `authGuard` verifies identity, and `passGuard` enforces account status and forced password-change policy before protected resources are accessed."
+    },
+    {
+      "title": "Consistent API error model",
+      "body": "Expected domain failures are raised as `AppError` and handled centrally in `app.onError`, alongside typed handling for `SyntaxError` and `ZodError`. This yields predictable JSON error responses across the platform."
+    },
+    {
+      "title": "Typed validation at route boundaries",
+      "body": "Request payloads are validated with Zod in route handlers before service execution. Input constraints are explicit and fail fast, reducing downstream runtime ambiguity."
+    },
+    {
+      "title": "Sqids-based public identifiers",
+      "body": "User-facing identifiers use Sqids rather than exposing raw integer database IDs, improving external URL hygiene and reducing accidental leakage of internal key patterns."
+    },
+    {
+      "title": "Frontend data access conventions",
+      "body": "Client-side server-state flows through TanStack Query hooks and service modules rather than ad-hoc component fetch logic, improving cache behavior, consistency, and testability of data interactions."
+    },
+    {
+      "title": "Presigned S3 upload workflow",
+      "body": "File upload is handled via presigned URLs so binary data does not pass through the API process. This reduces backend load and aligns storage access with cloud-native patterns."
+    },
+    {
+      "title": "Migration-first database workflow",
+      "body": "Schema changes are intended through Drizzle schema edits followed by generated SQL migrations and migration application, keeping database evolution explicit and reproducible."
+    }
+  ],
+  "lessons": [
+    "Middleware and route registration order is architecture, not plumbing; auth behavior depends on that sequence.",
+    "A central typed error contract (`AppError` + global handler) simplifies both frontend error UX and backend maintenance.",
+    "Strict module boundaries (route/schema/service) make refactors safer in growing codebases.",
+    "Using query libraries and shared HTTP clients early prevents drift into inconsistent data-fetching patterns.",
+    "Migration-driven schema changes are slower short-term but significantly safer than direct schema push habits."
+  ],
+  "caseStudy": {
+    "challenge": "As protected domains expanded, there was risk of inconsistent authorization and error semantics across modules, especially when teams add routes quickly and validations drift.",
+    "decision": "Enforce a common flow: mount public auth routes first, apply global guards once, validate with Zod at route boundaries, and require service-layer business failures to throw `AppError` for centralized formatting.",
+    "outcome": "Protected endpoints now follow a predictable lifecycle from auth to validation to service execution, and clients receive stable error shapes. This improved maintainability and reduced integration friction between frontend hooks and backend APIs."
+  },
+  "seo": {
+    "title": "BB LMS — Role-Based Learning Management Platform",
+    "description": "A full-stack LMS built with React, Hono, TypeScript, and PostgreSQL, featuring guard-based access control, modular APIs, and migration-first schema management."
+  }
+}

@@ -208,16 +208,6 @@ export function getAdjacentProjects(slug: string): {
   };
 }
 
-export function getFeaturedCaseStudy(): Project {
-  const project = PROJECTS_BY_SLUG.get(SITE.featuredCaseStudySlug);
-  if (!project) {
-    throw new Error(
-      `content/site.json points featuredCaseStudySlug at "${SITE.featuredCaseStudySlug}", which is not a project. See §5.5 invariant 4.`,
-    );
-  }
-  return project;
-}
-
 export function getExperience(): ExperienceEntry[] {
   return EXPERIENCE;
 }

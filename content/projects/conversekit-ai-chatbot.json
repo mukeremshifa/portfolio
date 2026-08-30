@@ -1,0 +1,94 @@
+{
+  "slug": "conversekit-ai-chatbot",
+  "title": "Conversekit: Multi-Tenant AI Chat Platform",
+  "summary": "Drop-in conversational AI chat widget for any website with multi-tenant support, eleven AI vendor integration, RAG over custom documentation, deployed on Cloudflare Workers with Supabase backend.",
+  "category": "AI/ML",
+  "status": "in-progress",
+  "featured": true,
+  "order": 1,
+  "year": {
+    "start": "2026",
+    "end": null
+  },
+  "role": "Sole engineer, from architecture through deployment",
+  "team": "Solo project",
+  "technologies": [
+    "TypeScript",
+    "React",
+    "Hono",
+    "Cloudflare Workers",
+    "Supabase",
+    "Tailwind CSS",
+    "OpenAI",
+    "Anthropic",
+    "Google Gemini",
+    "Groq",
+    "Workers AI",
+    "RAG"
+  ],
+  "links": {
+    "github": "https://github.com/mukeremshifa/conversekit",
+    "live": "https://conversekit.mukeremshifa.com"
+  },
+  "cover": {
+    "src": "/projects/conversekit-cover-16x9.svg",
+    "alt": "ConverseKit chat widget dashboard showing AI vendor selection and conversation interface.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "ConverseKit is a production multi-tenant platform deployed as four separate Cloudflare Workers—the API, dashboard, widget CDN, and landing page—each with its own hostname, cache policy and blast radius. Onboarding a new client is a single SQL row insertion and a script tag; no redeploy, no build step on the customer side.",
+    "The platform abstracts eleven different AI vendors behind a single interface, from OpenAI and Anthropic to free options like Gemini Flash Lite and Workers AI. Each bot maintains its own knowledge base built from documents, markdown, and URLs through hybrid lexical and vector search with reranking.",
+    "Tenancy is enforced at the database layer through row-level security keyed off organization membership, not application code. Each bot is origin-locked to an explicit allowlist, and every request goes through multiple layers of isolation before the model is ever called."
+  ],
+  "features": [
+    {
+      "title": "Eleven AI vendors, one interface",
+      "body": "OpenAI, Anthropic, Gemini, Groq, OpenRouter, Mistral, Workers AI, DeepSeek, Together, Ollama and LM Studio plus any OpenAI-compatible endpoint. Switching is a dropdown per bot; the platform defaults to Gemini Flash Lite for chat and Workers AI for embeddings, verified to run at no cost."
+    },
+    {
+      "title": "Answers from your documents",
+      "body": "Text, markdown and URLs become a searchable knowledge base. At question time the query is embedded and matched against that bot's chunks by cosine similarity, and the best passages go into the prompt."
+    },
+    {
+      "title": "Captures leads mid-conversation",
+      "body": "The model collects a name, email or phone number during conversation and files it for CSV export, converting chat interactions into business outcomes."
+    },
+    {
+      "title": "Streaming with fallback",
+      "body": "Replies arrive over Server-Sent Events; a transport failure falls back to a buffered endpoint so the visitor still gets an answer even if streaming disconnects."
+    },
+    {
+      "title": "Isolated by the database",
+      "body": "Row-level security keyed off organization membership, not application code that a refactor can quietly drop. A permission change cannot be forgotten at any of a dozen call sites."
+    },
+    {
+      "title": "Origin-locked deployments",
+      "body": "Each bot allows an explicit list of origins; a request from anywhere else is refused before the model is ever called. No CORS surprises, no open vector indexes."
+    },
+    {
+      "title": "One environment, deployed from a laptop",
+      "body": "There is no staging. One Supabase project, one set of four Workers, one branch. What `npm run dev` runs is what is deployed. The database is real—nothing local is a rehearsal."
+    },
+    {
+      "title": "Hybrid retrieval with rank fusion",
+      "body": "Lexical index catches exact terms and identifiers that embeddings blur. Vector index catches paraphrase. Two ranked lists are fused before a cross-encoder reranks whatever survives."
+    }
+  ],
+  "lessons": [
+    "Four Workers with separate hostnames contain blast radius better than one. Each has its own cache policy and can be deployed independently.",
+    "Tenancy is an infrastructure concern, not a business logic one. Push it to the database layer so it cannot be forgotten.",
+    "Vendor abstraction at the interface level is cheap; running eleven vendors in production is not. Test the free tier path before making it the default.",
+    "The cost of a second environment is the cost of a second project, second set of secrets, and second thing to be wrong. One real environment early saves investigation time later.",
+    "Onboarding a client as a single row insertion with zero deployment friction scales the business model as much as the code does."
+  ],
+  "caseStudy": {
+    "challenge": "A naive RAG implementation returns the right answer but tells the visitor what documents they are not allowed to read. Filtering results after retrieval still shifts the ranking of everything else, leaking information through the shape of the response.",
+    "decision": "Move the boundary into the database. Tenant and role scoping became arguments to the index query and a row-level security policy, so the application cannot forget them and the mistake is one policy in one place rather than missing conditions at a dozen call sites.",
+    "outcome": "Results are now deterministic per role. The same question from two users with different permissions is two separate queries, not one result and a filter. The coupling has held up—changes to permissions now require re-running the query rather than re-filtering a cached list."
+  },
+  "seo": {
+    "title": "Multi-Tenant AI Chat Platform",
+    "description": "Drop-in conversational AI widget for websites. Multi-tenant, eleven AI vendors, RAG retrieval, lead capture, deployed on Cloudflare Workers with Supabase."
+  }
+}

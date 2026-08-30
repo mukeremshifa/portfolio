@@ -1,0 +1,87 @@
+{
+  "slug": "gamified-survey-prototype",
+  "title": "Survey Quest: Gamified Survey Prototype",
+  "summary": "A React prototype that transforms a questionnaire into a light game loop with XP, levels, badges, and a confetti finish while keeping survey integrity by awarding progress for participation only.",
+  "category": "Full-Stack",
+  "status": "in-progress",
+  "featured": true,
+  "order": 3,
+  "year": {
+    "start": "2026",
+    "end": null
+  },
+  "role": "Frontend engineer building the prototype end-to-end",
+  "team": "Solo",
+  "technologies": [
+    "JavaScript",
+    "React",
+    "CSS",
+    "Docker",
+    "Gamification Design",
+    "Survey UX"
+  ],
+  "links": {
+    "github": "https://github.com/mukeremshifa/gamified-servey-project"
+  },
+  "cover": {
+    "src": "/placeholders/gamified-servey-project-cover-16x9.svg",
+    "alt": "Gamified survey interface with XP progress, badges, and completion celebration.",
+    "width": 1600,
+    "height": 900
+  },
+  "overview": [
+    "Survey Quest reframes a conventional form flow into a short progression game so users stay engaged from first question to final submit. The game layer is intentionally separated from response content: users earn XP for completion and consistency of participation, never for selecting any specific answer.",
+    "The interface uses small, immediate feedback moments—progress bars, level-up states, and badge triggers—to reduce drop-off and make long questionnaires feel lighter. These mechanics are designed to motivate continued participation rather than influence decision-making.",
+    "The prototype focuses on balancing engagement and neutrality: keeping the interaction playful while preserving unbiased data capture. That principle drives both scoring rules and UI copy across the experience."
+  ],
+  "features": [
+    {
+      "title": "Participation-only XP model",
+      "body": "XP is granted for answering and progressing, not for the option selected. This keeps gamification from biasing survey outcomes."
+    },
+    {
+      "title": "Level progression across question flow",
+      "body": "Users move through visible levels as they complete sections, creating momentum and a clear sense of advancement."
+    },
+    {
+      "title": "Badge milestones",
+      "body": "Badges are unlocked at defined participation checkpoints to reinforce progress without attaching value judgments to response choices."
+    },
+    {
+      "title": "Confetti completion finish",
+      "body": "A celebratory end-state rewards full completion and provides emotional closure at submission time."
+    },
+    {
+      "title": "Progress-first UI feedback",
+      "body": "Each step highlights completion state, remaining work, and current XP to reduce abandonment on longer forms."
+    },
+    {
+      "title": "Survey-integrity-safe copy",
+      "body": "Microcopy is written to encourage continuation without suggesting preferred answers."
+    },
+    {
+      "title": "React componentized flow",
+      "body": "Question cards, progress elements, and reward UI are modularized so mechanics can be iterated quickly."
+    },
+    {
+      "title": "Container-ready setup",
+      "body": "Docker support enables consistent local runs and easier handoff for testing/demo environments."
+    }
+  ],
+  "lessons": [
+    "Gamification in surveys works best when rewards are tied to completion behavior, not answer content.",
+    "Small feedback loops (XP, level cues, badge unlocks) can significantly improve perceived form speed.",
+    "Neutral wording is as important as neutral scoring when protecting data quality.",
+    "A strong completion moment increases satisfaction and can improve willingness for future participation.",
+    "Prototype architecture should keep game mechanics swappable so engagement experiments are low-risk."
+  ],
+  "caseStudy": {
+    "challenge": "The core challenge was increasing questionnaire completion without introducing response bias. Typical game reward systems can unintentionally nudge users toward specific options, which would undermine the usefulness of collected data.",
+    "decision": "The scoring model was constrained so rewards depend only on participation events—answer submitted, section completed, survey finished. UI feedback emphasizes momentum and progress while avoiding language that frames any response as better than another.",
+    "outcome": "The resulting prototype delivers a more engaging survey journey with XP, levels, badges, and celebratory completion while preserving answer neutrality. It establishes a practical baseline for future A/B tests on completion rate and user satisfaction."
+  },
+  "seo": {
+    "title": "Survey Quest Gamified Survey Prototype",
+    "description": "A React survey prototype with participation-based XP, levels, badges, and confetti completion designed to boost engagement without biasing results."
+  }
+}

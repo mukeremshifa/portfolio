@@ -6,9 +6,7 @@ import type { ReactNode } from "react";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { CaseStudyNavigation } from "@/components/projects/CaseStudyNavigation";
 import { CaseStudySummary } from "@/components/projects/CaseStudySummary";
-import { CodeHighlight } from "@/components/projects/CodeHighlight";
 import { ProjectFacts } from "@/components/projects/ProjectFacts";
-import { ScreenshotGallery } from "@/components/projects/ScreenshotGallery";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Figure } from "@/components/ui/Figure";
@@ -126,14 +124,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         <ProjectFacts project={project} />
 
-        <Figure
-          src={project.cover.src}
-          alt={project.cover.alt}
-          width={project.cover.width}
-          height={project.cover.height}
-          priority
-          sizes="(min-width: 1200px) 1200px, 100vw"
-        />
+        {/* Absent on a brief project (§5.3). The page opens straight into "Overview"
+            then, which is the intended shape rather than a degraded one — there is no
+            placeholder and no reserved empty band, because a box holding nothing is worse
+            than a page that is simply shorter. */}
+        {project.cover ? (
+          <Figure
+            src={project.cover.src}
+            alt={project.cover.alt}
+            width={project.cover.width}
+            height={project.cover.height}
+            priority
+            sizes="(min-width: 1200px) 1200px, 100vw"
+          />
+        ) : null}
 
         <Section title="Overview">
           <Prose>
@@ -143,14 +147,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </Prose>
         </Section>
 
-        <Section title="What it does">
-          <ul className="flex max-w-measure list-disc flex-col gap-2 pl-6 font-sans text-body text-text">
-            {project.capabilities.map((capability) => (
-              <li key={capability}>{capability}</li>
-            ))}
-          </ul>
-        </Section>
-
+        {/* One section where there were two. "What it does" was a bulleted `capabilities`
+            list sitting directly above this grid saying the same thing in a different
+            shape, which asked the reader to find a distinction the author had not drawn.
+            Bullets are now reserved for "Lessons learned" — the one list on this page
+            whose items are genuinely peers and nothing more. */}
         <Section title="Key features">
           <ul className="grid gap-8 md:grid-cols-2">
             {project.features.map((feature) => (
@@ -165,18 +166,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             ))}
           </ul>
         </Section>
-
-        {project.codeSnippets.length > 0 ? (
-          <Section title="Code highlights">
-            <CodeHighlight snippets={project.codeSnippets} />
-          </Section>
-        ) : null}
-
-        {project.screenshots.length > 0 ? (
-          <Section title="Screenshots">
-            <ScreenshotGallery screenshots={project.screenshots} />
-          </Section>
-        ) : null}
 
         {project.lessons.length > 0 ? (
           <Section title="Lessons learned">

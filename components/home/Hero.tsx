@@ -29,7 +29,9 @@ const SIGNED_NAME = SIGNATURE.text;
  *
  * - no `portrait` → the grid collapses to one column, which is §8.1's requirement
  * - no `resume` → the secondary CTA is not rendered, not disabled
- * - `availability.show: false` → the badge disappears here and in the footer together
+ * - `availability.show: false` → the badge disappears from this hero, and only from here.
+ *   The footer reads `location`, never `availability`, so its "· Available remotely" line
+ *   survives this flag; that string is `location.remote`. Silencing both is two edits.
  *
  * `ProfileVisual` is the portrait and it carries no information the text does not already
  * carry (§8.1), which is why removing it costs the page nothing but width.

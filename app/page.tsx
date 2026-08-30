@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { CredentialsPreview } from "@/components/home/CredentialsPreview";
 import { EngineeringFocus } from "@/components/home/EngineeringFocus";
-import { FeaturedCaseStudy } from "@/components/home/FeaturedCaseStudy";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { ExperiencePreview } from "@/components/home/ExperiencePreview";
 import { Hero } from "@/components/home/Hero";
@@ -12,7 +11,6 @@ import { Container } from "@/components/ui/Container";
 import {
   getCertifications,
   getExperience,
-  getFeaturedCaseStudy,
   getFeaturedProjects,
   getFocus,
   getSite,
@@ -34,10 +32,15 @@ const EXPERIENCE_SHOWN = 3;
 const CREDENTIALS_SHOWN = 4;
 
 /**
- * §8.1, all seven sections in order: who, proof, how, depth, history, credibility,
- * contact.
+ * §8.1, six sections in order: who, proof, how, history, credibility, contact.
  *
- * Everything below is a section under the hero's `h1`, so the outline is one `h1` and six
+ * **"Depth" is gone.** §8.1's fourth section promoted one project to a full case-study
+ * block here. Every project page is now written as a case study in its own right, so that
+ * section restated a page the "Selected work" cards already link to, and it did it above
+ * the fold with `site.featuredCaseStudySlug` deciding which project got the second
+ * telling. Removed 2026-08-31 along with the field, the selector, and §5.5 invariant 4.
+ *
+ * Everything below is a section under the hero's `h1`, so the outline is one `h1` and five
  * `h2`s with no level skipped. Each section reads its own slice of content here and
  * receives it as a prop (§9 rule 1), which is what keeps every component on this page
  * renderable from data the owner can edit.
@@ -69,7 +72,6 @@ export default function Home() {
         <Hero site={site} />
         <FeaturedProjects projects={getFeaturedProjects()} />
         <EngineeringFocus pillars={getFocus()} />
-        <FeaturedCaseStudy project={getFeaturedCaseStudy()} />
         <ExperiencePreview entries={featuredExperience} />
         <CredentialsPreview certifications={featuredCertifications} />
         <TechnologyList />

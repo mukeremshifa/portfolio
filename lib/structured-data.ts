@@ -157,17 +157,20 @@ export function projectJsonLd(project: Project): JsonLd {
     name: project.title,
     description: project.summary,
     url: absoluteUrl(`/projects/${project.slug}`),
-    image: absoluteUrl(project.cover.src),
+    // Omitted rather than defaulted when a brief project carries no cover. Pointing every
+    // coverless project at the site's OG card would assert that a generic image depicts
+    // this specific work, which is the kind of claim structured data should not make.
+    ...(project.cover ? { image: absoluteUrl(project.cover.src) } : {}),
     author: personRef(),
     dateCreated: project.year.start,
     ...(project.year.end ? { dateModified: project.year.end } : {}),
     keywords: project.technologies,
-    programmingLanguage: [
-      // The snippet languages are the honest answer to "what language is this": they are
-      // the code actually published on the page. The technology list is a superset that
-      // includes databases and infrastructure, which are not programming languages.
-      ...new Set(project.codeSnippets.map((snippet) => snippet.language)),
-    ],
+    // No `programmingLanguage`. It used to be the distinct `codeSnippets[].language`
+    // values — the honest answer, because that was the code actually published on the
+    // page. With the snippets gone the only remaining candidate is `technologies`, and
+    // that list is a superset carrying databases and infrastructure, which are not
+    // programming languages. Asserting it would be worse than omitting the property,
+    // and an empty array asserts nothing while still occupying the field.
     ...(repository ? { codeRepository: repository } : {}),
     ...(project.links.live ? { sameAs: [project.links.live] } : {}),
   };
