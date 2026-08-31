@@ -10,19 +10,10 @@
     "location": "Ras al-Khaimah, UAE · Remote",
     "summary": "Building a game layer into an existing survey product alongside colleagues: XP, levels, badges, and a completion sequence, aimed at lifting response rates without distorting the responses themselves.",
     "achievements": [
-      "Implemented the progression layer (XP, levels, badges, and a completion sequence) on top of a survey product already in use, rather than replacing it.",
       "Lifted survey completion rates by 31% with the progression layer in place.",
-      "Kept the incentive neutral by awarding progress for participation rather than for particular answers, so completion rate is not bought with response quality.",
-      "Built the interface in React with Vite and Tailwind, with the animation work in Framer Motion."
+      "Awarded progress for participation rather than for particular answers, so the completion lift is not bought with response quality."
     ],
-    "technologies": [
-      "React",
-      "Vite",
-      "Tailwind CSS",
-      "Framer Motion",
-      "Docker",
-      "nginx"
-    ],
+    "technologies": ["React", "Vite", "Tailwind CSS", "Framer Motion", "Docker", "nginx"],
     "featured": true
   },
   {
@@ -36,7 +27,7 @@
     "location": "Ras al-Khaimah, UAE · Remote",
     "summary": "Ran a full technical SEO audit for an IT services company, built a keyword strategy from it, then wrote and published the content that put the strategy into practice.",
     "achievements": [
-      "Ran a full technical SEO audit and built a 25-keyword strategy using Google Keyword Planner, Ubersuggest, and Ahrefs.",
+      "Built a 25-keyword strategy off the audit using Google Keyword Planner, Ubersuggest, and Ahrefs.",
       "Wrote and published 10 optimized posts on WordPress, restructuring content hierarchy, keyword placement, and internal linking.",
       "Delivered a six-week action plan and a written recommendations guide for sustained visibility across search engines."
     ],
@@ -60,10 +51,9 @@
     "start": "2024-09",
     "end": null,
     "location": "Ras al-Khaimah, UAE",
-    "summary": "Reviewing and shaping the club's projects and technical content, and running sessions for students across a range of experience levels.",
+    "summary": "Reviewing and shaping the club's projects and technical content, including the CS course material incoming students lean on, and running sessions for a range of experience levels.",
     "achievements": [
-      "Reviewed CS course material to support incoming students.",
-      "Organized an AI debate.",
+      "Organized an AI debate for the club.",
       "Contribute to the monthly Dev Discussions."
     ],
     "technologies": [],
@@ -78,14 +68,9 @@
     "start": "2024-09",
     "end": "2025-05",
     "location": "Ras al-Khaimah, UAE · On-site",
-    "summary": "Supported instruction for an object-oriented programming course of roughly 15 students across two semesters, tutoring both individually and in groups.",
-    "achievements": [
-      "Prepared course materials and facilitated discussion across two semesters.",
-      "Tutored individually and in groups on inheritance, polymorphism, and encapsulation."
-    ],
-    "technologies": [
-      "Java"
-    ],
+    "summary": "Supported instruction for an object-oriented programming course of roughly 15 students across two semesters — preparing materials, facilitating discussion, and tutoring individually and in groups on inheritance, polymorphism, and encapsulation.",
+    "achievements": [],
+    "technologies": ["Java"],
     "featured": false
   },
   {
@@ -97,11 +82,8 @@
     "start": "2024-09",
     "end": "2026-05",
     "location": "Ras al-Khaimah, UAE",
-    "summary": "Founded a university club with colleagues, aimed at preserving the nature and the domestic animals around the campus.",
-    "achievements": [
-      "Established the club and its mission with colleagues, and kept it running for its first year and a half.",
-      "Built a cat house for the campus cats by the end of 2025."
-    ],
+    "summary": "Founded a university club with colleagues, aimed at preserving the nature and the domestic animals around the campus, and kept it running through its first year and a half.",
+    "achievements": ["Built a cat house for the campus cats by the end of 2025."],
     "technologies": [],
     "featured": false
   },
@@ -114,11 +96,8 @@
     "start": "2024-01",
     "end": "2024-08",
     "location": "Ras al-Khaimah, UAE",
-    "summary": "Represented the university within its multicultural student community, and helped host events including a regional education summit.",
-    "achievements": [
-      "Served as an event coordinator for the Middle East QS Education Summit, assisting the university in hosting it.",
-      "Represented the international student community at university events through the year."
-    ],
+    "summary": "Represented the university within its multicultural student community through the year, and coordinated events on its behalf — among them the Middle East QS Education Summit, which the university hosted.",
+    "achievements": [],
     "technologies": [],
     "featured": false
   }

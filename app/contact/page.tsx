@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ContactChannels } from "@/components/contact/ContactChannels";
+import { BulletList } from "@/components/ui/BulletList";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { getSite } from "@/lib/content";
@@ -62,11 +63,20 @@ export default function ContactPage() {
 
         <section className="flex flex-col gap-heading">
           <SectionHeading title="What helps" />
-          <ul className="flex max-w-measure list-disc flex-col gap-2 pl-6 font-sans text-body text-text-muted">
-            <li>The constraint you are working against, more than the feature list.</li>
-            <li>Whether this is a role, a contract, or a question.</li>
-            <li>Anything I can read before replying: a repository, a spec, a ticket.</li>
-          </ul>
+          {/* The square, like every other list of peers on the site. This briefly took the
+              chevron on the argument that the items ask something of the reader rather than
+              record something done — true, and not worth a second marker: three stacked
+              chevrons under a heading are the shape of a collapsed accordion, and a reader
+              who tries to click one has been told something false about the page. Three
+              items that are peers of one another get the peer marker. */}
+          <BulletList
+            items={[
+              "The constraint you are working against, more than the feature list.",
+              "Whether this is a role, a contract, or a question.",
+              "Anything I can read before replying: a repository, a spec, a ticket.",
+            ]}
+            tone="muted"
+          />
         </section>
       </div>
     </Container>

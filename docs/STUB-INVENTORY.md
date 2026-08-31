@@ -26,10 +26,11 @@ component, not a limitation of the content model.
 | Name, role, headline, eyebrow, intro | `content/site.json` | Edit values |
 | The About page passage | `site.bio` | Edit one value. **Not `site.intro`** — that one is the home hero and the `Person` `description`, and the two are deliberately different registers |
 | Languages | `site.languages[]` | Edit the array; the About page row and the `Person` `knowsLanguage` follow. `level` is optional per entry and renders as absence |
-| Location | `site.location` | Edit `label`; the footer, the OG card, and the `Person` `address` follow. `remote: true` is separately what adds "· Available remotely" to the footer — it is not part of the availability badge |
+| Location | `site.location` | Edit `label`; the footer, the OG card, and the `Person` `address` follow. `label` is the whole object — `remote` was deleted 2026-08-31 with the footer line that rendered it |
 | Contact email | `site.email` | Edit one value; footer, contact page, callout, and JSON-LD follow |
-| Social links | `site.socials[]` | Edit the array; footer, hero, contact page, and `sameAs` follow |
-| Availability badge | `site.availability` | `show: false` and the **hero** badge disappears. Nothing else reads this object — the footer's "· Available remotely" is `location.remote` — so going quiet site-wide means both fields, not this one |
+| Social links | `site.socials[]` | Edit the array; the footer's third link column, the contact page, and `sameAs` follow. No longer the hero — those links moved out 2026-08-31 |
+| Personal handles | `site.handles[]` | Edit the array; the footer's icon row follows, and nothing else does. A new `platform` also needs its name adding to `BrandIcon`. **Deliberately not `socials`** — these stay out of the contact page and out of `sameAs` |
+| Availability badge | `site.availability` | `show: false` and the **hero** badge disappears. That is now the whole switch: the footer's separately-flagged "· Available remotely" was deleted with `location.remote` on 2026-08-31, so going quiet site-wide is this one field |
 | Portrait | `site.portrait` + a file in `public/` | Replace the file and its `src`/dimensions. **Remove the field** and the hero collapses to one column |
 | Avatar | `site.avatar` + a file in `public/` | Replace the file and its `src`/dimensions. **Remove the field** and the About header collapses to one column. Separate from `portrait` because this one is 1:1 and rendered in a circle |
 | Résumé | `site.resume` + a file in `public/` | Replace the PDF, bump `updated`. **Remove the field** and both CTAs disappear |
@@ -60,20 +61,22 @@ eye, which is exactly why they are listed here instead.
 | Field | Current stub | What replaces it |
 | --- | --- | --- |
 | `site.email` | `hello@mukeremshifa.com` | **The address is settled** (§19 Q1, answered 2026-08-30) — `site.json` already holds the value that ships, so this row is not waiting on an edit. What is still a stub is the *mailbox*: nothing receives mail at that address yet. It closes when Cloudflare Email Routing forwards it to a real inbox, and until then the site prints a contact address that silently drops mail, which is worse than a Gmail address |
-| `site.portrait` | `/placeholders/placeholder-portrait-4x5.svg`, 1000×1250 | A real photograph at 4:5, or the field is deleted and the hero collapses to one column. Its `alt` may want to become `alt=""` under §11.4; the schema's `min(10)` forbids that, and Phase 5 decides rather than weakening the schema for a placeholder |
-| `site.avatar` | `/placeholders/placeholder-avatar-1x1.svg`, 800×800 | A real photograph cropped square, supplied by the owner (confirmed 2026-08-31). It is rendered in a circle at the top of `/about/`, so the crop needs headroom the 4:5 `portrait` export does not have — these are two exports of one photograph, not one file used twice |
+| ~~`site.portrait`~~ | **Closed 2026-08-31.** `/images/portrait-3x4.jpeg`, 720×960 — a real studio headshot supplied by the owner. Note the ratio: **3:4, not the 4:5 this row and §5.2 assumed**, at the owner's instruction. The open question this row raised survives the swap: the `alt` is descriptive today, but a portrait beside the owner's own name and role is arguably decorative under §11.4 and would want `alt=""`, which the schema's `min(10)` still forbids. That is an §11.4 decision, not a schema one |
+| ~~`site.avatar`~~ | **Closed 2026-08-31.** `/images/avatar-1x1.jpeg`, 360×360. The "two exports of one photograph" this row predicted is exactly what arrived: the same studio headshot, cropped square with the headroom a circular frame needs and the 3:4 export does not have |
 | `site.resume` | `/placeholders/placeholder-resume.pdf`, `updated: 2026-07` | The real PDF, with `updated` bumped. §19 Q4 chooses `public/` or R2; the field takes either a root-relative path or an absolute URL |
 | ~~`content/projects/*.json`~~ | **Closed 2026-08-31.** All six synthetic projects were deleted. The four real ones — `conversekit-ai-chatbot`, `synapsedeck-ai-flashcards`, `gamified-servey-prototype`, `multitenant-lms-platform` — are the owner's own copy. Their *prose* is real; their assets and links are not, see the two rows below |
 | Project `links.*` hosts | The four real projects' own `github.com/mukeremshifa/…` and `<slug>.mukeremshifa.com` URLs | **Unverified, not synthetic.** These now name repositories and deployments the owner believes exist, which is a different risk from the stub era: a wrong URL here is a broken promise rather than an obvious placeholder. Every one needs opening by hand once. Nothing catches a 404 — `tests/unit/links.test.ts` was planned and never written |
-| `cover.src` (all four) | Paths naming files that **do not exist**: `/projects/conversekit-cover-16x9.svg`, `/projects/synapsedeck-cover-16x9.png`, `/placeholders/gamified-servey-project-cover-16x9.svg`, `/placeholders/bb-lms-cover-16x9.svg` | The real captures, at the intrinsic dimensions each file declares. This is worse than the placeholder era it replaced: a stub `src` resolved to a visible grey box, and these resolve to nothing. `next/image` does not fail the build over a missing file — it renders a broken image. Alternatively delete `cover` entirely, which is now legal and renders a shorter page rather than a broken one |
+| `cover.src` (**three** of four) | Paths naming files that **do not exist**: `/projects/synapsedeck-cover-16x9.png`, `/placeholders/gamified-servey-project-cover-16x9.svg`, `/placeholders/bb-lms-cover-16x9.svg` | The real captures, at the intrinsic dimensions each file declares. This is worse than the placeholder era it replaced: a stub `src` resolved to a visible grey box, and these resolve to nothing. `next/image` does not fail the build over a missing file — it renders a broken image. Alternatively delete `cover` entirely, which is now legal and renders a shorter page rather than a broken one. **`conversekit-ai-chatbot` closed 2026-08-31** — `/images/projects/conversekit-ai-chatbot-cover-16x9.jpeg`, 1577×887. Note what it is: a title card, not a product capture, so its `alt` carries the words printed on it rather than describing a UI. The three above are still broken |
 
 ### Already real, listed so nobody re-stubs them
 
 | Field | Value |
 | --- | --- |
 | `site.name`, `site.wordmark`, `site.role` | Confirmed by the owner |
+| `site.roleShort` | Dictated by the owner 2026-08-31 for the footer. Note it says "Full-stack" where `site.role` and `site.seo.title` say "Full-Stack"; both spellings are as supplied |
+| `site.handles[]` | The four usernames and the WhatsApp number were dictated by the owner 2026-08-31. The URLs are derived from them (`x.com/`, `instagram.com/`, `wa.me/`, `t.me/`) and have not been opened — check them once before launch |
 | The canonical origin | `https://mukeremshifa.com`, resolved 2026-08-15 (§13.3) |
-| `site.location` | `Ras al-Khaimah, UAE`, `remote: true`. Confirmed by the owner 2026-08-30. It was changed from `Addis Ababa, Ethiopia` earlier the same day in `b4d5d05`, a commit titled "Refactor code structure for improved readability and maintainability" — a content change carried inside a refactor, which is how this file was still naming the old value hours later |
+| `site.location` | `Ras al-Khaimah, UAE`. Confirmed by the owner 2026-08-30. It was changed from `Addis Ababa, Ethiopia` earlier the same day in `b4d5d05`, a commit titled "Refactor code structure for improved readability and maintainability" — a content change carried inside a refactor, which is how this file was still naming the old value hours later |
 | `site.socials[].url` | `github.com/mukeremshifa` — confirmed by this repo's own `origin` remote, not by the owner. `linkedin.com/in/mukeremshifa` — confirmed by the owner 2026-08-30 |
 | `site.eyebrow`, `site.headline`, `site.intro`, `site.seo`, `site.contact` | Rewritten 2026-08-31 from the real project set and timeline. The headline names multi-tenancy and embedded AI because that is what three of the four full projects actually are; the intro cites the chat platform, the LMS and the flashcard tool by their behaviour rather than by name. Owner should read it aloud once: it is the only copy on the site that has to sound like them, and it was drafted rather than dictated |
 | `content/experience/timeline.json` | Replaced 2026-08-31 with the owner's real entries, now six after the two education entries left. Organisations, dates, locations and descriptions are theirs; the `type` assignments and `featured` flags are the draft's and want checking. The 31% completion-rate figure on the RAK entry is the owner's, from their CV (confirmed 2026-08-31) |
@@ -82,8 +85,70 @@ eye, which is exactly why they are listed here instead.
 | `site.languages` | English, Amharic, Arabic, supplied by the owner 2026-08-31. **Only Arabic's level was given** ("conversational"); *Fluent* for English and *Native* for Amharic were proposed by the draft and accepted, which makes them confirmed rather than checked. If either is wrong it is a claim about the owner in their own voice, so it is worth a second look |
 | `content/certifications/certifications.json` | Replaced 2026-08-31 with the owner's eleven real credentials. Titles, issuers, dates, credential IDs and verify URLs are theirs. **The `skills` arrays are not, on four of them**: the schema requires two to four, and HCIA-Security, Formal Languages, Operating Systems and Advanced Algorithms arrived with none, so the draft derived two apiece from each credential's own title. Those eight strings are the only unverified claims in the file |
 | `content/skills/skills.json` | Rewritten 2026-08-31 from the seven real project files. Eight groups, 43 items, and **every item is used by a project** — the stub era's Go, Kubernetes, Terraform, OpenTelemetry, Grafana, Redis, SQLite, FastAPI and pgvector are all gone, none having appeared in any project. Invariant 8 closes both ways: nothing in a project is missing from a group, nothing in a group is unused |
-| `content/focus/focus.json` | Rewritten 2026-08-31. Three pillars derived from what the projects actually show — multi-tenancy with access control, grounded and swappable LLM features, edge-first delivery — replacing three written before any real project existed. Owner should confirm these are the three they want to be known for; the evidence supports them, but the choice of emphasis is not the code's to make |
+| `content/focus/focus.json` | **Supplied by the owner 2026-08-31**, replacing the three pillars the draft had derived from the project files. Titles and bodies are theirs: System Design, AI Integration, Full-Stack Development. One edit was made to fit the schema — `AI Integration`'s body arrived at 273 characters against a 260 ceiling, and "connecting applications to 11+ AI providers" lost the redundant "applications" to land at exactly 260. The `technologies` arrays are still the draft's, drawn from `skills.json` so invariant 8 holds; the owner should confirm those six-item lists say what they want said. Amazon Bedrock, LangChain and Next.js appear in the prose but not in any tag row — see `DECISIONS.md` |
 | `site.availability` | Resolved 2026-08-30: `show: false`, so no badge ships and the site makes no claim about looking for work. `state` and `label` still hold their Phase 3 stub strings and are **inert while `show` is false** — turning the badge back on means writing them fresh, not trusting what is sitting there |
+
+---
+
+## Where real assets go, and what to call them
+
+`public/images/`, per §4's repo layout and §12.2. It is not a new invention and it is not a
+choice: the spec has named it since v2.0 and it simply had no files yet. Created empty
+2026-08-31 with `.gitkeep`, because the naming question came up before the first file did.
+
+```
+public/images/
+├── portrait-3x4.jpeg                           # site.portrait  — home hero
+├── avatar-1x1.jpeg                             # site.avatar    — /about
+└── projects/
+    └── <slug>-cover-16x9.jpeg                  # project cover.src
+```
+
+**The naming rule is `<subject>-<ratio>.<ext>`, and it already exists** — it is what
+`public/placeholders/` uses (`placeholder-portrait-4x5.svg`,
+`placeholder-project-cover-16x9.svg`). A real asset is the same name with the
+`placeholder-` prefix dropped, so a swap reads as a swap in `git log` rather than as an
+unrelated new file.
+
+`<slug>` **must be the project's JSON filename, character for character.** This is the one
+part worth being pedantic about: the existing `cover.src` values include
+`gamified-servey-project-cover-16x9.svg` for a project whose slug is
+`gamified-survey-prototype` — a misspelling and a different noun. Deriving the filename from
+the slug makes that class of mistake impossible to make quietly.
+
+### Export sizes
+
+`next.config.ts` sets `images: { unoptimized: true }` (§12.2), which means **the file
+committed is the file every visitor downloads**. Nothing resizes it, nothing converts it to
+WebP, and there is no responsive `srcset`. So the export size is a real decision and not a
+detail to leave to the camera. Roughly 2× the largest rendered size:
+
+| Asset | Rendered at | Export | Why that number |
+| --- | --- | --- | --- |
+| `portrait-3x4` | ≤360px wide (`lg:max-w-90`, `components/home/Hero.tsx`) | **720×960** | 2× the hero cap. This is what shipped |
+| `avatar-1x1` | ≤160px (`md:size-40`, `components/about/ProfileHeader.tsx`) | **320×320** | 2× the larger circle. 360×360 shipped, which is fine — over is cheap here, under is not |
+| `<slug>-cover-16x9` | ≤1200px (`sizes="(min-width: 1200px) 1200px, 100vw"`) | **2400×1350** | 2× the content container. ConverseKit's shipped at 1577×887, ~1.3×, so it will look slightly soft on a retina screen at full width. Accepted; not worth re-exporting a title card over |
+
+**JPEG or WebP for photographs, never PNG.** PNG is lossless and a photograph at these
+dimensions runs to several megabytes with no optimizer downstream to catch it. PNG stays
+correct for the generated brand marks in `public/brand/`, which are flat-colour.
+
+Whatever the export actually measures goes in `width`/`height` in `content/`. Those are
+intrinsic pixels and they are required (§5.3) — they reserve layout space before the file
+arrives, and a wrong pair shifts the page rather than failing a build.
+
+### OG images are generated, not supplied
+
+`public/og/` appears in §4's layout and **should stay empty**. Both OG cards are rendered at
+build time by `next/og` — `app/opengraph-image.tsx` for the site and
+`app/projects/[slug]/opengraph-image.tsx` per project — from title, category, and year. That
+is deliberate and load-bearing: it is what makes §1.3's "adding a project requires only
+adding a JSON file" true of the social card too.
+
+So a hand-made OG image for one project is a deviation, not a drop-in. It needs a schema
+field, a branch in the route, and it leaves the other projects on generated cards. Before
+adding one, check the aspect ratio: OG wants 1200×630 (1.91:1) and a cover wants 16:9, so an
+image that measures 16:9 is a cover that was described as an OG.
 
 ---
 

@@ -1,20 +1,33 @@
 [
   {
-    "id": "multi-tenancy-and-access",
-    "title": "Multi-tenant products, with access control underneath",
-    "body": "Three of these projects separate tenants or roles at the data layer rather than in the interface: row-level security in Supabase, a four-group permission model in Django, per-tenant isolation in the chat platform. Retrofitting that is a rewrite.",
-    "technologies": ["PostgreSQL", "Supabase", "Drizzle ORM", "Django REST Framework", "Hono"]
+    "id": "system-design",
+    "title": "System Design",
+    "body": "Architecting secure, multi-tenant, and scalable software systems. Experienced in modeling complex relational databases, implementing role-based access control (RBAC), and building high-throughput backend services with streaming architectures.",
+    "technologies": [
+      "PostgreSQL",
+      "Supabase",
+      "Drizzle ORM",
+      "Django REST Framework",
+      "Hono"
+    ]
   },
   {
-    "id": "llm-features-that-stay-grounded",
-    "title": "LLM features that stay grounded and swappable",
-    "body": "A model is a dependency, not an architecture. The chat platform routes several vendors behind one interface and answers from retrieved documentation; the flashcard tool puts generated cards behind a review gate before a scheduler ever sees them.",
-    "technologies": ["OpenAI", "Anthropic", "Google Gemini", "Groq", "RAG", "Workers AI"]
+    "id": "ai-integration",
+    "title": "AI Integration",
+    "body": "Building production-ready AI applications, custom RAG pipelines, and automated workflow integrations. Skilled in connecting to 11+ AI providers, managing vector and document-based context, and leveraging Amazon Bedrock and LangChain for generative AI features.",
+    "technologies": ["OpenAI", "Anthropic", "Google Gemini", "Groq", "Workers AI", "RAG"]
   },
   {
-    "id": "edge-first-delivery",
-    "title": "Edge-first delivery on small runtimes",
-    "body": "Most of this runs on workers and edge functions rather than a long-lived server: Hono on Cloudflare, Deno on Supabase, front ends on Vercel. Small runtimes keep the cold path cheap and make deployment boring, which is the goal.",
-    "technologies": ["Cloudflare Workers", "Hono", "Deno", "Vercel", "Docker"]
+    "id": "full-stack-development",
+    "title": "Full-Stack Development",
+    "body": "Delivering complete web applications from responsive frontend interfaces to cloud-hosted databases. Proficient in building with TypeScript, React, Next.js, Node.js, and Python/Django, backed by robust RESTful APIs and clean state management.",
+    "technologies": [
+      "TypeScript",
+      "React",
+      "Node.js",
+      "Django",
+      "Tailwind CSS",
+      "TanStack Query"
+    ]
   }
 ]

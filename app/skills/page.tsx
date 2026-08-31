@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { CertificationGrid } from "@/components/certifications/CertificationGrid";
 import { ContactCallout } from "@/components/home/ContactCallout";
@@ -60,8 +61,8 @@ export default function SkillsPage() {
           <h1 className="font-serif text-display-2 font-semibold text-text">Skills</h1>
           <p className="max-w-measure font-sans text-body-lg text-text-muted">
             Core technologies, languages, and frameworks, including what I am working on
-            getting good at, what I actually build with, and the credentials that back some
-            of it up.
+            getting good at, what I actually build with, and the credentials that back
+            some of it up.
           </p>
         </div>
 
@@ -125,10 +126,26 @@ export default function SkillsPage() {
         <section className="flex flex-col gap-heading">
           <SectionHeading
             title="Certifications"
-            lead="The issuer, the date, and a link to verify where one exists. Anything that has lapsed stays on this page and says so."
+            lead="Continuous learning backed by industry-recognized certifications across AI engineering and modern backend development. The issuer, the date, and a link to verify where one exists."
           />
           <CertificationGrid certifications={certifications} headingLevel="h3" />
         </section>
+
+        {/* §7.4: no page is a dead end, and this one previously handed the reader
+            straight from a course certificate to a contact card. The tools and the
+            credentials are both claims; the projects are the only place they are
+            cashed out, so the exit points there rather than at the inbox. */}
+        <p className="font-sans text-body text-text-muted">
+          A list of tools is not evidence that any of them were used well. What I built
+          with them is on{" "}
+          <Link
+            href="/projects"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+          >
+            the projects page
+          </Link>
+          .
+        </p>
 
         <ContactCallout site={site} />
       </div>

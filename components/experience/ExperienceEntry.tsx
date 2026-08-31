@@ -1,3 +1,4 @@
+import { BulletList } from "@/components/ui/BulletList";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Tag } from "@/components/ui/Tag";
 import type { ExperienceEntry as Entry } from "@/lib/schemas";
@@ -17,6 +18,10 @@ type ExperienceEntryProps = {
  * plain text rather than a dead link, no `location` and the meta line simply has one
  * fewer part, an empty `technologies` array and the tag row is not there at all. The stub
  * set carries one entry of each so all three are visible rather than argued about.
+ *
+ * `achievements` joined that list when §8.4's floor of one was lifted — `BulletList`
+ * renders nothing for an empty array, so an entry whose summary already says everything
+ * is a summary and a tag row. Two of the six are.
  *
  * The type badge is `accent` while technologies are `neutral`, which is the whole point of
  * §8.4 asking for it: an entry has to say at a glance that it was independent work rather
@@ -57,11 +62,7 @@ export function ExperienceEntryItem({
 
       {compact ? null : (
         <>
-          <ul className="flex max-w-measure list-disc flex-col gap-2 pl-6 font-sans text-body text-text-muted">
-            {entry.achievements.map((achievement) => (
-              <li key={achievement}>{achievement}</li>
-            ))}
-          </ul>
+          <BulletList items={entry.achievements} tone="muted" />
 
           {entry.technologies.length > 0 ? (
             <ul className="flex flex-wrap gap-2">

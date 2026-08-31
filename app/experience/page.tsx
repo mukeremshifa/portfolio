@@ -52,28 +52,14 @@ export default function ExperiencePage() {
             missing. Below the list rather than in the lead: it answers a question the page
             raises on its way out, so it belongs where that question gets asked. */}
         <p className="font-sans text-body text-text-muted">
-          My degree is not on this list — it was never a job, so it lives on{" "}
+          Check out my education history on{" "}
           <Link
             href="/about"
             className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
           >
-            the about page
-          </Link>{" "}
-          instead.
+            the about page.
+          </Link>
         </p>
-
-        {site.resume ? (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-3">
-              <Button href={site.resume.url} external variant="secondary">
-                Download résumé
-              </Button>
-            </div>
-            <p className="font-sans text-body-sm text-text-muted">
-              PDF, updated {formatMonth(site.resume.updated)}.
-            </p>
-          </div>
-        ) : null}
 
         <ContactCallout site={site} />
       </div>

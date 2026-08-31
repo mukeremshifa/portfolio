@@ -288,8 +288,7 @@ export const SiteSchema = z.object({
   bio: z.string().min(80).max(700),     // added 2026-08-31 — /about/ only; first person
   email: z.email(),
   location: z.object({
-    label: z.string(),
-    remote: z.boolean(),
+    label: z.string(),            // `remote: z.boolean()` deleted 2026-08-31 — see §7.3
   }),
   // Added 2026-08-31. `level` is a free optional string, not an enum, for the reason §5.4
   // refuses proficiency scales: a fixed ladder invites an unfalsifiable self-assessment.
@@ -544,7 +543,7 @@ keeps `border-subtle` (decorative) **and** `border-strong` (interactive): `#8A82
 The dark value was `#333333` here and `#524A42` in the stylesheet, and *neither ever met
 the 3:1 this correction exists to guarantee* — `#524A42` measured 2.04:1 on `surface` and
 1.72:1 on `surface-alt`, and `#333333` is worse. `#7A7168` is the lowest warm value that
-clears 3:1 against every surface it sits on (3.93 canvas, 3.71 surface, 3.12 surface-alt)
+clears 3:1 against every surface it sits on (3.93 canvas, 3.70 surface, 3.11 surface-alt)
 while staying well below `text`, so a control boundary never reads as content. Measured
 2026-08-30.
 
@@ -554,13 +553,43 @@ espresso-charcoal surface stack. This section previously described a cobalt ligh
 and an `#FF5100` orange dark accent; the stylesheet had moved off both without the spec
 following, so §6.2 and §6.3 below are re-derived from `app/globals.css` as shipped.
 
-**(c) Dark backgrounds come from a fixed list.** The `landing-page-design` skill (B4)
-permits exactly six dark background values: `#000000`, `#181818`, `#1F1F1F`, `#272727`,
-`#313131`, `#131209`. `#131209` is the only warm one and also the darkest, so it can only
-occupy `canvas` — which is exactly where the espresso character needs to survive. The
-layers above it are B4 neutrals; at these luminances (0.0059 → 0.0091 → 0.0203) the
-temperature break is not perceptible. Brand tints (`brand-soft`, `brand-solid`) read as
-accent fills rather than surfaces and are out of B4's scope — see `docs/DECISIONS.md`.
+**(c) Dark backgrounds are one hue family, and no longer B4's.** The `landing-page-design`
+skill (B4) permits exactly six dark background values: `#000000`, `#181818`, `#1F1F1F`,
+`#272727`, `#313131`, `#131209`. Only `#131209` is warm, so the 2026-08-30 revision spent
+it on `canvas` and took B4 neutrals for every layer above. That is the arrangement this
+correction undoes.
+
+Those neutrals measure **C = 0.0000** in OKLCH — perfectly achromatic — under a canvas at
+C = 0.0173. The eye adapts to the warm ground and swings an achromatic patch toward its
+complement, so the cards read *blue*. The previous text argued the temperature break was
+imperceptible at these luminances; it was right about the break and wrong about the
+induction, which is what a viewer actually sees. Note the chroma ladder B4 produced ran
+backwards — the page ground was the most saturated thing on screen — where the stack it
+replaced went 0.005 → 0.007 → 0.010 upward.
+
+The stack in §6.3 is therefore off B4's list end to end: hues 79.1 → 80.6 → 80.6 → 80.7,
+each at the luminance of the B4 value it replaces, so §6.1(a)'s and §6.3's measurements
+survive the change (four moved by 0.01). `canvas` is a pure hue rotation of `#131209` at
+identical L and chroma, 102.6 → 79.1, which also pulls the ground onto the same axis the
+ink, borders, and muted text already occupied. B4 still governs everything it did before,
+including its ban on background gradients (§6.3, `hero-*`). Brand tints (`brand-soft`,
+`brand-solid`) were already out of its scope. Measured 2026-08-31; see
+`docs/DECISIONS.md`.
+
+**B4 is not absolute, and the spec should have said so.** The skill lives at
+`.claude/skills/landing-page-design/SKILL.md`, and its Scope section reads: *"When a rule
+here conflicts with a framework default, this file wins. When the user's explicit prompt
+conflicts with a rule, the user wins."* Every B4 citation in this document — here, §6.3,
+§6.5 — is subject to that clause. The 2026-08-30 revision treated the six-value list as
+inviolable and rebuilt the dark stack around its single warm entry; had the clause been
+recorded, that revision would likely have gone differently.
+
+**(d) Light ink was blue.** `text` `#1E2229` and `text-muted` `#5C6470` measured hue 262
+and hue 258, in a palette whose every other token sits between 67 and 81 — the last two
+values still carrying the temperature of the cobalt accent (b) retired. They become
+`#26211A` and `#6B6256`, pure hue rotations holding OKLab L, which moves §6.2's ratios by
+0.01 and leaves light mode the mirror of dark rather than its opposite. Measured
+2026-08-31.
 
 ### 6.2 Colour tokens — light
 
@@ -569,8 +598,8 @@ accent fills rather than surfaces and are out of B4's scope — see `docs/DECISI
 | `canvas` | `#F3ECE2` | Page background |
 | `surface` | `#FFFFFF` | Cards, inputs, raised panels |
 | `surface-alt` | `#EDE5DA` | Code chrome, inset wells, card hover, chip background |
-| `text` | `#1E2229` | Primary text |
-| `text-muted` | `#5C6470` | Secondary text, metadata |
+| `text` | `#26211A` | Primary text (13.62:1 on `canvas`) |
+| `text-muted` | `#6B6256` | Secondary text, metadata (5.11:1 on `canvas`) |
 | `brand` | `#184E38` | Links, primary fill, accents |
 | `brand-hover` | `#103727` | Hover and active accent (text and links) |
 | `brand-solid` | `#184E38` | Filled button surface only |
@@ -589,14 +618,15 @@ accent fills rather than surfaces and are out of B4's scope — see `docs/DECISI
 
 ### 6.3 Colour tokens — dark
 
-Every background value below is one of B4's six, per §6.1(c).
+No background value below is one of B4's six; per §6.1(c) the stack is a single hue
+family, held at the luminance of the B4 values it replaces.
 
 | Token | Value | Role |
 |---|---|---|
-| `canvas` | `#131209` | Page background. B4's one warm value, and its darkest |
-| `surface` | `#181818` | Cards, inputs, raised panels |
-| `surface-alt` | `#272727` | Card hover, popovers, chip background |
-| `text` | `#F3ECE2` | Primary text (16.02:1 on canvas) |
+| `canvas` | `#161109` | Page background. Hue rotation of `#131209` at identical L and chroma |
+| `surface` | `#1B1813` | Cards, inputs, raised panels |
+| `surface-alt` | `#2A2722` | Card hover, popovers, chip background |
+| `text` | `#F3ECE2` | Primary text (16.01:1 on canvas) |
 | `text-muted` | `#A3988C` | Secondary text, metadata (6.64:1 on canvas) |
 | `brand` | `#52B788` | Links and accent text (7.59:1 on canvas) |
 | `brand-hover` | `#74C69D` | Hover and active accent |
@@ -605,13 +635,13 @@ Every background value below is one of B4's six, per §6.1(c).
 | `brand-contrast` | `#FFFFFF` | Text on `brand-solid` |
 | `brand-soft` | `#172A21` | Tinted badge background |
 | `brand-cream` | `#F3ECE2` | Legacy alias for key tag accents |
-| `border-subtle` | `#313131` | Decorative dividers only |
-| `border-strong` | `#7A7168` | Control boundaries (3.12:1 on `surface-alt`) |
+| `border-subtle` | `#34312C` | Decorative dividers only |
+| `border-strong` | `#7A7168` | Control boundaries (3.11:1 on `surface-alt`) |
 | `ring` | `#52B788` | Focus indicator |
-| `danger` | `#F04438` | Form errors (4.73:1 on `surface`) |
+| `danger` | `#F04438` | Form errors (4.71:1 on `surface`) |
 | `success` | `#12B76A` | Form success |
 | `warning` | `#F79009` | Warnings |
-| `code-bg` | `#181818` | Code block background |
+| `code-bg` | `#1B1813` | Code block background |
 | `hero-from` | `#FFFFFF` | B5 hero heading gradient, start |
 | `hero-to` | `#9B9B9B` | B5 hero heading gradient, end (6.76:1 on canvas) |
 
@@ -620,7 +650,7 @@ Every background value below is one of B4's six, per §6.1(c).
 - `border-subtle` may never be the only thing identifying an interactive control.
 - Never place body text on `brand-solid` in dark mode except in `brand-contrast` white.
 - `brand-cream` remains dark-mode-only as a compatibility alias for the accent.
-- `danger` is body text on `canvas` or `surface` only; on `surface-alt` it is 3.98:1, under AA.
+- `danger` is body text on `canvas` or `surface` only; on `surface-alt` it is 3.96:1, under AA.
 - `hero-from`/`hero-to` are consumed by the hero `h1` and nothing else. B4 forbids
   background gradients outright; B5's heading is the single exception, and it is on text.
 
@@ -634,7 +664,7 @@ Every background value below is one of B4's six, per §6.1(c).
 
 :root {
   --canvas: #f3ece2;  --surface: #ffffff;  --surface-alt: #ede5da;
-  --text: #1e2229;    --text-muted: #5c6470;
+  --text: #26211a;    --text-muted: #6b6256;
   --brand: #184e38;   --brand-hover: #103727;  --brand-solid: #184e38;
   --brand-solid-hover: #103727;
   --brand-contrast: #ffffff;  --brand-soft: #e4efe9;
@@ -646,15 +676,15 @@ Every background value below is one of B4's six, per §6.1(c).
 }
 
 .dark {
-  --canvas: #131209;  --surface: #181818;  --surface-alt: #272727;
+  --canvas: #161109;  --surface: #1b1813;  --surface-alt: #2a2722;
   --text: #f3ece2;    --text-muted: #a3988c;
   --brand: #52b788;   --brand-hover: #74c69d;  --brand-solid: #184e38;
   --brand-solid-hover: #216a4d;
   --brand-contrast: #ffffff;  --brand-soft: #172a21;  --brand-cream: #f3ece2;
-  --border-subtle: #313131;   --border-strong: #7a7168;
+  --border-subtle: #34312c;   --border-strong: #7a7168;
   --ring: #52b788;
   --danger: #f04438;  --success: #12b76a;  --warning: #f79009;
-  --code-bg: #181818;
+  --code-bg: #1b1813;
   --hero-from: #ffffff;  --hero-to: #9b9b9b;
 }
 
@@ -818,14 +848,23 @@ Rendering mode per route is an implementation detail (§3). Pick whatever is sim
 
 ### 7.3 Footer
 
+**Amended 2026-08-31.** The four stacked lines below became a four-block layout — identity
+and place on the left, three unlabelled link columns on the right, and a rule above a
+baseline row carrying the copyright and the social icons. Every string named here survives;
+they are arranged across rather than down. `location.remote` was deleted from the schema
+rather than relocated: the place line is one sentence now and has no room for the clause it
+fed, and the hero's `availability.show` is the whole quiet-mode switch.
+
 ```text
-Mukerem Shifa — AI Engineer & Full-Stack Developer
-Based in {location.label} · {location.remote ? "Available remotely" : ""}
-GitHub · LinkedIn · Email
-© {currentYear} Mukerem Shifa. Built with Next.js.
+Mukerem Shifa                      Home        Experience   GitHub
+AI Engineer and Full-stack …       About       Skills       LinkedIn
+based in {location.label}          Projects    Contact      Email
+[handle icons live in the baseline row]
+──────────────────────────────────────────────────────────────────
+© {currentYear} Mukerem Shifa. Built with Next.js.        [X][IG][WA][TG]
 ```
 
-Location and availability come from `site.json` so neither is overstated in markup.
+Location comes from `site.json` so it cannot be overstated in markup.
 
 ### 7.4 Cross-page linking rules
 

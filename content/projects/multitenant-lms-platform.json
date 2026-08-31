@@ -2,7 +2,7 @@
   "slug": "multitenant-lms-platform",
   "title": "Multi-Tenant Learning Management System",
   "summary": "A role-based learning management system for managing courses, enrollments, progress, and academic workflows, with a React client and a Hono/TypeScript API backed by PostgreSQL and Drizzle ORM.",
-  "category": "Full-Stack",
+  "category": "Systems",
   "status": "in-progress",
   "featured": false,
   "order": 4,

@@ -2,7 +2,7 @@
   "slug": "gamified-survey-prototype",
   "title": "Survey Quest: Gamified Survey Prototype",
   "summary": "A React prototype that transforms a questionnaire into a light game loop with XP, levels, badges, and a confetti finish while keeping survey integrity by awarding progress for participation only.",
-  "category": "Full-Stack",
+  "category": "Systems",
   "status": "in-progress",
   "featured": true,
   "order": 3,

@@ -15,12 +15,17 @@
 :root {
   color-scheme: light dark;
 
-  /* Surfaces & Layout */
+  /* Surfaces & Layout. `text` and `text-muted` are on the palette's warm axis and not
+     the slate-greys they were. #1e2229 and #5c6470 measured hue 262 and hue 258 in OKLCH
+     — blue, in a system where every other token sits between 67 and 81 — and they were
+     the last two values still carrying the temperature of the retired cobalt accent
+     §6.1(b) moved off. Both replacements are pure hue rotations holding OKLab L, so the
+     ratios below move by 0.01. See docs/DECISIONS.md, 2026-08-31. */
   --canvas: #f3ece2;
   --surface: #ffffff;
   --surface-alt: #ede5da;
-  --text: #1e2229;
-  --text-muted: #5c6470;
+  --text: #26211a;
+  --text-muted: #6b6256;
 
   /* Deep Emerald Brand Tokens */
   --brand: #184e38;
@@ -65,8 +70,11 @@
   --signature-from: #000000;
   --signature-to: #8a8279;
 
-  /* Shadows & Motion */
-  --overlay-shadow: 0 16px 40px -12px rgb(30 34 41 / 0.28);
+  /* Shadows & Motion. The shadow colour is `text`, spelled as channels because it needs
+     an alpha, and it was
+     rgb(30 34 41) — #1e2229 verbatim — so it inherited the blue cast too, and a 0.28
+     shadow is wide enough on a cream canvas to be the one place a viewer sees it. */
+  --overlay-shadow: 0 16px 40px -12px rgb(38 33 26 / 0.28);
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
@@ -75,14 +83,25 @@
 .dark {
   color-scheme: dark;
 
-  /* Espresso Charcoal Surfaces — landing-page-design B4 permits exactly six dark
-     background values, and #131209 is the only warm one. It is also the darkest, so
-     canvas is the one slot it can occupy; the layers above it are B4's neutrals. At
-     these luminances (0.0059 → 0.0091 → 0.0203) the temperature break is invisible
-     and the espresso character survives where it is actually seen. */
-  --canvas: #131209;
-  --surface: #181818;
-  --surface-alt: #272727;
+  /* Espresso Charcoal Surfaces. Every value here is off landing-page-design's B4 list,
+     which reverses the 2026-08-30 decision that put it on. docs/DECISIONS.md, 2026-08-31.
+
+     B4's six dark backgrounds contain exactly one warm value, so the shipped stack spent
+     it on canvas and took B4 neutrals (#181818 / #272727 / #313131) for the layers above.
+     Those neutrals measure C = 0.0000 in OKLCH — perfectly achromatic — sitting on a
+     canvas at C = 0.0173. The eye adapts to the warm ground and swings an achromatic
+     patch to its complement, so the cards read blue. The old comment here claimed the
+     temperature break was imperceptible at these luminances. It was right about the
+     break and wrong about the induction, which is the thing actually visible.
+
+     The stack is now one hue family — 79.1 → 80.6 → 80.6 → 80.7 — at the luminance of
+     the B4 values it replaces, so §6.1(a) and §6.3's measurements survive; the four that
+     moved, moved by 0.01. Canvas is a pure hue rotation of #131209 at identical L and
+     chroma (102.6 → 79.1), which also brings the ground onto the same axis the ink,
+     borders, and muted text were already on. */
+  --canvas: #161109;
+  --surface: #1b1813;
+  --surface-alt: #2a2722;
   --text: #f3ece2;
   --text-muted: #a3988c;
 
@@ -98,9 +117,9 @@
   /* Structure & Borders. #524a42 measured 2.04:1 on surface and 1.72:1 on surface-alt
      — §6.1(a) added border-strong precisely to hold 3:1 for SC 1.4.11, and it was not
      holding it. #7a7168 is the lowest warm value that clears 3:1 against every surface
-     it sits on (3.93 canvas, 3.71 surface, 3.12 surface-alt) while staying well below
+     it sits on (3.93 canvas, 3.70 surface, 3.11 surface-alt) while staying well below
      `text` so a control boundary never reads as content. */
-  --border-subtle: #313131;
+  --border-subtle: #34312c;
   --border-strong: #7a7168;
   --ring: #52b788;
 
@@ -108,7 +127,7 @@
   --danger: #f04438;
   --success: #12b76a;
   --warning: #f79009;
-  --code-bg: #181818;
+  --code-bg: #1b1813;
 
   /* B5's hero heading stops, dark. #9b9b9b on canvas is 6.76:1. */
   --hero-from: #ffffff;

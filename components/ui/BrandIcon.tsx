@@ -8,6 +8,7 @@ import {
   siGithub,
   siGooglegemini,
   siHono,
+  siInstagram,
   siNextdotjs,
   siNodedotjs,
   siPostgresql,
@@ -16,16 +17,22 @@ import {
   siShadcnui,
   siSupabase,
   siTailwindcss,
+  siTelegram,
   siTypescript,
   siVercel,
+  siWhatsapp,
+  siX,
 } from "simple-icons";
 
 /**
  * §13.5's brand marks, drawn from `simple-icons`.
  *
- * **Two names in this union are not technologies.** `github` and `linkedin` are here for
- * the hero's social links, which pass `social.platform` straight through — so removing
- * either because no technology uses it would break the hero rather than tidy this file.
+ * **Six names in this union are not technologies.** `github` and `linkedin` are here for
+ * `social.platform`, which callers pass straight through; `instagram`, `telegram`,
+ * `whatsapp`, and `x` are here for `handles[].platform`, which `SiteFooter` passes the
+ * same way. Removing one because no technology uses it would break a call site rather
+ * than tidy this file, and adding a fifth handle platform to `content/site.json` means
+ * adding its name here too.
  *
  * `openai` has no mark and renders as a text glyph below. Simple Icons carries no OpenAI,
  * Groq, AWS, or Java icon — all withdrawn over trademark policy — so any technology in
@@ -44,6 +51,7 @@ export type BrandIconName =
   | "gemini"
   | "github"
   | "hono"
+  | "instagram"
   | "linkedin"
   | "next"
   | "node"
@@ -54,8 +62,11 @@ export type BrandIconName =
   | "shadcn"
   | "supabase"
   | "tailwind"
+  | "telegram"
   | "typescript"
-  | "vercel";
+  | "vercel"
+  | "whatsapp"
+  | "x";
 
 type BrandIconProps = {
   name: BrandIconName;
@@ -77,6 +88,7 @@ const icons = {
   gemini: siGooglegemini,
   github: siGithub,
   hono: siHono,
+  instagram: siInstagram,
   next: siNextdotjs,
   node: siNodedotjs,
   postgresql: siPostgresql,
@@ -85,8 +97,11 @@ const icons = {
   shadcn: siShadcnui,
   supabase: siSupabase,
   tailwind: siTailwindcss,
+  telegram: siTelegram,
   typescript: siTypescript,
   vercel: siVercel,
+  whatsapp: siWhatsapp,
+  x: siX,
 } as const;
 
 export function BrandIcon({ name, size = 20 }: BrandIconProps) {

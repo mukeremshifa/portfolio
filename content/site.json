@@ -1,15 +1,15 @@
 {
   "name": "Mukerem Shifa",
   "wordmark": "MS",
-  "role": "AI Engineer & Full-Stack Developer",
+  "role": "AI Engineer and Full-Stack Developer, Building multi-tenant products and the AI features that live inside them.",
+  "roleShort": "AI Engineer and Full-stack Developer",
   "eyebrow": "AI engineering and full-stack delivery",
   "headline": "I build multi-tenant products, and the AI features that live inside them.",
   "intro": "Most of what I build is multi-tenant: a chat platform that keeps one customer's documentation away from another's, a learning system where four roles mean four different things, a flashcard tool that gates generated cards behind review. The model is rarely the hard part. The access control and the migration are, and they are only cheap while the thing is still being written.",
   "bio": "Hi, I'm Mukerem! I'm a Computer Science senior who loves building smart, production-grade AI and web applications. Whether architecting conversational AI platforms, crafting gamified web experiences, or mentoring student developers as Coding Club Tech Lead, I focus on creating tech that drives real engagement. Outside of Python and TypeScript, you'll usually find me experimenting with modern AI agents and cloud architectures.",
   "email": "hello@mukeremshifa.com",
   "location": {
-    "label": "Ras al-Khaimah, UAE",
-    "remote": false
+    "label": "Ras al-Khaimah, UAE"
   },
   "languages": [
     {
@@ -35,16 +35,16 @@
     "updated": "2026-07"
   },
   "portrait": {
-    "src": "/placeholders/placeholder-portrait-4x5.svg",
-    "alt": "Placeholder standing in for a portrait photograph of Mukerem Shifa.",
-    "width": 1000,
-    "height": 1250
+    "src": "/images/portrait-3x4.jpeg",
+    "alt": "Mukerem Shifa, head and shoulders, in a dark blazer over an open-collar white shirt against a grey studio backdrop.",
+    "width": 720,
+    "height": 960
   },
   "avatar": {
-    "src": "/placeholders/placeholder-avatar-1x1.svg",
-    "alt": "Placeholder standing in for a square portrait photograph of Mukerem Shifa.",
-    "width": 800,
-    "height": 800
+    "src": "/images/avatar-1x1.jpeg",
+    "alt": "Mukerem Shifa, the same studio portrait cropped square for a circular frame.",
+    "width": 360,
+    "height": 360
   },
   "socials": [
     {
@@ -56,6 +56,32 @@
       "platform": "linkedin",
       "label": "LinkedIn",
       "url": "https://www.linkedin.com/in/mukeremshifa"
+    }
+  ],
+  "handles": [
+    {
+      "platform": "x",
+      "label": "X",
+      "handle": "@mukeemoha",
+      "url": "https://x.com/mukeemoha"
+    },
+    {
+      "platform": "instagram",
+      "label": "Instagram",
+      "handle": "@mukeemoha",
+      "url": "https://www.instagram.com/mukeemoha"
+    },
+    {
+      "platform": "whatsapp",
+      "label": "WhatsApp",
+      "handle": "+971 52 131 3254",
+      "url": "https://wa.me/971521313254"
+    },
+    {
+      "platform": "telegram",
+      "label": "Telegram",
+      "handle": "@mukeemoha",
+      "url": "https://t.me/mukeemoha"
     }
   ],
   "seo": {

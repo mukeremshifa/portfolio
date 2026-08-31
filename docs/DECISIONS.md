@@ -661,6 +661,9 @@ which is the same shape of problem `brand-solid-hover` was added for in v2.1.2.
 
 ## 2026-08-30 — Dark surfaces re-anchored on the landing-page-design B4 list
 
+> **Superseded 2026-08-31** — "The palette had a blue axis in both themes". None of the
+> values below is current; B4's list no longer governs the dark stack.
+
 **Context:** The `landing-page-design` skill was added to the repo, and its B4 rule
 permits exactly six dark background values: `#000000`, `#181818`, `#1F1F1F`, `#272727`,
 `#313131`, `#131209`. The shipped espresso stack (`#141210` / `#1E1B18` / `#282420` /
@@ -1102,3 +1105,382 @@ until its own pass lands. `availability` is rendered on `/about/` behind the exi
 `availability.show` flag rather than a new one, so the badge and the row stay one claim; the
 flag is `false` today, which means the row is not visible yet.
 **Affects:** §5.2, §5.4, §8.5, §13.2
+
+## 2026-08-31 — The home hero lost three of its four type levels
+
+**Context:** The previous entry closed by noting the home hero was on the wrong side of the
+register seam and awaiting its own pass. This is that pass. Owner review of the built hero
+named three faults: too many competing type sizes, a description too long to be read
+standing up, and a layout nobody liked. The drawn signature was the one part singled out as
+working.
+**Decision:** The hero is the portrait on the left, and on the right the signature, one line
+of `site.role`, and two buttons, on a derived height floor from `md` up. Removed: the
+eyebrow, `site.intro`, the "PDF, updated …" caption, and the GitHub and LinkedIn links.
+`site.headline`, `site.eyebrow`, and `site.intro` all stay in `site.json`.
+**Reason:** The complaint about "three different fonts" was really about four stacked steps
+of prominence — signature, `heading-1` role, `body-lg` paragraph, `body-sm` caption — in the
+first screen of the site. Cutting to two makes the signature read as the display element it
+was drawn to be, which was the only part the owner liked and the part the old stack was
+competing with.
+
+`site.intro` was cut rather than shortened because it already has a second consumer that
+wants it long: `personJsonLd`'s `description` is written to be read cold by someone who has
+not met the site, and the hero is read by someone looking straight at the name. Shortening
+the field would have traded one problem for a worse search snippet; deleting the *render*
+costs nothing, since §8.1's five-second test is a question `site.role` answers on its own.
+The unused `headline` and `eyebrow` stay in the content file because they are cheap, and
+because the next hero revision is more likely to want one of them than to want a new field.
+
+Portrait-left rather than the old portrait-right is a real change and not a coin flip: it
+puts the face at the start of the reading order, and it makes the mobile stack
+face-then-name without an `order-*` override fighting the DOM.
+
+The social links left the hero rather than moving within it. As buttons beside the two CTAs
+they made four controls in one row, and they were the two that mattered least: `SiteFooter`
+renders `site.socials` on every page and `/contact` renders it again, so the hero was the
+third place to say the same thing and the one where it cost the most. Removing them also
+disposes of a latent bug on the way out — they had been nested inside the `site.portrait`
+conditional, so deleting the portrait, a documented swap-matrix operation, silently deleted
+GitHub and LinkedIn from the home page too.
+
+**A stat row was considered and rejected.** The proposal was "6+ projects deployed, 3+ AI
+integrations, 3 professional certificates." Counted against `content/`, each number is
+wrong: seven projects exist and **two** carry a `links.live` URL, **two** are category
+`AI/ML`, and there are **eleven** certifications, not three. Two of the three would have
+overstated and one understated. A row *derived* from `content/` at build time would not have
+been an invented metric — it would be countable, clickable, and immune to drift, which also
+keeps §1.3's "adding a project requires zero UI edits" true. It was still rejected: at
+7/2/2 the honest numbers are small enough that stating them reads weaker than the project
+cards one section down, which show the same thing and can be opened. Stat rows earn their
+place at a scale this site does not have yet. §1.5's "verifiable scope" line remains the
+available alternative if the hero later needs to say what the work *is*.
+**Cost:** The home page no longer says anything about *what* the work is above the fold —
+"AI Engineer & Full-Stack Developer" is a role, not a specialty, and §8.1 asks for both.
+The specialty now lands one section down, in "Selected work." That is a deliberate bet that
+the cards make the case better than a paragraph did, and it is the first thing to revisit if
+the hero reads as thin rather than as calm. The portrait is also still the grey 4:5
+placeholder, so this layout has been judged against a box, not a face.
+
+The hero's height floor is `--hero-min-height` in `globals.css`, and it is derived rather
+than chosen: `100svh` less the 4rem header, less `--spacing-section-lg` twice — once for the
+page padding above the hero, once for the flex gap below it — less a 5rem peek. It started
+as a flat `60vh` and that was wrong in a way worth recording, because the mistake is easy to
+make again. The chrome between the hero and the fold is *fixed*, so a viewport fraction
+cannot hold the relationship: `60vh` shows the next heading on a 900px window and buries it
+on a 1440px one, where 40% of the viewport is 576px against 288px of chrome. Subtracting the
+known quantities is the only form that works at every height.
+
+It lives in `globals.css` rather than in the component because it reads
+`--spacing-section-lg`, and the two must move together — raising the section rhythm without
+lowering the hero floor is exactly how the peek would silently disappear. It is deliberately
+not a `@theme` entry: it generates no utility and has exactly one consumer.
+
+`svh` rather than `vh` so a mobile browser's retracting toolbars cannot make the floor taller
+than the visible area. It is a floor and not a cap, so on a short window the calc goes small
+or negative, `min-height` stops binding, and content sets the height as usual. It is applied
+at `md` and up only: on a phone a stacked portrait and name already exceed it.
+**Affects:** §1.3, §1.5, §8.1, §9.1, §21
+
+---
+
+## 2026-08-31 — Footer rebuilt as identity, handles, and three link columns
+
+**Context:** The owner supplied a reference layout for the footer: identity block on the
+left, social accounts beneath it, three unlabelled link columns on the right, and a
+centred copyright under a space. §7.3 specifies the footer as four stacked lines, which is
+what shipped in Phase 2.
+**Decision:** Keep every string §7.3 names, and rearrange them. The monogram, the name,
+and one role-and-place line stay left; the six routes split into two columns and §7.3's
+"GitHub · LinkedIn · Email" becomes the third; a hairline closes the block, and under it
+one baseline row carries the copyright at one end and `site.handles` as marks alone at the
+other.
+**Reason:** The stacked form put a full-width row of routes and a second full-width row of
+links under a name that occupies a third of the measure, so two thirds of the footer was
+empty at every width above `md`. Columns spend that width instead. Nothing was added: the
+same links, in the same footer, arranged across rather than down.
+**Affects:** §5.2, §7.3, §7.4
+
+Five consequences worth recording, because each is a place a future edit could quietly
+undo the reasoning:
+
+**The role line is a new content field, not a shortened `role`.** `site.role` is the
+hero's positioning sentence — it names the work *and* what the work is about, and it is
+106 characters. Under a name in a third of the measure that is a paragraph, not a
+sign-off. `roleShort` joins `intro`/`bio` and `portrait`/`avatar` as a second field for a
+second register rather than a compromise that would have made editing the footer rewrite
+the hero. The line is broken explicitly rather than left to the measure, because "in two
+lines" was the instruction and a wrap point that moves with the column width is not that.
+**Cost:** `role` and `roleShort` can now disagree about capitalisation, and currently do —
+"Full-Stack" in one, "Full-stack" in the other, both as supplied.
+
+**`location.remote` was deleted, not left unread.** The old line ended "· Available
+remotely" when the flag was set; the replacement is one sentence with no room for a clause,
+and the flag was `false`, so nothing changed on screen either way. The field is gone from
+the schema, from `content/site.json`, and from the two component comments that explained
+it. A boolean nothing reads is worse than no boolean: it survives as an unfalsifiable
+claim waiting for whoever gives it a consumer next, and §1.5's whole objection to invented
+metrics is that they arrive by accident rather than by decision. Site-wide quiet mode is
+now one switch, `availability.show`, which the hero already owns.
+**Cost:** Stating a remote-work arrangement again means adding a field back, and the right
+place for it is `availability` rather than `location` — where a future editor who
+remembers the old shape will not look first.
+
+**`handles` is a separate content key from `socials`, and stays out of `sameAs`.** The
+obvious move was four more entries in `socials`, and `ContactChannels` is written to
+welcome exactly that — its own comment offers "adding an `x` entry" as the swap it exists
+to satisfy. It would also have put seven links in the home page's contact callout, which
+§8.1 asks for as a row of three, and a `wa.me` link into `personJsonLd`'s `sameAs`, which
+is for pages that establish identity rather than for a phone number. Two keys, one
+consumer each, and the contact page keeps saying three things.
+**Cost:** X, Instagram, and Telegram are real profiles that a fuller `sameAs` would
+legitimately list, and they are now absent from it. That is a search-visibility loss taken
+to avoid a content-shaped exception in `structured-data.ts`.
+
+**The handles are marks alone, and the accessible name carries the account.** They read
+as icon-plus-username under the name for one revision before moving to the baseline row,
+where text would compete with the copyright for the same line. Icon-only is what §7.4
+warns about — "never hidden behind an icon without an accessible name" — so each one
+announces "Instagram, @mukeemoha" rather than "Instagram": three of the four handles are
+the same word, and the platform alone does not tell anyone which account they are about to
+open. The row wraps rather than switching layout at a breakpoint, because four 18px marks
+and one short sentence fit side by side well below `sm`.
+
+**`ExternalLink` gained a `tone` prop, which is the first parameterised primitive.** §9
+rule 2 has the primitives composing rather than parameterising, and the file's own comment
+says `className` is the escape hatch. It is not one here: `cn` is a joiner, not
+`tailwind-merge`, so a caller passing `text-text-muted` against the base `text-brand`
+leaves the winner to stylesheet order. The footer's third column needs GitHub and LinkedIn
+to look like the route links beside them, and §7.4 requires them to go through
+`ExternalLink` — a two-value variant is the cheapest thing that satisfies both. The
+alternative, adding `tailwind-merge`, is a pinned dependency bought for one call site.
+
+## 2026-08-31 — The focus pillars become the owner's, and stop being an argument from the file tree
+
+**Context:** `focus.json`'s three pillars were derived earlier the same day from
+`content/projects/` alone — multi-tenancy with access control, grounded and swappable LLM
+features, edge-first delivery. The entry that made that change recorded the open question
+in as many words: the pillars are a claim about emphasis, not a fact derivable from the
+files, and the choice was the owner's to confirm. They did not confirm it. They supplied
+three of their own, and the reason given was that the derived set read as too technical and
+too specific.
+**Decision:** `content/focus/focus.json` now carries System Design, AI Integration, and
+Full-Stack Development, with the owner's bodies. `EngineeringFocus` and the `/skills/`
+section render them unchanged — no component, schema, or route was touched.
+**Reason:** The derived pillars were accurate and answered the wrong question. They said
+what the four projects have in common, which is a fact about a directory; a reader on the
+home page is asking what this person does, which is a fact about a person. Three project
+files sharing row-level security makes "multi-tenancy with access control" true, and still
+narrower than the person it describes. Invariant 6 is what the section actually needs to
+hold, and three pillars remain three pillars.
+
+**Two edits were made to the supplied copy, both recorded in `STUB-INVENTORY.md`.**
+`AI Integration`'s body arrived at 273 characters against `FocusPillarSchema`'s 260
+ceiling. Rather than raise the ceiling — it exists so the home page's three columns stay
+within a line or two of each other, and 273 is not where that breaks, but the next one
+would be — "connecting applications to 11+ AI providers" became "connecting to 11+ AI
+providers", which the sentence's own opening clause already establishes. It lands at
+exactly 260. The `technologies` arrays are the draft's rather than the owner's, because the
+supplied text named its tools in prose and the tag rows have to satisfy invariant 8.
+
+**Amazon Bedrock, LangChain, and Next.js appear in the pillar prose and in no tag row.**
+Invariant 8 governs technology strings, not sentences, so the prose carries them without an
+allowlist entry and `skills.json` stays as it is: every item in it used by a project. The
+backing is real but sits elsewhere — Bedrock and LangChain in the AWS Generative AI
+credential, which renders two sections below the pillars on the same page, and Next.js in
+this site, which is the exception `TechnologyList` already documents. Adding either to a
+tag row would have meant putting a string in `skills.json` that no project uses, which is
+the precise failure the 2026-08-31 vocabulary rebuild removed.
+**Cost:** The pillar titles are Title Case where every other heading on the site is sentence
+case, because they were supplied that way and they read as labels rather than as sentences.
+`focus.json` is now the one content file whose three ids no longer describe project
+behaviour, which makes it harder to check a pillar against the case studies — the trade the
+change was asked for.
+**Affects:** §5.4, §5.5, §8.1, §8.6
+
+## 2026-08-31 — The portrait is 3:4, and the first real assets landed
+
+**Context:** The owner supplied three photographs — a studio headshot at 720×960, the same
+headshot cropped square at 360×360, and a ConverseKit title card at 1577×887 — and
+instructed that the portrait be 3:4 rather than the 4:5 the schema, the components, and
+§5.2 had all assumed since Phase 2.
+**Decision:** `site.portrait` is `/images/portrait-3x4.jpeg` at 720×960, `site.avatar` is
+`/images/avatar-1x1.jpeg` at 360×360, and `conversekit-ai-chatbot`'s `cover` is
+`/images/projects/conversekit-ai-chatbot-cover-16x9.jpeg` at 1577×887. They are the first
+files under `public/images/`, which §4 has designated since v2.0 and which had stood empty
+until now. Comments in `lib/schemas.ts`, `components/home/Hero.tsx`, and
+`components/about/ProfileHeader.tsx` were corrected from 4:5 to 3:4.
+**Reason:** The ratio was never load-bearing. Nothing crops, letterboxes, or asserts an
+aspect ratio in CSS: `Figure` sets `h-auto w-full` precisely so the rendered box follows the
+file's own shape, and `width`/`height` come from content. So 4:5 was a description of the
+expected asset rather than a constraint on it, and the honest fix is to change the
+description. The reasoning that *depended* on the ratio survives unchanged — 3:4 is still
+taller than it is wide, so centre-cropping it to a circle still takes the top off a head,
+which is still why `avatar` is a separate field and a separate export.
+
+**§5.3's numbers are now real numbers.** `width` and `height` were read off the files rather
+than copied from the old declarations, which matters more than it sounds: all four project
+covers previously declared a tidy 1600×900 for files that did not exist. ConverseKit's
+actual card is 1577×887 — the same ratio to within a pixel, but not the number that was
+written down. A wrong pair does not fail a build; it shifts the page under a reader.
+
+**The ConverseKit cover is a title card, not a product capture.** Its `alt` therefore
+carries the words printed on it rather than describing a UI, because under §11.4 an image of
+text whose text is not in the alt is text nobody can read. Worth noting because the previous
+`alt` on that field described a dashboard with vendor selection and a conversation interface
+— a screenshot that was never taken, of a file that never existed.
+**Cost:** §5.2's inline comment in the spec still reads "a 4:5 image in a circle loses a
+head," and §5.3's example still shows 4:5. Both are now one ratio out of date. They are left
+as written per the working agreement — the spec is the record of what was designed and this
+log is the record of what changed — but anyone reading §5.2 cold will get the wrong number.
+
+The square crop is 360×360 against a 320×320 target and the cover is 1577px against a
+2400px one, so the avatar is slightly over and the cover is meaningfully under. With
+`images: { unoptimized: true }` there is no pipeline to correct either. The cover will look
+soft on a retina screen at full container width; that is accepted rather than fixed, on the
+grounds that re-exporting a title card to chase sharpness is not where the next hour goes.
+
+Three of the four project covers are still broken paths naming files that do not exist. This
+entry closes one of them.
+**Affects:** §4, §5.2, §5.3, §11.4, §12.2
+
+## 2026-08-31 — The bullet stops being round, and stops being the default container
+
+**Context:** §6.7 says every marker in the system has square edges, and every radius token
+is `0px`. Bullet lists were `list-disc`, so the one round thing on the site was the marker
+that appeared on four surfaces. In the experience timeline it was visible as a
+contradiction rather than a detail: `ExperienceTimeline` draws each entry's rail node as
+`size-2 bg-border-strong`, a square, and the achievements belonging to that same entry
+rendered as circles 24px to its right.
+
+Reviewing the four surfaces for the marker turned up the larger problem. §8.4 required
+"1 to 5 achievement bullets", and a floor of one does not make an entry say more — it makes
+the entry find a sentence. What it found was the summary again, one line down and in the
+past tense. Two of six entries had nothing under the summary the summary had not already
+said; the student ambassador entry's two bullets were both paraphrases of its own first
+sentence. Education was worse: of three highlights, one repeated the date range printed in
+the eyebrow directly above it, and one repeated its note verbatim.
+
+**Decision:** A `BulletList` primitive in `components/ui/` owns the marker, in two variants.
+`square` is the timeline's marker at 6px — the list-of-peers marker, and the default. It
+takes project lessons, experience achievements, and the contact page's "What helps". `star`
+is a filled five-pointed star, drawn as a ten-vertex polygon so that every vertex is a
+corner and every edge is straight, used on education highlights and nowhere else.
+
+`ExperienceSchema.achievements` loses its `min(1)`: 0 to 5, not 1 to 5. `BulletList` renders
+nothing for an empty array, so an entry with nothing to add is a summary and a tag row.
+Content followed the schema — experience went from 14 bullets to 8, two entries to none,
+with the surviving facts folded into the summaries that were already circling them.
+Education's highlights went from three to two, one per credential.
+
+`Prose` keeps `list-decimal` for `ol` — a numeral has no radius to be wrong about — and
+gets the same 6px square as a `::before` for `ul`.
+
+**Reason:** The marker is drawn rather than styled because `::marker` takes a colour and a
+font but not a shape. `list-[square]` is the only square CSS offers and its size is the
+browser's, so it cannot be tied to `size-1.5`/`bg-border-strong` the way the rail node is,
+and the two squares would drift apart per browser. §11.1's "lists are lists" is unaffected:
+these are still real `ul`/`li`, with the marker `aria-hidden` beside the text.
+
+Two variants rather than one because the education entries carry exactly one highlight each.
+A square — this system's marker for a list of peers — in front of a lone item reads as a
+list with one row in it, which is the shape a reader then looks for a second row of. A star
+marks the item out rather than enumerating it, and both highlights are a distinction, not
+one of a series.
+
+**Both variants were originally a chevron, and it shipped to nobody.** The first draft gave
+the chevron to education and to the contact page's "What helps", on the argument that the
+contact items ask something of the reader rather than record something done. That reading
+was fine and the glyph was not: a column of right-pointing chevrons is the disclosure
+control every accordion on the web uses, so three of them stacked under a heading read as
+collapsed sections waiting to be clicked. A marker that invites a click that does nothing
+has told the reader something false about the page, which outranks the distinction it was
+drawn to carry. Contact went to the square — three items that are peers of one another
+get the peer marker, and the second marker was never worth its own vocabulary there.
+
+Fixing the marker without cutting the content would have been the worse half of the job. A
+sharper bullet in front of a sentence the reader has just read is a better-drawn redundancy.
+
+**Cost:** §8.4 still reads "1 to 5 achievement bullets" and is now one number out of date.
+Left as written, per the convention this log already follows for §5.2's aspect ratio — the
+spec records what was designed, this log records what changed.
+
+The timeline is less uniform than it was: two entries now end at the summary while four
+carry bullets, so the rhythm down the page varies in a way it did not when every entry was
+padded to the same shape. That is the intended trade and it is still a cost.
+
+The star is the one icon in the system that is neither a brand mark nor chrome, so it sets a
+precedent `BrandIcon` and `MobileNavigation` do not cover: filled, no stroke, sized in `size-*`
+rather than by a `size` prop. Nothing in the codebase states that rule, and the next
+content icon will have to pick a side by looking at this one.
+
+A star is also the most connotation-heavy marker available — it reads as a rating anywhere
+it appears beside something that could be scored. It is defensible here because both
+highlights genuinely are distinctions, and it would stop being defensible the moment
+`highlights` carried something ordinary.
+
+The square/star distinction is inferred, never labelled. A reader will not be told that one
+means "peer" and the other means "distinction", and a future entry adding a second education
+highlight will silently make the star wrong there — it is a marker for a lone item, and the
+schema still permits three.
+
+`BulletList` takes `items: string[]`, so a list item cannot carry inline markup — a link
+inside a project lesson would need the prop widened to `ReactNode[]`. No content needs it
+today.
+
+**Affects:** §6.7, §6.8, §8.3, §8.4, §11.1
+
+## 2026-08-31 — The palette had a blue axis in both themes, from two different causes
+
+**Context:** Cards read blue in dark mode and ink read blue in light mode. Measuring every
+token in OKLCH found two unrelated faults wearing the same symptom.
+
+In light mode it is literal. `text` `#1E2229` sits at hue 262 and `text-muted` `#5C6470` at
+hue 258, in a palette where `canvas` is 77, `border-subtle` 73, `border-strong` 71, and
+dark-mode ink 77. They are slate-greys left over from the cobalt accent §6.1(b) retired,
+and nothing moved them when the accent moved. Light mode was running cool ink on a warm
+ground while dark mode ran warm ink on a warm ground.
+
+In dark mode nothing is blue. `#181818`, `#272727`, and `#313131` measure **C = 0.0000** —
+perfectly achromatic — on a canvas at C = 0.0173. That is chromatic induction: the eye
+adapts to the warm ground and an achromatic patch swings toward the complement. The
+2026-08-30 entry below predicted the temperature break would be imperceptible at these
+luminances and was right; it did not consider that a *neutral* would not stay neutral. That
+revision also inverted the chroma ladder — the stack it replaced ran 0.005 → 0.007 → 0.010
+upward from the ground, and B4 left the page background as the most saturated thing on
+screen.
+
+**Decision:** Light `text` → `#26211A`, `text-muted` → `#6B6256`. Dark `canvas` → `#161109`,
+`surface` → `#1B1813`, `surface-alt` → `#2A2722`, `border-subtle` → `#34312C`, `code-bg` →
+`#1B1813`. Light `--overlay-shadow` → `rgb(38 33 26 / 0.28)` and `OG_PALETTE` in
+`lib/og.ts` follow `text` and `text-muted`. This supersedes "Dark surfaces re-anchored on
+the landing-page-design B4 list" (2026-08-30): no dark background value is on B4's list
+any more.
+
+**Reason:** Every replacement is a hue rotation holding OKLab L, so the fix costs no
+contrast. Of the thirteen ratios §6.1 and §6.3 quote, six are unchanged to the hundredth
+and seven moved by 0.01–0.02; none crosses a threshold, and the two that matter most —
+`border-strong` at 3.70 on `surface` and 3.11 on `surface-alt` — still clear the 3:1 that
+§6.1(a) exists to guarantee. That property is why this was worth doing at all: the
+stylesheet header warns that changing a hex makes §6.1 a lie, and rotating hue at fixed
+lightness is the one edit that does not.
+
+The dark values leave B4's list, and B4's own Scope section is what permits it: *"When the
+user's explicit prompt conflicts with a rule, the user wins."* The owner reported the
+artifact and chose the correction, so this is the precedence path the skill specifies, not
+a deviation from it. Worth stating plainly because the repo cites B4 as an authority in
+three places (§6.1(c), §6.3, §6.5) and recorded nowhere that the authority defers to the
+owner — which is why the 2026-08-30 revision read the list as absolute and rebuilt the
+stack around its one warm value.
+
+The substantive reason the owner's call is right: B4's list cannot express the requirement.
+Six values containing exactly one warm entry cannot furnish a warm four-step ladder; any
+stack built from it puts neutrals above a warm ground, which is precisely the arrangement
+that produces the artifact. B4's other provisions are untouched, including its ban on
+background gradients.
+
+Light ink was rotated to the palette's chroma rather than halfway to it, so light and dark
+are now mirrors: warm ink on warm ground in both. Dark `canvas` was rotated 102.6 → 79.1
+at identical chroma, which fixes a second oddity — it was the only token in either theme
+outside the 67–81 band.
+
+**Affects:** §6.1(a), §6.1(c), §6.1(d) (new), §6.2, §6.3, §6.4, §13.4

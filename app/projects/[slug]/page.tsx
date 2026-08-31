@@ -7,6 +7,7 @@ import { ContactCallout } from "@/components/home/ContactCallout";
 import { CaseStudyNavigation } from "@/components/projects/CaseStudyNavigation";
 import { CaseStudySummary } from "@/components/projects/CaseStudySummary";
 import { ProjectFacts } from "@/components/projects/ProjectFacts";
+import { BulletList } from "@/components/ui/BulletList";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Figure } from "@/components/ui/Figure";
@@ -169,11 +170,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.lessons.length > 0 ? (
           <Section title="Lessons learned">
-            <ul className="flex max-w-measure list-disc flex-col gap-3 pl-6 font-sans text-body text-text">
-              {project.lessons.map((lesson) => (
-                <li key={lesson}>{lesson}</li>
-              ))}
-            </ul>
+            <BulletList items={project.lessons} gap="loose" />
           </Section>
         ) : null}
 

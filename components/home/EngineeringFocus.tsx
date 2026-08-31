@@ -10,9 +10,9 @@ type EngineeringFocusProps = { pillars: FocusPillar[] };
  * meaning, no percentage bars, no skill clouds. What is left is three claims in words,
  * which is the only form of this section that can be read as true or false.
  *
- * The pillars' `technologies` are not rendered here. They appear on `/about/` under "What
- * I am focused on now", where §8.5 already puts the tooling; showing them twice would make
- * the home page the skills page it is deliberately not.
+ * The pillars' `technologies` are not rendered here. They appear on `/skills/` under "What
+ * I am focused on right now", where §8.6 puts them beside the tool groups; showing them
+ * twice would make the home page the skills page it is deliberately not.
  */
 export function EngineeringFocus({ pillars }: EngineeringFocusProps) {
   return (

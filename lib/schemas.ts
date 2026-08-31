@@ -49,6 +49,16 @@ export const SiteSchema = z.object({
   name: z.string().min(1),
   wordmark: z.string().min(1).max(4),
   role: z.string().min(1),
+  /**
+   * The footer's one-line identity (§7.3): the role stated short enough to sit above
+   * "based in {location.label}" without wrapping into a paragraph.
+   *
+   * A second field rather than a shortening of `role`, on `intro`/`bio`'s reasoning.
+   * `role` is the hero's full positioning sentence — it names the work *and* what the
+   * work is about — and cutting it to fit the footer would have rewritten the hero as a
+   * side effect of editing the footer. Two registers, two consumers, two fields.
+   */
+  roleShort: z.string().min(1).max(60),
   eyebrow: z.string().min(1).max(60),
   headline: z.string().min(1).max(90),
   intro: z.string().min(80).max(400),
@@ -66,9 +76,15 @@ export const SiteSchema = z.object({
    */
   bio: z.string().min(80).max(700),
   email: z.email(),
+  /**
+   * Where, and only where. `remote` was deleted on 2026-08-31 with the footer rebuild
+   * that stopped rendering it: the line it fed became one sentence with no room for a
+   * "· Available remotely" clause, and a boolean nothing reads is a claim waiting to be
+   * made accidentally by whoever gives it a consumer next. Working arrangements are
+   * `availability`'s subject; this object answers "where are they".
+   */
   location: z.object({
     label: z.string(),
-    remote: z.boolean(),
   }),
   /**
    * §7.3's location says where. This says in what.
@@ -104,8 +120,9 @@ export const SiteSchema = z.object({
    *
    * `alt` carries the same 10-character floor as §5.3's images. A portrait sitting beside
    * the owner's own name and role is arguably decorative under §11.4, which would want
-   * `alt=""` — the schema will not allow it, and Phase 5 decides that when the real
-   * photograph lands. Do not weaken the floor for a placeholder.
+   * `alt=""` — the schema will not allow it. The real photograph landed on 2026-08-31
+   * with a describing `alt`, so the question is now live rather than hypothetical, and it
+   * is still open. Do not weaken the floor to settle it; that is an §11.4 call.
    */
   portrait: z
     .object({
@@ -117,9 +134,10 @@ export const SiteSchema = z.object({
   /**
    * The 1:1 crop `/about/` renders in a circle.
    *
-   * A second image field rather than a reuse of `portrait`, because `portrait` is 4:5 and
-   * belongs to the hero — centre-cropping a 4:5 portrait to a circle is how a portrait
-   * loses the top of its head. The two slots take two exports of the same photograph.
+   * A second image field rather than a reuse of `portrait`, because `portrait` is 3:4 and
+   * belongs to the hero — centre-cropping a 3:4 portrait to a circle is how a portrait
+   * loses the top of its head. The two slots take two exports of the same photograph, and
+   * as of 2026-08-31 they literally do: one studio headshot, cropped 720×960 and 360×360.
    *
    * Optional on exactly `portrait`'s terms: remove the field and the About header
    * collapses to one column rather than reserving space for something that is not there.
@@ -141,6 +159,35 @@ export const SiteSchema = z.object({
       }),
     )
     .min(2),
+  /**
+   * The personal accounts, shown in the footer by handle rather than by platform name.
+   *
+   * **Deliberately not more entries in `socials`.** `socials` is the professional pair
+   * §7.3 names in the footer and §8.1/§8.7 put beside the email address in
+   * `ContactChannels` — four more entries there would have landed seven links in the home
+   * page's contact callout, a row that only reads as a row at three. These have one
+   * consumer, `SiteFooter`, and adding a fifth platform is a content edit plus one line
+   * in `BrandIcon`.
+   *
+   * They stay out of `personJsonLd`'s `sameAs` for the same reason they are separate: a
+   * `wa.me` link identifies a phone number, not a profile, and `sameAs` is for pages that
+   * establish identity.
+   *
+   * `handle` is rendered verbatim and is the only visible text — "@name" for the three
+   * that have one, the number for WhatsApp — so the platform is carried by the icon plus
+   * `label`, which is what the accessible name is built from (§7.4: never an icon
+   * without a name).
+   */
+  handles: z
+    .array(
+      z.object({
+        platform: z.enum(["x", "instagram", "whatsapp", "telegram"]),
+        label: z.string().min(1),
+        handle: z.string().min(1),
+        url: z.url(),
+      }),
+    )
+    .default([]),
   // No `featuredCaseStudySlug`. The home page's dedicated case-study section was removed
   // on 2026-08-31: every project page is written as a case study now, so promoting one of
   // them to a second home-page section restated a page the "Selected work" cards already
@@ -238,18 +285,18 @@ export const ExperienceSchema = z
     // qualification sitting in it is a category error the badge only labelled rather than
     // fixed. Education moved to `EducationSchema` and `/about/` on 2026-08-31; deleting
     // the enum member is what stops the next one drifting back here.
-    type: z.enum([
-      "employment",
-      "freelance",
-      "internship",
-      "research",
-      "independent",
-    ]),
+    type: z.enum(["employment", "freelance", "internship", "research", "independent"]),
     start: YearMonth,
     end: YearMonth.nullable(),
     location: z.string().optional(),
     summary: z.string().min(40).max(300),
-    achievements: z.array(z.string()).min(1).max(5),
+    // §8.4 says "1 to 5 achievement bullets" and the floor is gone: 0 to 5, per
+    // `docs/DECISIONS.md`. A `min(1)` does not make an entry say more, it makes the
+    // entry find a sentence — and what it found was the summary again, one line down
+    // and in the past tense. Two of the six entries had nothing under the summary that
+    // the summary had not said, and now render without a list rather than with a
+    // paraphrase of themselves.
+    achievements: z.array(z.string()).max(5).default([]),
     technologies: z.array(z.string()).max(10).default([]),
     featured: z.boolean().default(false),
   })

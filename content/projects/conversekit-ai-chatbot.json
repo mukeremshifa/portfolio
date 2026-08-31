@@ -31,10 +31,10 @@
     "live": "https://conversekit.mukeremshifa.com"
   },
   "cover": {
-    "src": "/projects/conversekit-cover-16x9.svg",
-    "alt": "ConverseKit chat widget dashboard showing AI vendor selection and conversation interface.",
-    "width": 1600,
-    "height": 900
+    "src": "/images/projects/conversekit-ai-chatbot-cover-16x9.jpeg",
+    "alt": "ConverseKit title card reading “Drop-in AI chat for any website”, with the line “Answers from your own docs. Captures leads. One script tag.”",
+    "width": 1577,
+    "height": 887
   },
   "overview": [
     "ConverseKit is a production multi-tenant platform deployed as four separate Cloudflare Workers—the API, dashboard, widget CDN, and landing page—each with its own hostname, cache policy and blast radius. Onboarding a new client is a single SQL row insertion and a script tag; no redeploy, no build step on the customer side.",

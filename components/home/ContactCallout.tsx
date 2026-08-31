@@ -33,7 +33,7 @@ export function ContactCallout({ site }: ContactCalloutProps) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 md:gap-10">
         <ContactChannels site={site} />
         {/* The button sits in a flex row so it keeps its intrinsic width. Dropped
             straight into the column above it would stretch to the full card. */}

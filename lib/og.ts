@@ -17,6 +17,10 @@ import { join } from "node:path";
  * `#0a39a6` long after §6.2 moved to emerald, so every card shipped an accent that
  * appeared nowhere on the site. Re-synced 2026-08-30. The dark-mode B4 revision of the
  * same date does not reach here, since the card never renders in dark.
+ *
+ * Re-synced again 2026-08-31, when `text` and `muted` were rotated off the blue axis
+ * they had kept from the cobalt palette. That half of the change *does* reach here, and
+ * nothing flagged it — which is the second time this file proved its own warning.
  */
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 
@@ -26,8 +30,8 @@ export const OG_CONTENT_TYPE = "image/png";
 export const OG_PALETTE = {
   canvas: "#f3ece2",
   surface: "#ffffff",
-  text: "#1e2229",
-  muted: "#5c6470",
+  text: "#26211a",
+  muted: "#6b6256",
   brand: "#184e38",
   border: "#e4dbd0",
 } as const;

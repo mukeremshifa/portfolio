@@ -1,3 +1,4 @@
+import { BulletList } from "@/components/ui/BulletList";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import type { Education } from "@/lib/schemas";
 import { formatMonthRange, type HeadingLevel } from "@/lib/utils";
@@ -17,9 +18,16 @@ type EducationListProps = {
  * that the sequence carries meaning, and it also does not inherit the timeline's spine,
  * which would have made education look like one more job.
  *
- * `highlights` has no floor in the schema, so the list is conditional. Most qualifications
- * are the credential and the dates, and a component that always renders a bullet list gets
- * an invented bullet to put in it.
+ * `highlights` has no floor in the schema, and `BulletList` renders nothing for an empty
+ * array. Most qualifications are the credential and the dates, and a component that always
+ * renders a bullet list gets an invented bullet to put in it.
+ *
+ * **The marker is the star, not the square.** Both entries carry exactly one highlight, and
+ * a square — the marker this system uses for a list of peers — in front of a lone item
+ * reads as a list with one row in it, which is the shape a reader then looks for a second
+ * row of. A star marks the item out rather than enumerating it, and both highlights are a
+ * distinction — a graduation date, a final grade — rather than one of a series. This is the
+ * only surface that takes the star.
  */
 export function EducationList({ entries, headingLevel = "h3" }: EducationListProps) {
   const Heading = headingLevel;
@@ -39,7 +47,9 @@ export function EducationList({ entries, headingLevel = "h3" }: EducationListPro
             </Heading>
             <p className="font-sans text-body text-text-muted">
               {entry.institutionUrl ? (
-                <ExternalLink href={entry.institutionUrl}>{entry.institution}</ExternalLink>
+                <ExternalLink href={entry.institutionUrl}>
+                  {entry.institution}
+                </ExternalLink>
               ) : (
                 entry.institution
               )}
@@ -48,13 +58,7 @@ export function EducationList({ entries, headingLevel = "h3" }: EducationListPro
 
           <p className="max-w-measure font-sans text-body text-text">{entry.note}</p>
 
-          {entry.highlights.length > 0 ? (
-            <ul className="flex max-w-measure list-disc flex-col gap-2 pl-6 font-sans text-body text-text-muted">
-              {entry.highlights.map((highlight) => (
-                <li key={highlight}>{highlight}</li>
-              ))}
-            </ul>
-          ) : null}
+          <BulletList items={entry.highlights} marker="star" tone="muted" />
         </li>
       ))}
     </ul>

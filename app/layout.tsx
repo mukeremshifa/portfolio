@@ -75,7 +75,7 @@ const NAV: NavItem[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-const CTA: NavItem = { href: "/contact", label: "Let us talk →" };
+const CTA: NavItem = { href: "/contact", label: "Let's talk" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
