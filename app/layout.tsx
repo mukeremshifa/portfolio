@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { ThemeScript } from "@/components/layout/ThemeScript";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { getSite } from "@/lib/content";
 import { INDEXING_ALLOWED, SITE_ORIGIN } from "@/lib/metadata";
 import "./globals.css";
@@ -100,7 +101,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               and cannot accidentally produce a second one. `tabindex="-1"` makes it a
               focus target for the skip link without making it a tab stop. */}
           <main id="main" tabIndex={-1}>
-            {children}
+            {/* §10.3's route change. It wraps the children rather than `<main>` itself,
+                so the landmark and its `id` — the skip link's target — stay on a stable
+                element that is never keyed or remounted. */}
+            <PageTransition>{children}</PageTransition>
           </main>
           <SiteFooter site={site} nav={NAV} />
         </MotionProvider>

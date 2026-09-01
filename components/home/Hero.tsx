@@ -1,4 +1,8 @@
 import { Signature } from "@/components/brand/Signature";
+import { Fade } from "@/components/motion/Fade";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { SignatureReveal } from "@/components/motion/SignatureReveal";
+import { SplitText } from "@/components/motion/SplitText";
 import { Button } from "@/components/ui/Button";
 import { Figure } from "@/components/ui/Figure";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -14,6 +18,35 @@ type HeroProps = { site: Site };
  * the next time `scripts/build_brand.py` runs.
  */
 const SIGNED_NAME = SIGNATURE.text;
+
+/**
+ * §10.3's page-load sequence, in seconds, all measured from first paint.
+ *
+ * The hero is the one place on the site that gets a choreographed entrance rather than a
+ * single reveal, because it is the only screen where nothing else is competing for
+ * attention and the reader has not yet started reading anything. Four stages, in the
+ * order a person meets someone: their face, their name, what they do, what you can do
+ * next.
+ *
+ * The gaps are deliberately uneven and deliberately overlapping. The name starts drawing
+ * while the face is still resolving, and the role line starts while the signature is only
+ * half wiped — two things arriving in lockstep reads as a slideshow, and waiting for each
+ * stage to *finish* before starting the next makes the hero take five seconds to say four
+ * things. Every stage here begins before its predecessor ends.
+ *
+ * The whole sequence is settled by roughly 2.5s. That is the ceiling: it is the one moment
+ * on the site allowed to be theatrical, and it is still short enough that a visitor who
+ * scrolls immediately loses nothing they needed.
+ *
+ * Keep this table as the single source of the timing. The individual delays used to be
+ * scattered across the JSX and every adjustment meant re-deriving the whole sequence.
+ */
+const HERO_STAGE = {
+  portrait: 0.1,
+  signature: 0.3,
+  role: 1.1,
+  controls: 1.7,
+} as const;
 
 /**
  * §8.1's hero. Portrait left, name right, two type levels, one typeface, two buttons.
@@ -77,14 +110,18 @@ export function Hero({ site }: HeroProps) {
         // balance. 360px wide reads as 480px tall, which sits inside the floor above with
         // room to breathe rather than setting the section's height itself.
         <div className="w-full max-w-64 shrink-0 lg:w-2/5 lg:max-w-90">
-          <Figure
-            src={site.portrait.src}
-            alt={site.portrait.alt}
-            width={site.portrait.width}
-            height={site.portrait.height}
-            priority
-            sizes="(min-width: 1024px) 22.5rem, 16rem"
-          />
+          {/* Stage 1. The face arrives first and it is the only image on the site that
+              uses `ImageReveal` on mount rather than on scroll — it is already in view. */}
+          <ImageReveal delay={HERO_STAGE.portrait} onMount>
+            <Figure
+              src={site.portrait.src}
+              alt={site.portrait.alt}
+              width={site.portrait.width}
+              height={site.portrait.height}
+              priority
+              sizes="(min-width: 1024px) 22.5rem, 16rem"
+            />
+          </ImageReveal>
         </div>
       ) : null}
 
@@ -112,7 +149,12 @@ export function Hero({ site }: HeroProps) {
                   `aria-hidden`, so this is what the accessibility tree, search, and a
                   copy-paste all see, and there is exactly one copy of it. */}
               <VisuallyHidden>{site.name}</VisuallyHidden>
-              <Signature className="w-full max-w-136 text-text" />
+              {/* §10.3: the name draws itself in, left to right. Stage 2 of the hero
+                  sequence — it starts after the portrait has begun resolving, so the two
+                  are not competing for attention in the same instant. */}
+              <SignatureReveal delay={HERO_STAGE.signature}>
+                <Signature className="w-full max-w-136 text-text" />
+              </SignatureReveal>
             </h1>
           ) : (
             // The signature is a fixed drawing of one string. If `site.name` is ever
@@ -130,23 +172,36 @@ export function Hero({ site }: HeroProps) {
               seconds, and this line is carrying that alone — which is why it stays at
               `heading-1` on full `text` rather than shrinking into a caption under the
               drawing. */}
-          <p className="max-w-measure font-sans text-heading-1 font-medium text-text">
+          {/* §10.3's character split. This line, not the `h1`, is where the split lives:
+              the heading above is drawn artwork with no characters to split, and this is
+              the hero's only typeset line — so it is both the natural place for the
+              effect and the one line whose arrival the reader is actually reading. */}
+          <SplitText
+            as="p"
+            delay={HERO_STAGE.role}
+            className="max-w-measure font-sans text-heading-1 font-medium text-text"
+          >
             {site.role}
-          </p>
+          </SplitText>
         </div>
 
         {/* Two controls. See the header comment before adding a third. */}
-        <div className="flex flex-wrap items-center gap-3">
-          <Button href="/projects">Explore selected work</Button>
-          {site.resume ? (
-            // `external` because the target is a file rather than a route: it opens in
-            // a tab and says so, and it behaves identically whether `resume.url` is the
-            // root-relative placeholder or an absolute URL on object storage later.
-            <Button href={site.resume.url} external variant="secondary">
-              Download résumé
-            </Button>
-          ) : null}
-        </div>
+        {/* Stage 4, and the last: the controls arrive once the name and the role have
+            said who this is. A button that fades in before the sentence explaining it is
+            an affordance offered before its context. */}
+        <Fade delay={HERO_STAGE.controls}>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button href="/projects">Explore selected work</Button>
+            {site.resume ? (
+              // `external` because the target is a file rather than a route: it opens in
+              // a tab and says so, and it behaves identically whether `resume.url` is the
+              // root-relative placeholder or an absolute URL on object storage later.
+              <Button href={site.resume.url} external variant="secondary">
+                Download résumé
+              </Button>
+            ) : null}
+          </div>
+        </Fade>
       </div>
     </section>
   );

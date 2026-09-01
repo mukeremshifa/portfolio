@@ -78,6 +78,23 @@
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
+
+  /* §10.2's decoupled entrance. These two are a pair and the gap between them is the
+     point: opacity resolves in 800ms so the content is readable quickly, while the
+     transform keeps settling for 1800ms. The element is legible long before it has
+     finished arriving, and that gap is the whole difference between motion that reads as
+     cheap and motion that reads as considered. Do not "fix" this by matching them. */
+  --duration-reveal: 800ms;
+  --duration-drift: 1800ms;
+
+  /* Per-character and per-item stagger steps (§10.1). */
+  --step-char: 26ms;
+  --step-item: 70ms;
+
+  /* How far an entrance travels. 32px over --duration-drift is a drift; the 12px this
+     used to be, over 200ms, was a twitch. The distance and the duration were wrong
+     together and are corrected together. */
+  --reveal-distance: 32px;
 }
 
 .dark {
@@ -236,6 +253,14 @@
      site can perceive. See docs/DECISIONS.md, 2026-09-01. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
+  /* §10.2's entrance curve, and the single most character-defining value in this file.
+     It climbs fast — 0.7 of the way by x=0.2 — then has a very long, flat tail. That
+     shape is why a 1800ms drift does not feel slow: almost all the distance is covered
+     early, and what remains is a settle the eye reads as weight rather than as waiting.
+     `--ease-out` overshoots harder and lands sooner, which is right for a hover and wrong
+     for an arrival. */
+  --ease-drift: cubic-bezier(0.2, 0.7, 0.2, 1);
+
   /* §6.6 type scale — ten steps, each carrying its own line-height and tracking.
      Tailwind's `--text-*` namespace has no slot for a font family, so a step sets size,
      leading, and tracking only: pair it with `font-serif` / `font-sans` / `font-mono`
@@ -386,6 +411,97 @@ html:not([data-theme-pref]) .theme-label-system {
 
 /* §10.3, verbatim. Covers everything Motion does not own; the `MotionConfig
    reducedMotion="user"` in components/motion/MotionProvider.tsx covers the rest. */
+/* =============================================================================
+   Link underline wipe (§10.3)
+
+   The audit that prompted the v3 motion rewrite found that forty-one of the site's
+   forty-two hover states changed colour and nothing else. Colour alone is the flattest
+   possible hover: it is instantaneous by nature, it carries no direction, and at
+   `--duration-fast` it is over before it registers as a response.
+
+   This gives a link an underline that wipes in from the left. It is a `::after` rather
+   than `text-decoration`, because only a pseudo-element can be transformed — and
+   `scaleX` with `transform-origin: left` is what makes the line *travel* rather than
+   fade. `transform` is also the one property here that costs nothing to animate.
+
+   `.link-wipe` is opt-in. It is applied to prose and navigation links, and deliberately
+   not to buttons (which have their own press feedback) or to cards (whose whole surface
+   is the target).
+   ============================================================================= */
+.link-wipe {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-wipe::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Sits on the text baseline's descender gap rather than hugging the glyphs, matching
+     the `underline-offset-[3px]` the rest of the system uses. */
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.link-wipe:hover::after,
+.link-wipe:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* For a link with horizontal padding — a nav item, say — where a full-width rule would
+   run out past the text it belongs to. Insets the line to the text box. */
+.link-wipe-inset::after {
+  left: var(--spacing-3, 0.75rem);
+  right: var(--spacing-3, 0.75rem);
+  bottom: 0.5rem;
+}
+
+/* The active nav item keeps its line permanently: it is the §10.3 rail's counterpart in
+   the header, marking where the reader *is* rather than what they are pointing at. */
+.link-wipe[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* The wipe is decoration on top of a link that is already identifiable by colour and by
+   its focus ring, so removing the motion removes nothing anyone depends on. */
+@media (prefers-reduced-motion: reduce) {
+  .link-wipe::after {
+    transition: none;
+  }
+}
+
+/* =============================================================================
+   No-JavaScript safety net (§10.5)
+
+   Every entrance in components/motion/ server-renders its `initial` state, which means
+   `opacity: 0` is in the HTML before hydration. That is correct while Motion is running —
+   it is what prevents a flash of un-animated content — but it makes the *content* depend
+   on an animation completing. If the bundle fails, is blocked, or a crawler renders
+   without requestAnimationFrame, the hero's role line and buttons are invisible rather
+   than merely un-animated.
+
+   `<noscript>` cannot cover it, because scripting-enabled-but-broken is the case that
+   matters. So the rule is inverted instead: content is visible by default, and Motion's
+   inline `style` on the element — which only exists once React has rendered — is what
+   hides it. `[style*="opacity:0"]` matches exactly the elements Motion is driving,
+   because Motion writes its state inline and nothing else in this codebase does.
+   ============================================================================= */
+@media (scripting: none) {
+  [style*="opacity:0"],
+  [style*="opacity: 0"] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

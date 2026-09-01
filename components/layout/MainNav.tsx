@@ -26,7 +26,10 @@ export function MainNav({ items }: { items: NavItem[] }) {
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center rounded-none px-3 font-sans text-body transition-colors duration-(--duration-fast) ease-out hover:text-brand ${
+              // `link-wipe link-wipe-inset` (globals.css) adds §10.3's underline that
+              // travels in from the left, and keeps it drawn on the current page — so the
+              // active indicator is the same mark the hover produces, at rest.
+              className={`link-wipe link-wipe-inset inline-flex min-h-11 items-center rounded-none px-3 font-sans text-body transition-colors duration-(--duration-fast) ease-out hover:text-brand ${
                 active ? "text-brand" : "text-text"
               }`}
             >

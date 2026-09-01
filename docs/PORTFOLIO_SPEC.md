@@ -1352,124 +1352,121 @@ find-and-replace over `ease-standard` would have caught.
 
 ## 10. Motion system
 
-Motion is used freely where it improves comprehension, never as decoration. Test for any
-animation: **remove it and ask whether the interface got harder to understand.** If not, it
-does not ship.
+**Rewritten 2026-09-01 (v3).** The previous version was a document about restraint. It
+produced a site that was correct and lifeless — every transition 120ms, forty-one of
+forty-two hover states changing only colour, nothing on the page with any weight to it. The
+owner's verdict was "you'd feel like you are reading a magazine," and the diagnosis was
+that the spec, not the implementation, was the limit.
 
-**Status, 2026-09-01 (motion pass complete).** Every row below ships. `Reveal` and
-`Stagger` are applied, the filter row is whole for the first time, and §10.1 dropped to a
-single easing curve. Two things are worth carrying forward:
+So the test changed. The old one was:
 
-- **Each animating section runs exactly one animation.** A `Reveal` around a section whose
-  grid staggers would delay the section and *then* cascade inside it, so the last card
-  waits out two animations for one scroll. Where a grid staggers, its section is not also
-  revealed — see the note in `app/page.tsx`.
-- **Four of the home page's seven sections animate.** The hero, the experience preview, and
-  the contact callout are deliberately still; the reasoning is in `app/page.tsx` beside the
-  markup, because that is where someone is standing when they are tempted to change it.
+> remove it and ask whether the interface got harder to understand
+
+That is a comprehension test, and it rejects everything that makes an interface feel
+crafted, because craft is not comprehension. **The test is now:**
+
+> Does this make the page feel more considered to the person using it, without ever
+> getting in their way or making them wait?
+
+Two clauses, both binding. The first admits delight, texture, and personality as
+sufficient reasons on their own. The second is what keeps this from becoming the
+over-animated site the old rules were written in fear of: motion that blocks reading,
+delays interaction, or repeats until it is noticed still does not ship.
 
 ### 10.1 Tokens
 
 ```css
---duration-fast: 120ms;
---duration-base: 200ms;
---duration-slow: 320ms;
+/* Durations. `base` and `slow` were defined and unused under v2; the new system leans on
+   the long end, because the long end is where "expensive" lives. */
+--duration-fast: 120ms;      /* colour, small state changes */
+--duration-base: 200ms;      /* hovers with movement */
+--duration-slow: 320ms;      /* deliberate UI transitions */
+--duration-reveal: 800ms;    /* opacity half of an entrance */
+--duration-drift: 1800ms;    /* transform half of an entrance */
+
+/* Easings. `--ease-out` stays the workhorse. `--ease-drift` is the new one and it is the
+   single most important value in this section — see §10.2. */
 --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+--ease-drift: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+/* Stagger steps. */
+--step-char: 26ms;    /* per character in a split heading */
+--step-item: 70ms;    /* per card, row, or list item */
 ```
 
-**One curve, for everything.** Entrances, repositions, hovers, colour changes: all
-`ease-out`. This section used to define a second curve, `--ease-standard`
-(`cubic-bezier(0.2, 0, 0, 1)`), for things already on screen that move rather than arrive.
-It was retired on 2026-09-01 — the distinction was real on paper and imperceptible in the
-product, while taxing every new transition with a question ("is this an entrance?") that
-had no observable consequence. `DECISIONS.md` carries the full reasoning and the one cost.
+### 10.2 The decoupled entrance
 
-It is in `@theme`, so `duration-(--duration-fast)` and `ease-out` are available as Tailwind
-utilities; the wrappers in §9.4 carry the same number transcribed for Motion, since Motion
-cannot read a CSS custom property for a transition.
+**This is the technique the rest of the section is built on, and it is not obvious.**
 
-### 10.2 Inventory
-
-| Where | Motion | Spec | Built? |
-|---|---|---|---|
-| Section entrance | `Reveal` | opacity 0 to 1, `translateY(12px)` to 0, `base`, `ease-out` | Yes — home `focus` and `technology` |
-| Card grids | `Stagger` | 60ms between children, capped at 6 | Yes — featured work, certifications, full timeline |
-| Filter enter/exit | `Presence` | entering and leaving cards fade over `fast` | Yes — added 2026-09-01, see below |
-| Card hover | CSS | border/background over `fast`; `translateY(-2px)` | Yes |
-| Button hover/active | CSS | background over `fast`; active scales to 0.98 | Yes |
-| Nav active indicator | CSS | `aria-current="page"` plus the brand colour | Yes — **amended**, see below |
-| Mobile nav | Motion | panel slides from the right over `slow` | Yes |
-| Theme toggle | CSS | icon crossfade over `fast` | Yes |
-| Project filter | Motion `layout` | cards reposition over `base` | Yes |
-| Contact form state | CSS | button label crossfade; live **region** never animated, message inside it fades over `fast` | Yes — amended 2026-09-01 |
-| Section rail | CSS | active dash changes colour over `fast`; width never changes | Yes — added §7.5 |
-| Rail scroll | CSS | `scroll-behavior: smooth` on `html` | Yes — added 2026-09-01 |
-| Copy button | CSS | active scales to 0.98; result text fades over `fast` | Yes — added 2026-09-01 |
-
-**The nav indicator row is amended.** It specified a Motion `layoutId` underline sliding
-between items. It ships as a static indicator in CSS, because by the time the underline
-would slide the navigation has already happened and the animation describes a transition
-the reader has completed. Logged in `DECISIONS.md`, 2026-08-15; the row above is the
-correction, not the original.
-
-Excluded: parallax, scroll-jacking, ticking counters, typewriter effects, looping background
-animation, cursor followers, blob gradients, anything that moves while someone is reading.
-
-### 10.3 Reduced motion
-
-`app/layout.tsx` wraps the tree in `MotionProvider`, which is `<MotionConfig
-reducedMotion="user">` (§9.4), plus a CSS block in `globals.css` covering everything Motion
-does not own:
+An entrance animates opacity and transform on the same element at *different durations*:
 
 ```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+transition-property: opacity, transform;
+transition-duration: var(--duration-reveal), var(--duration-drift);
+transition-timing-function: var(--ease-drift);
 ```
 
-Under reduced motion, every interaction stays legible: hover states become instant colour
-changes, the mobile panel appears rather than slides, filtered cards jump rather than glide,
-and `Reveal` keeps its opacity while dropping its transform, so content still arrives — it
-just does not move.
+Opacity resolves in 800ms — the content is readable quickly, which is what stops this
+from being a site that makes people wait. The transform keeps resolving for 1800ms, so the
+element is still settling into place long after it became legible. That gap between "I can
+read this" and "this has finished arriving" is the entire difference between motion that
+feels cheap and motion that feels considered.
 
-Note the `scroll-behavior: auto !important` line already in that block. It means smooth
-scrolling can be turned on with a single declaration on `html` whenever §7.5's rail wants
-it, and the reduced-motion path is already correct without touching this section.
+Travel distance is **32px**, not the 12px v2 used. Twelve pixels over 200ms is a twitch;
+32px over 1800ms is a drift. The old value was small because the old duration was short,
+and both were wrong together.
 
-*(The v1.0 "no-JavaScript constraint on motion" section is gone. There is no requirement
-that content render before scripting runs, so `Reveal` can simply start hidden and animate in
-without the `@media (scripting: enabled)` guard.)*
+### 10.3 Inventory
 
-### 10.4 What the applied inventory settled
+| Where | Technique | Spec |
+|---|---|---|
+| Page load | orchestrated | `body` gets `is-loading` → `is-animating` → `is-loaded`; stages fire off `data-stage` in ms |
+| Hero heading | char split | per-character opacity, `--step-char` apart, no per-char transform |
+| Hero accent word | blur-slide | `translateX(-20px)` + `blur(10px)` → settled, on one word only |
+| Section entrance | decoupled reveal | §10.2, `once: true` |
+| Card grids | staggered reveal | `--step-item` between children, capped at 6 |
+| Images | blur-scale | `scale(1.04)` + `blur(12px)` → settled over `--duration-drift` |
+| Route change | page transition | outgoing fades and lifts, incoming reveals; never blocks the click |
+| Card hover | lift + border | `translateY(-4px)` over `base` |
+| Link hover | underline wipe | `scaleX(0)` → `1` from the left, over `base` |
+| Button press | scale | `0.98`, `fast` |
+| Filter | layout + presence | reposition over `base`, enter/exit fade over `fast` |
+| Cursor | desktop only | follows the pointer, grows over interactive targets, `pointer: fine` only |
+| Rail | colour only | the dash never moves or resizes; it is a position readout, not an animation |
 
-The pass that applied §10.2 is done. These are the rules it established, kept here because
-each one is a thing the next person to add an animation will otherwise re-derive or break:
+**Still excluded, and these are real exclusions rather than habit:**
 
-- **Which sections earn an entrance.** A `Reveal` on every section is decoration by
-  volume — §10's test is applied per section, not once for the pattern. Four of the home
-  page's seven animate. A grid of cards arriving as a group reads as a group; a paragraph
-  fading in reads as a page that was not ready, and a call to action fading in is friction
-  between deciding to act and acting.
-- **One animation per animating section.** Where a section's grid staggers, the section is
-  not also revealed. Nesting them makes the last card wait out both.
-- **The rail and the reveal share a scroll, and are deliberately offset.** `SectionRail`
-  (§7.5) observes at `rootMargin: "-20% 0px -65% 0px"`; `Reveal` fires at `amount: 0.2`,
-  which is earlier. Content finishes arriving before the marker claims the section. Aligning
-  them makes the gutter twitch at the moment the column moves, and the two compete.
-- **`once: true` is already the setting.** Content that re-animates on scroll-up is motion
-  running while someone is reading, which §21 forbids. `Reveal` gets this right; any new
-  wrapper has to keep it.
-- **Live regions never animate; their contents may.** The `role="status"` node stays
-  mounted and untouched, because a region that animates or remounts announces unreliably.
-  `CopyButton` and `ContactForm` both fade a span *inside* the region.
+- Anything that loops while someone is reading. okc.media runs an 8.8s infinite loop on its
+  hero; that is the one thing from the reference this site deliberately does not take.
+- Scroll-jacking, or any scroll-linked transform that fights the scroll position.
+- Ticking counters and typewriter effects — they animate *data*, which makes the data
+  harder to read, and they are unfalsifiable filler besides.
+- Content that re-animates when scrolled back to. Every entrance is `once: true`.
+- Motion on the section rail's dash. It reports where the reader is; a readout that
+  animates is a readout that lies for the duration of the animation.
 
-Smooth scrolling for the rail is now on: one declaration on `html`, with §10.3's
-reduced-motion block overriding it back to `auto !important`.
+### 10.4 Reduced motion
+
+`prefers-reduced-motion: reduce` is honoured and is *not* the same as "no motion". Under
+it: every transform is dropped, every opacity fade is kept but shortened, the char split
+resolves as a single block, images appear without blur or scale, and the page transition
+becomes an instant swap. Content still arrives — it simply does not travel.
+
+Mechanically this is `MotionConfig reducedMotion="user"` for the Motion tree plus the
+global CSS block, which sets `scroll-behavior: auto !important` and collapses durations.
+
+### 10.5 Performance rules
+
+Motion this ambitious is only acceptable if it costs nothing to scroll past:
+
+- **Animate `opacity`, `transform`, and `filter` only.** Never width, height, top, left, or
+  anything that triggers layout.
+- **`will-change` is set while an element is animating and removed after.** Left on
+  permanently it is a memory leak with good intentions.
+- **Every entrance is `once: true`** and its observer is disconnected after firing.
+- **The character split runs once, at mount**, and produces static spans. Nothing re-splits
+  on resize.
+- **The custom cursor is `pointer: fine` only** and never renders on touch.
 
 ---
 
@@ -2141,11 +2138,16 @@ screenshots. Confirm every snippet you publish is yours to publish.
 - **No skill percentage bars, radar charts, or star ratings.** Unfalsifiable, reads as
   filler.
 - **No hover-only affordances.** Anything reachable by hover is reachable by keyboard and
-  visible on touch.
+  visible on touch. The custom cursor (§10.3) is decoration layered on top of a control
+  that already works without it, which is why it is allowed.
 - **No content inside components.** If a component contains a sentence about you, it is
   wrong.
-- **No animation that runs while someone is reading**, nothing that moves on scroll except a
-  one-time reveal.
+- **No motion that loops while someone is reading.** This replaces v2's "no animation that
+  runs while someone is reading, nothing that moves on scroll except a one-time reveal,"
+  which was the single line that made this site feel like print. Entrances, page
+  transitions, image reveals, and character splits are now not merely allowed but
+  specified — see §10, rewritten. What survives from the old rule is its actual core: an
+  animation that repeats until it is noticed is an animation competing with the text.
 - **Em dashes stay rare in site copy.** Reach for a period, comma, colon, or parenthetical
   first.
 - **No "coming soon" sections.** A page either ships finished or does not ship. Placeholder
