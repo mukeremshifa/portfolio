@@ -31,10 +31,11 @@
     "live": "https://synapsedeck.mukeremshifa.com"
   },
   "cover": {
-    "src": "/projects/synapsedeck-cover-16x9.png",
-    "alt": "SynapseDeck dashboard and practice interface",
-    "width": 1600,
-    "height": 900
+    "src": "/images/projects/synapsedeck-ai-flashcards-cover-16x9-light.avif",
+    "srcDark": "/images/projects/synapsedeck-ai-flashcards-cover-16x9-dark.avif",
+    "alt": "A SynapseDeck review session: a flashcard asking why a spaced-repetition scheduler needs to know when you last saw a card, with Again, Hard, Good and Easy rating buttons and a review-history heatmap below, beside the headline “Forgetting is the schedule.”",
+    "width": 2400,
+    "height": 1350
   },
   "overview": [
     "SynapseDeck bridges the gap between note-taking and learning. Students paste study material, an LLM generates flashcards in real time, and a human-in-the-loop review gate ensures only quality cards enter the deck. Nothing that enters is wasted: every card is scheduled with FSRS, a scientifically-validated spacing algorithm that maximizes retention with minimum review time.",

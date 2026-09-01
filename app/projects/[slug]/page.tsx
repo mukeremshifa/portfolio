@@ -132,6 +132,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {project.cover ? (
           <Figure
             src={project.cover.src}
+            srcDark={project.cover.srcDark}
             alt={project.cover.alt}
             width={project.cover.width}
             height={project.cover.height}

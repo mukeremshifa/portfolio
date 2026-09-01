@@ -67,6 +67,7 @@ export function ProjectCard({
         <div className="md:w-2/5 md:shrink-0">
           <Figure
             src={project.cover.src}
+            srcDark={project.cover.srcDark}
             alt={project.cover.alt}
             width={project.cover.width}
             height={project.cover.height}

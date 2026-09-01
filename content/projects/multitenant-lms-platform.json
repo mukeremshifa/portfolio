@@ -30,10 +30,11 @@
     "github": "https://github.com/mukeremshifa/bb-lms"
   },
   "cover": {
-    "src": "/placeholders/bb-lms-cover-16x9.svg",
-    "alt": "BB LMS dashboard and course management interface.",
-    "width": 1600,
-    "height": 900
+    "src": "/images/projects/multitenant-lms-platform-cover-16x9-light.avif",
+    "srcDark": "/images/projects/multitenant-lms-platform-cover-16x9-dark.avif",
+    "alt": "The LMS instructor dashboard: tiles for open courses, active students, items to grade and median score above a learning-activity chart, a needs-attention queue and per-course submission progress, beside the headline “Every course, every learner, one system.”",
+    "width": 2400,
+    "height": 1350
   },
   "overview": [
     "BB LMS is built as a two-package workspace: a React 19 + Vite single-page app in `client/` and a Hono + TypeScript backend in `server/`. The frontend handles role-based user experiences and server-state synchronization, while the backend exposes modular domain APIs for authentication, users, courses, and related workflows.",

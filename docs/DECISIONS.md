@@ -1484,3 +1484,63 @@ at identical chroma, which fixes a second oddity — it was the only token in ei
 outside the 67–81 band.
 
 **Affects:** §6.1(a), §6.1(c), §6.1(d) (new), §6.2, §6.3, §6.4, §13.4
+
+## 2026-09-01 — The real covers arrived as 8K pairs; derivatives are built and committed
+
+**Context:** The owner supplied the four remaining project covers as light/dark pairs of 8K
+PNGs — 7680×4320, ConverseKit 8000×4500, ~28 MB for the eight files — having deliberately
+exported at that size for crispness, since the covers render full-width. Three of the four
+projects were pointing at `cover.src` paths that did not exist at all (see
+`STUB-INVENTORY.md`), so they were rendering broken images, not stubs.
+
+Two things made the raw files unusable as-is. `images: { unoptimized: true }` (§12.2) means
+the committed file is the delivered file: nothing resizes it, nothing converts it, and there
+is no `srcset` — so a phone would have downloaded a 7.7 MB PNG to paint it at 360 CSS px.
+And `cover` held a single `src`, so the schema could not express a pair at all.
+
+**Decision:** Three parts.
+
+1. `scripts/build_covers.py` converts the renders to **2400×1350 AVIF, q65, 4:4:4 chroma**,
+   written to `public/images/projects/<slug>-cover-16x9-{light,dark}.avif`. The sources stay
+   outside the repo; the derivatives are committed. All eight come to **515 KB**, from 28 MB.
+2. `ProjectSchema.cover` gains an optional `srcDark`. `src` stays canonical — JSON-LD, OG,
+   and anything else needing one image are untouched.
+3. `Figure` renders both renditions and swaps them with the `dark:` variant.
+
+`site.resume` also went real in the same pass: `/Mukerem-Shifa-Resume.pdf`, `updated`
+bumped to `2026-08`. The URL is deliberately **undated** — a dated filename breaks every
+link, QR code and emailed copy already in circulation on each revision, and the date is
+already a rendered field.
+
+**Reason:** Covers render at 1200px max (`--container-content`), so 8K carried roughly 130×
+more pixels than any display can use. AVIF at 2400px was checked against 1:1 crops of the
+densest render (the LMS dashboard) and is indistinguishable from the Lanczos source before
+the 2× downscale even applies. It measured ~25% under WebP q80 and ~60% under JPEG q82 at
+matched appearance. 4:4:4 costs ~5% over 4:2:0 and keeps coloured UI text from bleeding —
+these are interface renders, so chroma detail *is* the subject. The accepted cost of AVIF is
+that with the optimizer off there is no automatic fallback; support is every evergreen
+browser and Safari 16+.
+
+**A script producing committed assets is not the `sharp` pipeline §12.2 rules out.** Nothing
+in `pnpm build` processes an image, and the precedent is already in the repo:
+`build_brand.py` does exactly this for the brand marks, from a source that is likewise not
+vendored. This also keeps localhost and Vercel byte-identical and spends no metered image
+transformations. Turning the optimizer on later is still the one-line change §12.2 promises,
+because every consumer still goes through `Figure`.
+
+**The theme swap is CSS, not `<picture>`.** This is the part worth not rediscovering: the
+obvious implementation is `<source media="(prefers-color-scheme: dark)">`, and it is wrong
+here. This site's theme is a *three-state preference* resolved against `.dark` on `<html>`
+(`ThemeScript`), not the OS setting — so a `prefers-color-scheme` source would serve a dark
+screenshot on a light page to any visitor on a dark OS who had explicitly chosen light.
+`<picture>` cannot see a class. The cost is that both files are fetched, since `display:
+none` does not cancel an `<img>` request; at ~60 KB each, with at most one cover per page
+(`/projects` renders none), that is cheaper than the bug. `priority` applies to both for the
+same reason: the theme resolves on the client, so the server cannot know which rendition
+will be the LCP element.
+
+`sizes` on both call sites remains inert under `unoptimized: true` and was left in place
+deliberately — it is what makes re-enabling the optimizer a config change rather than a
+component change.
+
+**Affects:** §5.3, §9.1, §12.1, §12.2, Phase 5, Phase 6

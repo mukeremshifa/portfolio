@@ -63,10 +63,10 @@ eye, which is exactly why they are listed here instead.
 | `site.email` | `hello@mukeremshifa.com` | **The address is settled** (§19 Q1, answered 2026-08-30) — `site.json` already holds the value that ships, so this row is not waiting on an edit. What is still a stub is the *mailbox*: nothing receives mail at that address yet. It closes when Cloudflare Email Routing forwards it to a real inbox, and until then the site prints a contact address that silently drops mail, which is worse than a Gmail address |
 | ~~`site.portrait`~~ | **Closed 2026-08-31.** `/images/portrait-3x4.jpeg`, 720×960 — a real studio headshot supplied by the owner. Note the ratio: **3:4, not the 4:5 this row and §5.2 assumed**, at the owner's instruction. The open question this row raised survives the swap: the `alt` is descriptive today, but a portrait beside the owner's own name and role is arguably decorative under §11.4 and would want `alt=""`, which the schema's `min(10)` still forbids. That is an §11.4 decision, not a schema one |
 | ~~`site.avatar`~~ | **Closed 2026-08-31.** `/images/avatar-1x1.jpeg`, 360×360. The "two exports of one photograph" this row predicted is exactly what arrived: the same studio headshot, cropped square with the headroom a circular frame needs and the 3:4 export does not have |
-| `site.resume` | `/placeholders/placeholder-resume.pdf`, `updated: 2026-07` | The real PDF, with `updated` bumped. §19 Q4 chooses `public/` or R2; the field takes either a root-relative path or an absolute URL |
+| ~~`site.resume`~~ | **Closed 2026-09-01.** `/Mukerem-Shifa-Resume.pdf`, `updated: 2026-08`. §19 Q4 resolved to `public/` rather than R2 — one origin, no second thing to keep in sync for a 110 KB file. The URL is deliberately **undated**: a dated filename breaks every link, QR code and emailed copy already in circulation on each revision, and the date is already rendered from `updated`. Revising the résumé means overwriting this path, not adding a sibling |
 | ~~`content/projects/*.json`~~ | **Closed 2026-08-31.** All six synthetic projects were deleted. The four real ones — `conversekit-ai-chatbot`, `synapsedeck-ai-flashcards`, `gamified-servey-prototype`, `multitenant-lms-platform` — are the owner's own copy. Their *prose* is real; their assets and links are not, see the two rows below |
 | Project `links.*` hosts | The four real projects' own `github.com/mukeremshifa/…` and `<slug>.mukeremshifa.com` URLs | **Unverified, not synthetic.** These now name repositories and deployments the owner believes exist, which is a different risk from the stub era: a wrong URL here is a broken promise rather than an obvious placeholder. Every one needs opening by hand once. Nothing catches a 404 — `tests/unit/links.test.ts` was planned and never written |
-| `cover.src` (**three** of four) | Paths naming files that **do not exist**: `/projects/synapsedeck-cover-16x9.png`, `/placeholders/gamified-servey-project-cover-16x9.svg`, `/placeholders/bb-lms-cover-16x9.svg` | The real captures, at the intrinsic dimensions each file declares. This is worse than the placeholder era it replaced: a stub `src` resolved to a visible grey box, and these resolve to nothing. `next/image` does not fail the build over a missing file — it renders a broken image. Alternatively delete `cover` entirely, which is now legal and renders a shorter page rather than a broken one. **`conversekit-ai-chatbot` closed 2026-08-31** — `/images/projects/conversekit-ai-chatbot-cover-16x9.jpeg`, 1577×887. Note what it is: a title card, not a product capture, so its `alt` carries the words printed on it rather than describing a UI. The three above are still broken |
+| ~~`cover.src`~~ | **Closed 2026-09-01.** All four are real, and all four are light/dark pairs at 2400×1350: `<slug>-cover-16x9-{light,dark}.avif` under `/images/projects/`. The three broken paths this row tracked are gone, and ConverseKit's 1577×887 title card was replaced by a product render at the full export size, which also closes the softness noted in the export table below. Sources were 8K PNGs (~28 MB); `scripts/build_covers.py` produces the committed 515 KB. `cover.srcDark` is the schema field that carries the pair — see `DECISIONS.md`, 2026-09-01 |
 
 ### Already real, listed so nobody re-stubs them
 
@@ -101,7 +101,7 @@ public/images/
 ├── portrait-3x4.jpeg                           # site.portrait  — home hero
 ├── avatar-1x1.jpeg                             # site.avatar    — /about
 └── projects/
-    └── <slug>-cover-16x9.jpeg                  # project cover.src
+    └── <slug>-cover-16x9-{light,dark}.avif     # project cover.src / cover.srcDark
 ```
 
 **The naming rule is `<subject>-<ratio>.<ext>`, and it already exists** — it is what
@@ -127,9 +127,9 @@ detail to leave to the camera. Roughly 2× the largest rendered size:
 | --- | --- | --- | --- |
 | `portrait-3x4` | ≤360px wide (`lg:max-w-90`, `components/home/Hero.tsx`) | **720×960** | 2× the hero cap. This is what shipped |
 | `avatar-1x1` | ≤160px (`md:size-40`, `components/about/ProfileHeader.tsx`) | **320×320** | 2× the larger circle. 360×360 shipped, which is fine — over is cheap here, under is not |
-| `<slug>-cover-16x9` | ≤1200px (`sizes="(min-width: 1200px) 1200px, 100vw"`) | **2400×1350** | 2× the content container. ConverseKit's shipped at 1577×887, ~1.3×, so it will look slightly soft on a retina screen at full width. Accepted; not worth re-exporting a title card over |
+| `<slug>-cover-16x9` | ≤1200px (`sizes="(min-width: 1200px) 1200px, 100vw"`, inert under `unoptimized`) | **2400×1350** | 2× the content container. All four shipped at exactly this on 2026-09-01, as AVIF q65 4:4:4 — ~53–82 KB each. ConverseKit's earlier 1577×887 title card, noted here as slightly soft at 2×, was replaced rather than kept |
 
-**JPEG or WebP for photographs, never PNG.** PNG is lossless and a photograph at these
+**AVIF for UI renders, JPEG or WebP for photographs, never PNG.** PNG is lossless and a photograph at these
 dimensions runs to several megabytes with no optimizer downstream to catch it. PNG stays
 correct for the generated brand marks in `public/brand/`, which are flat-colour.
 

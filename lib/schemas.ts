@@ -237,6 +237,23 @@ export const ProjectSchema = z.object({
   cover: z
     .object({
       src: z.string(),
+      /**
+       * The dark-theme rendition of the same capture, added 2026-09-01 when the real
+       * covers arrived as light/dark pairs.
+       *
+       * **Optional, and `src` stays the canonical one.** Everything that needs a single
+       * image — `personJsonLd`/`projectJsonLd`'s `image`, the OG card, any future feed —
+       * keeps reading `src` and is untouched by this field. Only `<Figure>` knows the
+       * pair exists. A cover with no dark rendition (a title card, a photograph) simply
+       * omits it and renders the one image in both themes, which is the ConverseKit
+       * title card's behaviour before this field existed.
+       *
+       * No second `alt` and no second `width`/`height`: the pair is one screenshot of one
+       * screen in two palettes. Two alts would be two descriptions of the same thing that
+       * drift apart, and two dimension sets would let them disagree — at which point the
+       * reserved box is wrong for one of the themes.
+       */
+      srcDark: z.string().optional(),
       alt: z.string().min(10),
       ...ImageDimensions,
     })

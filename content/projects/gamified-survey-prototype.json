@@ -24,10 +24,11 @@
     "github": "https://github.com/mukeremshifa/gamified-servey-project"
   },
   "cover": {
-    "src": "/placeholders/gamified-servey-project-cover-16x9.svg",
-    "alt": "Gamified survey interface with XP progress, badges, and completion celebration.",
-    "width": 1600,
-    "height": 900
+    "src": "/images/projects/gamified-survey-prototype-cover-16x9-light.avif",
+    "srcDark": "/images/projects/gamified-survey-prototype-cover-16x9-dark.avif",
+    "alt": "A Survey Quest questionnaire on question six of eight, with an XP counter, a level badge, a “+25 XP earned” toast and a badge tray, beside the headline “Surveys that play like a game.”",
+    "width": 2400,
+    "height": 1350
   },
   "overview": [
     "Survey Quest reframes a conventional form flow into a short progression game so users stay engaged from first question to final submit. The game layer is intentionally separated from response content: users earn XP for completion and consistency of participation, never for selecting any specific answer.",
