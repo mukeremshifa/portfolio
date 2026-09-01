@@ -184,6 +184,7 @@ export function ContactForm({ endpoint, email }: ContactFormProps) {
       <ContactField
         name="name"
         label="Name"
+        hint="Your name"
         value={values.name}
         error={errors.name}
         autoComplete="name"
@@ -197,6 +198,7 @@ export function ContactForm({ endpoint, email }: ContactFormProps) {
         name="email"
         label="Email"
         type="email"
+        hint="you@example.com"
         value={values.email}
         error={errors.email}
         autoComplete="email"
@@ -212,7 +214,7 @@ export function ContactForm({ endpoint, email }: ContactFormProps) {
         as="textarea"
         value={values.message}
         error={errors.message}
-        hint={`A few sentences is plenty — at least ${MESSAGE_MIN} characters.`}
+        hint={`A few sentences about the constraint, at least ${MESSAGE_MIN} characters`}
         disabled={busy}
         onChange={(value) => setField("message", value)}
         onBlur={() => handleBlur("message")}
@@ -313,7 +315,7 @@ function StatusMessage({
     >
       {status === "submitting" ? "Sending your message…" : null}
       {status === "success"
-        ? "Thank you — your message is on its way. I read everything that arrives."
+        ? "Thank you. Your message is on its way, and I read everything that arrives."
         : null}
       {status === "rate_limit" ? (
         <>

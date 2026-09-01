@@ -3,20 +3,19 @@ import { z } from "zod";
 /**
  * §14.1's wire contract, in one place.
  *
- * **Both ends import this.** The client validates against it before sending; the Worker
- * (§14, Phase 4b) validates against it on arrival. That is the entire reason this file
- * is not inside the component: a contract that lives in two places is a contract that
- * drifts, and the two ends here are in different runtimes and eventually different
- * deploys.
+ * **Both ends import this.** The client validates against it before sending;
+ * `app/api/contact/route.ts` validates against it on arrival. That is the entire reason
+ * this file is not inside the component: a contract that lives in two places is a
+ * contract that drifts.
  *
  * **No `node:fs`, no server-only imports.** `lib/content.ts` is the validation gate for
  * `content/`, and it reads the filesystem, which makes it unusable from a client
  * component by construction. This file is the opposite by construction: plain Zod and
- * types, safe in a browser, a Worker, and a server component alike.
+ * types, safe in a browser and on the server alike.
  */
 
-// §14.2's field bounds. Named rather than inlined because the Worker asserts the same
-// numbers and the client's messages quote them.
+// §14.2's field bounds. Named rather than inlined because the route handler asserts the
+// same numbers and the client's messages quote them.
 export const NAME_MIN = 2;
 export const NAME_MAX = 100;
 export const MESSAGE_MIN = 20;
@@ -76,9 +75,8 @@ export type ContactResponse =
  * are not the register anything else on this site is written in. These are keyed by
  * field and by what went wrong, so the form never renders a raw Zod issue.
  *
- * The Worker returns its own strings in the 400 `fields` map. Those are rendered as-is
- * rather than re-derived here: it validated the payload this client could not, so it is
- * the one that knows what was wrong with it.
+ * The route handler answers 400s from this same map via `messageFor`, so a message is
+ * worded identically whether the browser or the server caught the problem.
  */
 const MESSAGES: Record<ContactFieldName, { empty: string; invalid: string }> = {
   name: {
@@ -91,9 +89,20 @@ const MESSAGES: Record<ContactFieldName, { empty: string; invalid: string }> = {
   },
   message: {
     empty: "Please add a message.",
-    invalid: `A message needs at least ${MESSAGE_MIN} characters — a sentence or two about the constraint is plenty.`,
+    invalid: `A message needs at least ${MESSAGE_MIN} characters. A sentence or two about the constraint is plenty.`,
   },
 };
+
+/**
+ * The same copy, keyed by field, for a caller that has a value rather than an issue.
+ *
+ * The route handler answers 400s with these rather than Zod's own strings: the client
+ * renders the `fields` map verbatim under the inputs, so whatever the server puts there
+ * is site copy whether it was written as site copy or not.
+ */
+export function messageFor(field: ContactFieldName, value: string): string {
+  return value.trim().length === 0 ? MESSAGES[field].empty : MESSAGES[field].invalid;
+}
 
 /**
  * Validate one field, for the blur path. Returns `undefined` when the field is fine.

@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 
+import { VisuallyHidden } from "@/components/ui/VisuallyHidden";
 import type { ContactFieldName } from "@/lib/contact";
 
 type ContactFieldProps = {
@@ -10,7 +11,14 @@ type ContactFieldProps = {
   type?: "text" | "email";
   value: string;
   error?: string;
-  /** §11.4: a hint is `aria-describedby` alongside the error, never in place of a label. */
+  /**
+   * Shown as the control's placeholder *and* wired to `aria-describedby`.
+   *
+   * §11.4: a hint never replaces the label, and here it does not — the `<label>` above is
+   * unconditional. The placeholder is the visible half and disappears on first keystroke;
+   * the `aria-describedby` link is the half that survives, so a screen reader still gets
+   * the hint after the text is gone from the field.
+   */
   hint?: string;
   autoComplete?: string;
   disabled?: boolean;
@@ -85,9 +93,10 @@ export function ContactField({
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           onChange={(event) => onChange(event.target.value)}
+          placeholder={hint}
           onBlur={onBlur}
           ref={controlRef as RefObject<HTMLTextAreaElement | null>}
-          className={`${controlClasses} resize-y`}
+          className={`${controlClasses} resize-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
         />
       ) : (
         <input
@@ -99,6 +108,7 @@ export function ContactField({
           autoComplete={autoComplete}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
+          placeholder={hint}
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
           ref={controlRef as RefObject<HTMLInputElement | null>}
@@ -106,10 +116,13 @@ export function ContactField({
         />
       )}
 
+      {/* The placeholder is not reliably announced and vanishes on first keystroke, so
+          the same text lives here for `aria-describedby` to point at. Hidden visually
+          because the field itself already shows it. */}
       {hint ? (
-        <p id={hintId} className="font-sans text-body-sm text-text-muted">
-          {hint}
-        </p>
+        <VisuallyHidden>
+          <span id={hintId}>{hint}</span>
+        </VisuallyHidden>
       ) : null}
 
       {/* Not a live region. The field errors are announced by the live region in

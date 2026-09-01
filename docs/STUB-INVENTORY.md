@@ -35,13 +35,14 @@ component, not a limitation of the content model.
 | Avatar | `site.avatar` + a file in `public/` | Replace the file and its `src`/dimensions. **Remove the field** and the About header collapses to one column. Separate from `portrait` because this one is 1:1 and rendered in a circle |
 | Résumé | `site.resume` + a file in `public/` | Replace the PDF, bump `updated`. **Remove the field** and both CTAs disappear |
 | A project | `content/projects/<slug>.json` | Add or delete one file. Index, filter counts, home grid, adjacency, sitemap, and the OG card all follow. Copy a starting point from `docs/templates/` — full or brief |
+| Contact mail delivery | `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` in Vercel | Environment variables, not content. Unset means the form renders and validates but every submit answers 502 and shows the direct `mailto:` — §8.7's failure path, which still reaches a person. Setting them is what makes the form deliver |
 | Whether a project has a cover | `cover`, optional since 2026-08-31 | Remove the field and the project's page opens straight into Overview. Invisible on `/projects`: only the featured card renders a cover |
 | Which projects are featured | `featured` flags | Edit booleans, honouring §5.5 invariant 3 |
 | Experience | `content/experience/timeline.json` | Edit the array |
 | Education | `content/education/education.json` | Edit the array. Split out of the timeline on 2026-08-31; `ExperienceSchema` no longer accepts `type: "education"` |
 | Certifications | `content/certifications/certifications.json` | Edit the array; expiry and verify-link states follow |
 | Skills, focus pillars | `content/skills/skills.json`, `content/focus/focus.json` | Edit arrays, honouring invariants 6 and 8 |
-| Contact form delivery | `site.contact.endpoint` | Absent in Phase 3, present in Phase 4b. The page shape does not change either way — with no endpoint the direct channels are the whole page, which is §8.7's specified degraded path and was verified in both directions on 2026-09-01. **This field is the only switch**: `NEXT_PUBLIC_CONTACT_ENDPOINT` was deleted from `.env.example` the same day, see `DECISIONS.md` |
+| Contact form delivery | `site.contact.endpoint` | `/api/contact` since 2026-09-01. The page shape does not change whether it is set or not — with no endpoint the direct channels are the whole page, which is §8.7's specified degraded path and was verified in both directions. **This field is the only switch**: `NEXT_PUBLIC_CONTACT_ENDPOINT` was deleted from `.env.example` the same day, see `DECISIONS.md` |
 
 Each row was verified by performing it: change the value, rebuild, confirm the site follows,
 confirm `git status` shows changes only under `content/` or `public/`, revert. See the Phase
