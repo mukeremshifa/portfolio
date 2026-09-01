@@ -1,3 +1,4 @@
+import { Stagger } from "@/components/motion/Stagger";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Project } from "@/lib/schemas";
@@ -26,15 +27,29 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
         title="Selected work"
         action={{ href: "/projects", label: "View all →" }}
       />
-      <ul className="grid gap-6 md:grid-cols-2">
-        <li className="md:col-span-2">
-          <ProjectCard project={lead} variant="featured" />
-        </li>
-        {rest.map((project) => (
-          <li key={project.slug}>
-            <ProjectCard project={project} />
-          </li>
-        ))}
+      {/* The lead card's `md:col-span-2` is expressed as a first-child selector on the
+          grid rather than as a class on the item, because `Stagger` generates the `li`s
+          and takes one `as` for all of them — it has no per-child class, and widening its
+          API for a single caller would be the wrong trade. The selector says the same
+          thing the class did: the first item in this grid spans both columns. */}
+      <ul className="grid gap-6 md:grid-cols-2 md:[&>li:first-child]:col-span-2">
+        {/* §10.2's stagger. Nothing filters this grid — `getFeaturedProjects()` caps at
+            three fixed cards — so the entrance runs once on first scroll-in and the
+            reposition machinery `/projects` needs would be inert here. The section is
+            deliberately not also wrapped in a `Reveal` on the home page; see app/page.tsx. */}
+        {/* One flat array, not a lead element followed by `{rest.map(...)}`. `Stagger`
+            uses `Children.map`, which counts a nested array as a *single* child — so the
+            latter shape wraps both remaining cards in one `li` and renders only the
+            first. The cards differ by `variant`, not by nesting. */}
+        <Stagger as="li">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.slug}
+              project={project}
+              variant={project.slug === lead.slug ? "featured" : "standard"}
+            />
+          ))}
+        </Stagger>
       </ul>
     </section>
   );

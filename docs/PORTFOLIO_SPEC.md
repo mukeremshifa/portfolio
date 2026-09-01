@@ -1320,7 +1320,16 @@ type StaggerProps = {
 };
 
 // §10.2's project-filter row needs `layout`, which neither wrapper above exposes.
-type LayoutItemProps = { children: React.ReactNode; as?: "div" | "li" };
+// `animatePresence` adds the opacity halves, and only does anything inside a `Presence`.
+type LayoutItemProps = {
+  children: React.ReactNode;
+  as?: "div" | "li";
+  animatePresence?: boolean;
+};
+
+// Defers unmount so `LayoutItem`'s exit can run. Without it the filter animated only the
+// cards that stayed. Added 2026-09-01.
+type PresenceProps = { children: React.ReactNode };
 
 // The reduced-motion boundary (§10.3). `app/layout.tsx` stays a server component, so
 // `MotionConfig` lives behind this one-prop pass-through.
@@ -1333,11 +1342,13 @@ its panel animates on exit and no wrapper here exposes that. That exception is d
 and is the only one; anything else that needs Motion gets a wrapper in this directory
 first.
 
-Motion's numbers are §10.1's tokens transcribed into Motion's units — seconds, and easings
-as their four control points — because Motion cannot read a CSS custom property for a
-transition. When a token changes in `globals.css`, these four files change with it. That
+Motion's numbers are §10.1's token transcribed into Motion's units — seconds, and the
+easing as its four control points — because Motion cannot read a CSS custom property for a
+transition. When the token changes in `globals.css`, these files change with it. That
 duplication is the price of having both a CSS and a JS animation path, and it is small
-enough to pay by hand.
+enough to pay by hand. It is also why retiring `--ease-standard` had to touch
+`LayoutItem` and `MobileNavigation` by hand: both carried the curve as a literal, which no
+find-and-replace over `ease-standard` would have caught.
 
 ## 10. Motion system
 
@@ -1345,11 +1356,17 @@ Motion is used freely where it improves comprehension, never as decoration. Test
 animation: **remove it and ask whether the interface got harder to understand.** If not, it
 does not ship.
 
-**Status, 2026-09-01.** The machinery is complete and the inventory is not. All four
-wrappers in §9.4 exist, `MotionConfig` is mounted, the tokens are in `globals.css`, and the
-CSS-level rows below all ship. What is missing is application: `Reveal` and `Stagger` are
-imported by `app/dev/primitives/page.tsx` and by nothing else, so no real page currently
-uses a section entrance or a stagger. §10.2 marks each row with what is true today.
+**Status, 2026-09-01 (motion pass complete).** Every row below ships. `Reveal` and
+`Stagger` are applied, the filter row is whole for the first time, and §10.1 dropped to a
+single easing curve. Two things are worth carrying forward:
+
+- **Each animating section runs exactly one animation.** A `Reveal` around a section whose
+  grid staggers would delay the section and *then* cascade inside it, so the last card
+  waits out two animations for one scroll. Where a grid staggers, its section is not also
+  revealed — see the note in `app/page.tsx`.
+- **Four of the home page's seven sections animate.** The hero, the experience preview, and
+  the contact callout are deliberately still; the reasoning is in `app/page.tsx` beside the
+  markup, because that is where someone is standing when they are tempted to change it.
 
 ### 10.1 Tokens
 
@@ -1375,8 +1392,9 @@ cannot read a CSS custom property for a transition.
 
 | Where | Motion | Spec | Built? |
 |---|---|---|---|
-| Section entrance | `Reveal` | opacity 0 to 1, `translateY(12px)` to 0, `base`, `ease-out` | Wrapper yes, **applied nowhere** |
-| Card grids | `Stagger` | 60ms between children, capped at 6 | Wrapper yes, **applied nowhere** |
+| Section entrance | `Reveal` | opacity 0 to 1, `translateY(12px)` to 0, `base`, `ease-out` | Yes — home `focus` and `technology` |
+| Card grids | `Stagger` | 60ms between children, capped at 6 | Yes — featured work, certifications, full timeline |
+| Filter enter/exit | `Presence` | entering and leaving cards fade over `fast` | Yes — added 2026-09-01, see below |
 | Card hover | CSS | border/background over `fast`; `translateY(-2px)` | Yes |
 | Button hover/active | CSS | background over `fast`; active scales to 0.98 | Yes |
 | Nav active indicator | CSS | `aria-current="page"` plus the brand colour | Yes — **amended**, see below |

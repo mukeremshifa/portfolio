@@ -50,7 +50,9 @@ export function ProjectExplorer({ projects, filters }: ProjectExplorerProps) {
       </p>
 
       {visible.length > 0 ? (
-        <ProjectGrid projects={visible} headingLevel="h2" />
+        // `filterable` is what selects the reposition-and-fade animation over the
+        // stagger. This is the caller that filters, so it is the caller that opts in.
+        <ProjectGrid projects={visible} headingLevel="h2" filterable />
       ) : (
         // Reachable only if a category has no projects, which the stub set does not
         // produce but `getCategoryFilters` deliberately allows: it emits every category,

@@ -8,6 +8,7 @@ import { ExperiencePreview } from "@/components/home/ExperiencePreview";
 import { Hero } from "@/components/home/Hero";
 import { TechnologyList } from "@/components/home/TechnologyList";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
+import { Reveal } from "@/components/motion/Reveal";
 import { Container } from "@/components/ui/Container";
 import {
   getCertifications,
@@ -91,23 +92,55 @@ export default function Home() {
             anchor id can only ever be used once per page. `data-rail-section` is what
             `globals.css` hangs `scroll-margin-top` on, so the sticky header never covers
             the heading the reader just jumped to. */}
+        {/* §10's test is applied per section, not once for the pattern, so four of these
+            seven animate and three deliberately do not.
+
+            The four split into two kinds. **Focus** and **Technology** get a `Reveal` —
+            they are prose and a chip list, so the section arrives as one thing.
+            **Selected work** and **Credentials** get nothing here, because the grids
+            inside them stagger their own cards; a reveal on top would delay the section
+            and *then* cascade inside it. Each animating section runs one animation.
+
+            The three that stay still, and why:
+
+            **Hero** is the first thing above the fold. An entrance there is a page that
+            was not ready — the reader watches the name assemble instead of reading it.
+            Everything below has earned a scroll; the hero has not.
+
+            **Experience** is three rows of dense text rather than a group of objects. A
+            grid of cards arriving as a group reads as a group; three text entries
+            arriving as a group reads as a loading state.
+
+            **Contact** is the last section and a call to action. Motion between a reader
+            deciding to act and the control they act with is friction, not clarity.
+
+            The `Reveal`s sit inside the rail wrappers rather than replacing them: the
+            `id` and `data-rail-section` belong to a stable element, and a motion wrapper
+            is not one to hang a scroll anchor on. */}
         <div id="intro" data-rail-section>
           <Hero site={site} />
         </div>
+        {/* No `Reveal`: the grid inside staggers. See the note above. */}
         <div id="work" data-rail-section>
           <FeaturedProjects projects={getFeaturedProjects()} />
         </div>
         <div id="focus" data-rail-section>
-          <EngineeringFocus pillars={getFocus()} />
+          <Reveal>
+            <EngineeringFocus pillars={getFocus()} />
+          </Reveal>
         </div>
         <div id="experience" data-rail-section>
           <ExperiencePreview entries={featuredExperience} />
         </div>
+        {/* No `Reveal`, for the same reason as "Selected work" above: `CredentialsPreview`
+            renders a `CertificationGrid`, and that grid staggers its own cards. */}
         <div id="credentials" data-rail-section>
           <CredentialsPreview certifications={featuredCertifications} />
         </div>
         <div id="technology" data-rail-section>
-          <TechnologyList />
+          <Reveal>
+            <TechnologyList />
+          </Reveal>
         </div>
         <div id="contact" data-rail-section>
           <ContactCallout site={site} />
