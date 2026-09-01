@@ -219,7 +219,7 @@ portfolio/
 │   ├── about/                  # ProfileHeader, EducationList
 │   ├── certifications/         # CertificationCard, CertificationGrid — rendered by /skills/
 │   ├── contact/                # ContactForm, ContactField, ContactChannels
-│   ├── motion/                 # MotionProvider, Reveal, Stagger, LayoutItem (§9.4)
+│   ├── motion/                 # MotionProvider + 10 wrappers (§9.4)
 │   └── ui/                     # Button, Tag, SectionHeading, ExternalLink, StatusBadge,
 │                               #   Container, Prose, Figure, CodeBlock, CopyButton, BulletList,
 │                               #   BrandIcon, VisuallyHidden
@@ -280,7 +280,7 @@ project and not a typo:
 | `.github/workflows/ci.yml` | `.github/` is empty | **Outstanding.** Phase 0 called for a stub; nothing was committed. §16.2 now says so |
 | `public/og/` | OG cards are generated per route by `opengraph-image.tsx` | **Decided.** §13.4 always described generation; the directory was a leftover from a static-export draft |
 | `app/certifications/page.tsx` | `app/skills/page.tsx` | **Decided.** Renamed 2026-08-31, §7.1, with a permanent redirect in `next.config.ts` |
-| `components/motion/` "Reveal, Stagger" | Also `MotionProvider` and `LayoutItem` | **Decided.** §9.4 |
+| `components/motion/` "Reveal, Stagger" | Eleven wrappers as of 2026-09-02 | **Decided.** §9.4 |
 
 ---
 
@@ -1306,49 +1306,107 @@ report. Nothing else in the tree is allowed to be in this state.
 
 ### 9.4 Motion wrappers — `components/motion/`
 
+Eleven components, and they divide into three groups: the boundary, the entrances, and the
+specialists. Everything here is a client component, and everything here takes its children
+as a prop — so wrapping server-rendered content in one keeps that content server-rendered.
+
 ```ts
+// ── The boundary ────────────────────────────────────────────────────────────────
+// §10.4's reduced-motion root. `app/layout.tsx` stays a server component, so
+// `MotionConfig` lives behind this one-prop pass-through.
+type MotionProviderProps = { children: React.ReactNode };
+
+// Keyed on `usePathname`, wrapping `<main>`'s children. Animates the arrival only.
+type PageTransitionProps = { children: React.ReactNode };
+
+// ── Entrances ───────────────────────────────────────────────────────────────────
+// §10.2's decoupled entrance, on scroll. The workhorse.
 type RevealProps = {
   children: React.ReactNode;
   delay?: number;             // seconds; Stagger sets it, callers rarely do
   as?: "div" | "section" | "li";
+  distance?: number;          // px; defaults to §10.1's --reveal-distance
+  className?: string;         // see the note below on why this is not optional in practice
 };
 
+// The same entrance, triggered on mount instead of on scroll. For anything in a load
+// sequence, where a viewport trigger would fire everything at once.
+type FadeProps = {
+  children: React.ReactNode;
+  delay?: number;
+  distance?: number;
+  as?: "div" | "span";
+};
+
+// Sequences siblings. `perRow` makes a grid row share a delay, so the sweep runs down the
+// grid rather than left-to-right through each row (§10.3).
 type StaggerProps = {
   children: React.ReactNode;
-  step?: number;              // milliseconds between children; §10.2 specifies 60
+  step?: number;              // ms between children; §10.1's --step-item is 70
   as?: "div" | "section" | "li";
+  perRow?: number;            // columns above `md`; below it every grid here is 1-up
 };
 
-// §10.2's project-filter row needs `layout`, which neither wrapper above exposes.
-// `animatePresence` adds the opacity halves, and only does anything inside a `Presence`.
-type LayoutItemProps = {
+// ── Specialists ─────────────────────────────────────────────────────────────────
+// Per-character opacity, no per-character transform. The step compresses to fit long
+// strings — see the component.
+type SplitTextProps = {
+  children: string;           // a string, not JSX: it cannot split through an interpolation
+  delay?: number;
+  step?: number;
+  className?: string;
+  as?: "span" | "h1" | "h2" | "p";
+};
+
+// Blur-scale, for photographs and renders only — never icons or brand marks.
+type ImageRevealProps = {
   children: React.ReactNode;
-  as?: "div" | "li";
-  animatePresence?: boolean;
+  delay?: number;
+  still?: boolean;            // drop the overscale, for images too small to scale
+  onMount?: boolean;          // for images above the fold
+  className?: string;
 };
 
-// Defers unmount so `LayoutItem`'s exit can run. Without it the filter animated only the
-// cards that stayed. Added 2026-09-01.
-type PresenceProps = { children: React.ReactNode };
+// A wave across many small items. Holds the total sweep fixed and divides by the count,
+// where `Stagger` caps at six — see the component for why the two differ.
+type ChipStaggerProps = { children: React.ReactNode; step?: number };
 
-// The reduced-motion boundary (§10.3). `app/layout.tsx` stays a server component, so
-// `MotionConfig` lives behind this one-prop pass-through.
-type MotionProviderProps = { children: React.ReactNode };
+// Sequences the parts *within* one element, adding no wrapper elements of its own.
+type AssembleProps = { children: React.ReactNode; delay?: number; step?: number };
+
+// Mask wipe for the drawn signature. Not a stroke draw — the paths are filled outlines.
+type SignatureRevealProps = { children: React.ReactNode; delay?: number };
+
+// Height 0 → auto. The only wrapper here that is about layout rather than entrance.
+type CollapseProps = { open: boolean; children: React.ReactNode };
 ```
 
-These are the only components that import from `motion/react` **outside**
+**These are the only components that import from `motion/react`**, outside
 `components/layout/MobileNavigation.tsx`, which imports `AnimatePresence` directly because
-its panel animates on exit and no wrapper here exposes that. That exception is deliberate
-and is the only one; anything else that needs Motion gets a wrapper in this directory
-first.
+its panel animates on exit. That exception is deliberate and is the only one; anything else
+that needs Motion gets a wrapper in this directory first.
 
-Motion's numbers are §10.1's token transcribed into Motion's units — seconds, and the
-easing as its four control points — because Motion cannot read a CSS custom property for a
-transition. When the token changes in `globals.css`, these files change with it. That
+**Wrappers insert an element, and that breaks parent layouts.** `Reveal`, `Fade`, and
+`ImageReveal` render a `div` that takes the child's place in its parent's flex or grid
+flow, so a `gap` that used to apply between two children now applies to one wrapper, and
+classes the child relied on from its parent (`shrink-0`, a column span) stop reaching it.
+This is invisible in a diff and has caused the bug twice. Each of those three takes a
+`className` for exactly this reason: wrapping `<section className="flex flex-col gap-6">`
+means moving those classes onto the wrapper. `Assemble` exists because there is one place
+— inside a card — where no wrapper is acceptable at all.
+
+Motion's numbers are §10.1's tokens transcribed into Motion's units — seconds, and easings
+as their four control points — because Motion cannot read a CSS custom property for a
+transition. When a token changes in `globals.css`, these files change with it. That
 duplication is the price of having both a CSS and a JS animation path, and it is small
-enough to pay by hand. It is also why retiring `--ease-standard` had to touch
-`LayoutItem` and `MobileNavigation` by hand: both carried the curve as a literal, which no
-find-and-replace over `ease-standard` would have caught.
+enough to pay by hand. It is also why retiring `--ease-standard` had to touch two files by
+hand: both carried the curve as a literal, which no find-and-replace over the token name
+would have caught.
+
+**Two wrappers were deleted on 2026-09-02.** `LayoutItem` and `Presence` existed for the
+project filter's reposition-and-fade. Keying the grid on the filter value replaced that
+animation with an ordinary remount, and nothing else used either component. The entries
+describing them in `DECISIONS.md` are history, not current contracts.
 
 ## 10. Motion system
 
@@ -1450,12 +1508,30 @@ and both were wrong together.
 ### 10.4 Reduced motion
 
 `prefers-reduced-motion: reduce` is honoured and is *not* the same as "no motion". Under
-it: every transform is dropped, every opacity fade is kept but shortened, the char split
-resolves as a single block, images appear without blur or scale, and the page transition
-becomes an instant swap. Content still arrives — it simply does not travel.
+it: every transform is dropped, opacity fades are kept, images appear with no blur and no
+scale, the signature is simply drawn rather than wiped, and the page transition becomes an
+instant swap. Content still arrives — it does not travel.
 
-Mechanically this is `MotionConfig reducedMotion="user"` for the Motion tree plus the
-global CSS block, which sets `scroll-behavior: auto !important` and collapses durations.
+Three mechanisms, and the split between them is the part worth knowing:
+
+1. **`MotionConfig reducedMotion="user"`** wraps the Motion tree and strips *transform*
+   animations — `x`, `y`, `scale`, `rotate`. This covers most of `components/motion/`.
+2. **The global CSS block** collapses `transition-duration` and `animation-duration`, and
+   sets `scroll-behavior: auto !important`. This covers everything animated in CSS.
+3. **`usePrefersReducedMotion`**, read by hand where a component animates something
+   neither of the above touches. `MotionConfig` does not strip `filter` or `mask-position`,
+   so without this `ImageReveal`'s 12px blur and `SignatureReveal`'s 2.2-second wipe both
+   ran at full length for someone who had asked for less motion. Any future wrapper that
+   animates a non-transform property has to opt into this the same way.
+
+**Two things are deliberately kept under reduced motion**, because dropping them would
+make the interface worse rather than calmer:
+
+- **`SplitText`'s per-character fade**, which is pure opacity. The preference asks for less
+  *movement*; a sequenced fade has none.
+- **`Collapse`'s height animation**, because it exists to stop a field error from shoving
+  the form. Removing it restores the jump it was built to prevent, which is the opposite of
+  what someone sensitive to motion is asking for.
 
 ### 10.5 Performance rules
 

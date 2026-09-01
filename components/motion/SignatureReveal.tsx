@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
+import { usePrefersReducedMotion } from "@/components/motion/use-reduced-motion";
+
 type SignatureRevealProps = {
   children: ReactNode;
   /** Seconds before the wipe starts. */
@@ -30,11 +32,19 @@ type SignatureRevealProps = {
  * first thing a visitor sees, it is the one moment the page is allowed to be theatrical,
  * and the content it reveals is a name rather than something anyone needs to act on.
  *
- * Under reduced motion `MotionConfig reducedMotion="user"` does not help here — this is a
- * mask, not a transform — so the reduced case is handled explicitly by rendering the
- * children unwrapped and fully visible.
+ * **Reduced motion is handled explicitly**, because `MotionConfig reducedMotion="user"`
+ * cannot help here: it strips transforms, and this is a mask. Left alone it would run the
+ * longest animation on the site — 2.2 seconds — for someone who asked for less motion. The
+ * reduced path renders the drawing unwrapped and fully visible, with no mask at all, which
+ * is the honest version of "no animation" for an effect that has no gentler setting.
  */
 export function SignatureReveal({ children, delay = 0 }: SignatureRevealProps) {
+  const reduced = usePrefersReducedMotion();
+
+  // Not a zero-duration wipe: a mask that is applied at all can clip a glyph's antialiased
+  // edge, so the drawing is better off never being masked than being masked instantly.
+  if (reduced) return <>{children}</>;
+
   return (
     <motion.div
       // `initial` is the fully-masked state and `animate` the fully-revealed one. Both

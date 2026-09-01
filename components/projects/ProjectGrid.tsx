@@ -28,9 +28,10 @@ type ProjectGridProps = {
  * `key` there), so a filter is not a rearrangement at all — it is a new list arriving,
  * and it arrives exactly the way the page's first render does.
  *
- * The result is that filtering needs no bespoke animation, `LayoutItem` and `Presence`
- * are no longer used by anything, and the grid has one behaviour to reason about instead
- * of two mutually exclusive ones. Simpler and better-looking is a rare pairing; take it.
+ * The result is that filtering needs no bespoke animation at all, and the grid has one
+ * behaviour to reason about instead of two mutually exclusive ones. The two wrappers that
+ * served the old approach were deleted with it (§9.4). Simpler and better-looking is a
+ * rare pairing; take it.
  */
 export function ProjectGrid({ projects, headingLevel = "h3" }: ProjectGridProps) {
   return (

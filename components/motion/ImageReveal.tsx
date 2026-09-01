@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
+import { usePrefersReducedMotion } from "@/components/motion/use-reduced-motion";
+
 type ImageRevealProps = {
   children: ReactNode;
   delay?: number;
@@ -46,8 +48,11 @@ const EASE_DRIFT = [0.2, 0.7, 0.2, 1] as const;
  * project covers. It is deliberately not applied to icons, brand marks, or anything
  * decorative, where a focus-pull is a lie about the content's importance.
  *
- * Reduced motion is handled by `MotionConfig reducedMotion="user"` for the scale, and by
- * the blur being tied to the same variant so it resolves immediately alongside it.
+ * **Reduced motion needs explicit handling here**, unlike most of this directory.
+ * `MotionConfig reducedMotion="user"` strips transforms, so the scale goes — but `filter`
+ * is not a transform, and a 12px blur clearing over 900ms is precisely the kind of motion
+ * the preference exists to switch off. `usePrefersReducedMotion` drops the blur too,
+ * leaving a plain opacity fade: the image still arrives, it just does not resolve.
  */
 export function ImageReveal({
   children,
@@ -56,16 +61,22 @@ export function ImageReveal({
   onMount = false,
   className,
 }: ImageRevealProps) {
-  const settled = { opacity: 1, scale: 1, filter: "blur(0px)" };
+  const reduced = usePrefersReducedMotion();
+
+  // Under reduced motion the blur is never applied, so there is nothing to clear. Setting
+  // it to "blur(0px)" in both states would still hand Motion a filter animation to run.
+  const settled = reduced
+    ? { opacity: 1, scale: 1 }
+    : { opacity: 1, scale: 1, filter: "blur(0px)" };
 
   return (
     <motion.div
       className={className ? `overflow-hidden ${className}` : "overflow-hidden"}
-      initial={{
-        opacity: 0,
-        scale: still ? 1 : 1.04,
-        filter: "blur(12px)",
-      }}
+      initial={
+        reduced
+          ? { opacity: 0, scale: 1 }
+          : { opacity: 0, scale: still ? 1 : 1.04, filter: "blur(12px)" }
+      }
       {...(onMount
         ? { animate: settled }
         : { whileInView: settled, viewport: { once: true, amount: 0.2 } })}

@@ -1959,3 +1959,30 @@ and it was the one with visible layout jank.
 `gap-2`, because a parent gap is a fixed step between flex children and would appear at
 full size the instant the wrapper mounts — reintroducing a smaller version of the jump.
 **Affects:** §10.3
+
+## 2026-09-02 — `MotionConfig reducedMotion="user"` was not covering blur or mask
+
+**Context:** A review pass over the finished motion work checked what
+`reducedMotion="user"` actually strips. It removes *transform* animations — `x`, `y`,
+`scale`, `rotate` — and nothing else. `ImageReveal` animates `filter: blur(12px)` and
+`SignatureReveal` animates `mask-position`, so both ran at full length for a visitor who
+had asked for reduced motion: a blur clearing over 900ms on every photograph, and the
+site's single longest animation, a 2.2-second wipe, on the hero. §10.4 claimed images
+appeared "without blur or scale", which was half true and had been since the wrapper was
+written.
+**Decision:** Add `components/motion/use-reduced-motion.ts`, read it in both components,
+and drop the non-transform property by hand. `SignatureReveal` returns its children
+unwrapped rather than running a zero-length wipe, because a mask applied at all can clip a
+glyph's antialiased edge.
+**Reason:** This is the accessibility guarantee §10.4 makes, and it was not being kept.
+Everything animating only opacity and transform is genuinely covered by `MotionConfig`;
+the gap was exactly the two components that reach past it.
+**Two things are deliberately kept:** `SplitText`'s per-character fade, which is pure
+opacity and involves no movement at all, and `Collapse`'s height animation, which exists
+to stop a field error from shoving the form — removing it restores the jump it was built
+to prevent, which is the opposite of what the preference is asking for.
+**Cost:** the server snapshot is `false`, the animated path, so a reduced-motion visitor
+gets the blurred markup on first paint and it corrects on hydration. The alternative —
+assuming reduced motion on the server — sends every visitor the stripped version and then
+animates, which is worse for both audiences.
+**Affects:** §9.4, §10.4
