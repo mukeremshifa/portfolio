@@ -36,7 +36,7 @@ export function CertificationCard({
   const expired = certification.expires !== null && certification.expires < currentMonth;
 
   return (
-    <article className="group flex h-full flex-col gap-4 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
+    <article className="group flex h-full flex-col gap-4 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color] duration-(--duration-fast) ease-out hover:border-border-strong hover:bg-surface-alt">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="font-mono text-eyebrow text-text-muted uppercase">
           {formatMonth(certification.issued)}

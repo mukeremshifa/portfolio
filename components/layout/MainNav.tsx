@@ -26,7 +26,7 @@ export function MainNav({ items }: { items: NavItem[] }) {
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center rounded-none px-3 font-sans text-body transition-colors duration-(--duration-fast) ease-standard hover:text-brand ${
+              className={`inline-flex min-h-11 items-center rounded-none px-3 font-sans text-body transition-colors duration-(--duration-fast) ease-out hover:text-brand ${
                 active ? "text-brand" : "text-text"
               }`}
             >

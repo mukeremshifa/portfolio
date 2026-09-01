@@ -23,8 +23,8 @@ type ExternalLinkProps = {
 };
 
 const tones = {
-  link: "text-brand underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness,color] duration-(--duration-fast) ease-standard hover:text-brand-hover hover:decoration-2",
-  inherit: "transition-colors duration-(--duration-fast) ease-standard",
+  link: "text-brand underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness,color] duration-(--duration-fast) ease-out hover:text-brand-hover hover:decoration-2",
+  inherit: "transition-colors duration-(--duration-fast) ease-out",
 } as const;
 
 /**

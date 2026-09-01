@@ -175,7 +175,7 @@ export function SectionRail({ sections, minSections = 3 }: SectionRailProps) {
               is the mouse path. It is `text-body-sm` in mono, matching the eyebrow
               vocabulary the section headings already use.
             */}
-            <span className="pointer-events-none font-mono text-eyebrow whitespace-nowrap text-text-muted opacity-0 transition-opacity duration-(--duration-fast) ease-standard group-hover:opacity-100 group-focus-visible:opacity-100">
+            <span className="pointer-events-none font-mono text-eyebrow whitespace-nowrap text-text-muted opacity-0 transition-opacity duration-(--duration-fast) ease-out group-hover:opacity-100 group-focus-visible:opacity-100">
               {section.label}
             </span>
 
@@ -191,7 +191,7 @@ export function SectionRail({ sections, minSections = 3 }: SectionRailProps) {
             */}
             <span
               aria-hidden="true"
-              className={`h-0.5 w-4 shrink-0 transition-colors duration-(--duration-fast) ease-standard ${
+              className={`h-0.5 w-4 shrink-0 transition-colors duration-(--duration-fast) ease-out ${
                 isActive ? "bg-text" : "bg-border-strong group-hover:bg-text-muted"
               }`}
             />

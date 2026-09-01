@@ -56,7 +56,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(true)}
-        className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt md:hidden"
+        className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-out hover:bg-surface-alt md:hidden"
       >
         <svg
           viewBox="0 0 24 24"
@@ -93,7 +93,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
               className="flex h-full flex-col gap-6 border-l border-border-subtle bg-surface p-5 shadow-overlay"
             >
               <div className="flex items-center justify-between">
@@ -101,7 +101,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
                 <button
                   type="button"
                   onClick={close}
-                  className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-standard hover:bg-surface-alt"
+                  className="inline-grid min-h-11 min-w-11 place-items-center rounded-none border border-border-strong text-text transition-colors duration-(--duration-fast) ease-out hover:bg-surface-alt"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -132,7 +132,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
                           // same outcome, one render instead of a cascading one.
                           onClick={close}
                           aria-current={active ? "page" : undefined}
-                          className={`flex min-h-11 items-center font-sans text-body font-medium transition-colors duration-(--duration-fast) ease-standard hover:text-brand ${
+                          className={`flex min-h-11 items-center font-sans text-body font-medium transition-colors duration-(--duration-fast) ease-out hover:text-brand ${
                             active ? "text-brand" : "text-text"
                           }`}
                         >
@@ -147,7 +147,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
               <Link
                 href={cta.href}
                 onClick={close}
-                className="mt-auto inline-flex min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 py-3 font-sans text-body font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover"
+                className="mt-auto inline-flex min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 py-3 font-sans text-body font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-out hover:bg-brand-solid-hover"
               >
                 {cta.label}
               </Link>

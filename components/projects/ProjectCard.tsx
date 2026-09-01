@@ -52,7 +52,7 @@ export function ProjectCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col gap-5 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt ${
+      className={`group relative flex h-full flex-col gap-5 rounded-none border border-border-subtle bg-surface p-6 transition-[border-color,background-color,transform] duration-(--duration-fast) ease-out hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt ${
         featured ? "md:flex-row md:items-start md:gap-8 md:p-8" : ""
       }`}
     >

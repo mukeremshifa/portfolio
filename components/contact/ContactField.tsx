@@ -70,7 +70,7 @@ export function ContactField({
     [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
 
   const controlClasses =
-    "w-full rounded-none border bg-surface px-3 py-3 font-sans text-body text-text transition-colors duration-(--duration-fast) ease-standard placeholder:text-text-muted disabled:opacity-60 " +
+    "w-full rounded-none border bg-surface px-3 py-3 font-sans text-body text-text transition-colors duration-(--duration-fast) ease-out placeholder:text-text-muted disabled:opacity-60 " +
     // The error border is the *second* signal, never the only one (§11.4) — the message
     // below carries the meaning, and someone who cannot separate these two colours still
     // gets told what is wrong in words.

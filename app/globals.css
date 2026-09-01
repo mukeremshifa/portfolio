@@ -226,10 +226,14 @@
   --spacing-section-lg: 112px;
   --spacing-heading: 32px;
 
-  /* §10.1 easings. `--ease-out` shadows a Tailwind default; that is intended, so that
-     `ease-out` anywhere in the codebase means the system's curve and not two curves
-     depending on who wrote the class. */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  /* §10.1's easing, singular. `--ease-out` shadows a Tailwind default; that is intended,
+     so that `ease-out` anywhere in the codebase means the system's curve and not two
+     curves depending on who wrote the class.
+
+     `--ease-standard` (cubic-bezier(0.2, 0, 0, 1)) was the second curve, for things
+     already on screen that move rather than arrive. It is gone: one curve is the whole
+     system now, and the distinction it encoded turned out not to be one a reader of this
+     site can perceive. See docs/DECISIONS.md, 2026-09-01. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* §6.6 type scale — ten steps, each carrying its own line-height and tracking.
@@ -350,7 +354,7 @@
   grid-column: 1;
   grid-row: 1;
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-standard);
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 
 html[data-theme-pref="system"] .theme-icon-system,

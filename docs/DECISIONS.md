@@ -1810,3 +1810,28 @@ asks for. §10.2 gains a build-status column for the same reason: "specified" an
 had quietly become different things, and the two rows where they differ are the entire
 remaining motion backlog (§10.4).
 **Affects:** §4, §7.5, §8.2, §8.3, §9.2, §9.4, §10, §14, §15.3, §16.2, §18, §19, Appendix A
+
+## 2026-09-01 — The motion system drops to one easing curve
+
+**Context:** §10.1 defined two curves: `--ease-out` for entrances and `--ease-standard`
+for things already on screen that move — repositions, hovers, colour changes. Applying
+§10.4's outstanding motion work meant deciding, per animation, which of the two it was.
+**Decision:** `--ease-standard` is deleted. `--ease-out` (`cubic-bezier(0.16, 1, 0.3, 1)`)
+is the system's only curve, and every one of the 31 usages across 25 files now points at
+it, including the two Motion wrappers that carried `[0.2, 0, 0, 1]` as a numeric literal
+(`LayoutItem`, `MobileNavigation`).
+**Reason:** Owner call, and the honest version is that the distinction was real in theory
+and invisible in practice. Both curves ended at the same place over the same 120–320ms;
+the difference between them is perceptible when you put the two side by side and run them
+against each other, which is not a thing any reader of this site will ever do. A token
+whose two values cannot be told apart in the product is a decision imposed on every future
+change for no return — every new transition had to answer "is this an entrance?" before it
+could be written. One curve deletes the question.
+**Cost:** The hover and colour-change transitions now run on a curve tuned for arrival,
+which has a longer settle than `ease-standard` did. At `--duration-fast` (120ms) this is
+not visible; if a future hover ever feels slow to leave, this entry is why, and the fix is
+a shorter duration rather than a second curve. Also: the comment in `globals.css` and
+`LayoutItem`'s docblock both had to be rewritten, because a mechanical find-and-replace
+turned the sentences *explaining* the distinction into sentences comparing the surviving
+curve to itself.
+**Affects:** §10.1, §10.2

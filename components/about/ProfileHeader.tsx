@@ -72,7 +72,7 @@ export function ProfileHeader({ site }: ProfileHeaderProps) {
         <dd className="font-sans text-body text-text">
           <a
             href={`mailto:${site.email}`}
-            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-out hover:text-brand-hover"
           >
             {site.email}
           </a>

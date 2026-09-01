@@ -46,7 +46,7 @@ export function TechnologyList() {
       <ul className="flex flex-wrap gap-3" aria-label="Technologies and tools">
         {technologies.map((technology) => (
           <li key={technology.name}>
-            <span className="inline-flex min-h-11 items-center gap-2 border border-border-subtle bg-surface px-3 py-2 font-mono text-body-sm text-text transition-[background-color,border-color] duration-(--duration-fast) ease-standard hover:border-border-strong hover:bg-surface-alt">
+            <span className="inline-flex min-h-11 items-center gap-2 border border-border-subtle bg-surface px-3 py-2 font-mono text-body-sm text-text transition-[background-color,border-color] duration-(--duration-fast) ease-out hover:border-border-strong hover:bg-surface-alt">
               <BrandIcon name={technology.icon} size={18} />
               <span>{technology.name}</span>
             </span>

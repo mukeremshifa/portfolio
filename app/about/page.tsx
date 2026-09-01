@@ -109,7 +109,7 @@ export default function AboutPage() {
           The tools I actually use, and what I am focused on right now, live on{" "}
           <Link
             href="/skills"
-            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-out hover:text-brand-hover"
           >
             the skills page
           </Link>

@@ -63,7 +63,7 @@ export function SiteHeader({ nav, cta, siteName, wordmark }: SiteHeaderProps) {
             <ThemeToggle />
             <Link
               href={cta.href}
-              className="hidden min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 font-sans text-body-sm font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-standard hover:bg-brand-solid-hover md:inline-flex"
+              className="hidden min-h-11 items-center justify-center rounded-none bg-brand-solid px-4 font-sans text-body-sm font-medium text-brand-contrast transition-colors duration-(--duration-fast) ease-out hover:bg-brand-solid-hover md:inline-flex"
             >
               {cta.label}
             </Link>

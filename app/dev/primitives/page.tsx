@@ -315,7 +315,7 @@ export default function PrimitivesPage() {
               {Array.from({ length: 6 }, (_, index) => (
                 <div
                   key={index}
-                  className="rounded-none border border-border-subtle bg-surface p-6 transition-[background-color,border-color,transform] duration-(--duration-fast) ease-standard hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt"
+                  className="rounded-none border border-border-subtle bg-surface p-6 transition-[background-color,border-color,transform] duration-(--duration-fast) ease-out hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt"
                 >
                   <p className="font-sans text-heading-2 font-semibold text-text">
                     Card {index + 1}

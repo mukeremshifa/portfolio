@@ -65,7 +65,7 @@ export default function ExperiencePage() {
           Check out my education history on{" "}
           <Link
             href="/about"
-            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-out hover:text-brand-hover"
           >
             the about page.
           </Link>

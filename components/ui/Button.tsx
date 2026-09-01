@@ -15,7 +15,7 @@ type ButtonProps = {
 // §6.8. The 44x44 minimum hit area is on the base, not the size, so `sm` shrinks what
 // you see without shrinking what you can hit (§11.5).
 const base =
-  "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-none font-sans font-medium transition-[background-color,border-color,color,transform] duration-(--duration-fast) ease-standard active:scale-[0.98]";
+  "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-none font-sans font-medium transition-[background-color,border-color,color,transform] duration-(--duration-fast) ease-out active:scale-[0.98]";
 
 const variants = {
   primary: "bg-brand-solid text-brand-contrast hover:bg-brand-solid-hover",

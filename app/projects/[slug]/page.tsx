@@ -80,7 +80,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="flex flex-col gap-6">
           <Link
             href="/projects"
-            className="inline-flex min-h-11 items-center self-start font-sans text-body-sm text-text-muted transition-colors duration-(--duration-fast) ease-standard hover:text-brand"
+            className="inline-flex min-h-11 items-center self-start font-sans text-body-sm text-text-muted transition-colors duration-(--duration-fast) ease-out hover:text-brand"
           >
             <span aria-hidden="true">&larr;</span>
             <span className="ml-2">Back to projects</span>

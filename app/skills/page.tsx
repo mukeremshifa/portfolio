@@ -154,7 +154,7 @@ export default function SkillsPage() {
           with them is on{" "}
           <Link
             href="/projects"
-            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+            className="text-brand underline decoration-1 underline-offset-[3px] transition-colors duration-(--duration-fast) ease-out hover:text-brand-hover"
           >
             the projects page
           </Link>

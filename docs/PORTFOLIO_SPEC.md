@@ -1357,14 +1357,19 @@ uses a section entrance or a stagger. §10.2 marks each row with what is true to
 --duration-fast: 120ms;
 --duration-base: 200ms;
 --duration-slow: 320ms;
---ease-standard: cubic-bezier(0.2, 0, 0, 1);
 --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 ```
 
-`ease-out` is for entrances — something arriving from nothing. `ease-standard` is for
-everything already on screen that moves or changes: repositions, hovers, colour changes.
-Both are in `@theme`, so `duration-(--duration-fast)` and `ease-standard` are available as
-Tailwind utilities; the four wrappers in §9.4 carry the same numbers transcribed for Motion.
+**One curve, for everything.** Entrances, repositions, hovers, colour changes: all
+`ease-out`. This section used to define a second curve, `--ease-standard`
+(`cubic-bezier(0.2, 0, 0, 1)`), for things already on screen that move rather than arrive.
+It was retired on 2026-09-01 — the distinction was real on paper and imperceptible in the
+product, while taxing every new transition with a question ("is this an entrance?") that
+had no observable consequence. `DECISIONS.md` carries the full reasoning and the one cost.
+
+It is in `@theme`, so `duration-(--duration-fast)` and `ease-out` are available as Tailwind
+utilities; the wrappers in §9.4 carry the same number transcribed for Motion, since Motion
+cannot read a CSS custom property for a transition.
 
 ### 10.2 Inventory
 

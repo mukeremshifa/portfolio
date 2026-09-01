@@ -108,7 +108,7 @@ export function ProjectFilter({ categories, value, onChange }: ProjectFilterProp
               onChange(category.value);
             }}
             onKeyDown={(event) => onKeyDown(event, index)}
-            className={`inline-flex min-h-11 items-center rounded-none border px-3 font-sans text-body-sm transition-[background-color,border-color,color] duration-(--duration-fast) ease-standard ${
+            className={`inline-flex min-h-11 items-center rounded-none border px-3 font-sans text-body-sm transition-[background-color,border-color,color] duration-(--duration-fast) ease-out ${
               selected
                 ? "border-brand bg-brand-soft font-semibold text-brand dark:text-brand-cream"
                 : "border-border-strong bg-transparent font-normal text-text-muted hover:bg-surface-alt hover:text-text"

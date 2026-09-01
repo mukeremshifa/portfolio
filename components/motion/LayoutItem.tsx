@@ -24,9 +24,11 @@ type LayoutItemProps = {
  * genuinely unlike the nav underline Phase 1 replaced with CSS — that one described a
  * navigation the user had already completed.
  *
- * `ease-standard` rather than `ease-out`: this is a reposition, not an entrance. The
- * numbers are §10.1's tokens transcribed into Motion's units, since Motion cannot read a
- * CSS custom property for a transition.
+ * `ease-out`, because §10.1 now has exactly one curve and this is it. This used to be
+ * `ease-standard`, on the reasoning that a reposition is not an entrance; that second
+ * curve is retired site-wide (docs/DECISIONS.md, 2026-09-01). The numbers are §10.1's
+ * token transcribed into Motion's units, since Motion cannot read a CSS custom property
+ * for a transition.
  *
  * Reduced motion needs nothing here. `MotionConfig reducedMotion="user"` in
  * `MotionProvider` drops transform animations, and a `layout` animation is a transform,
@@ -36,7 +38,7 @@ export function LayoutItem({ children, as = "div" }: LayoutItemProps) {
   const Component = motion[as];
 
   return (
-    <Component layout transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}>
+    <Component layout transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}>
       {children}
     </Component>
   );

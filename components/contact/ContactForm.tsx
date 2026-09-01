@@ -342,7 +342,7 @@ function MailLink({ email }: { email: string }) {
   return (
     <a
       href={`mailto:${email}`}
-      className="underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness] duration-(--duration-fast) ease-standard hover:decoration-2"
+      className="underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness] duration-(--duration-fast) ease-out hover:decoration-2"
     >
       {email}
     </a>

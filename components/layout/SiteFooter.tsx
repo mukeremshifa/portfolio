@@ -20,7 +20,7 @@ type SiteFooterProps = {
  * line rhythm.
  */
 const COLUMN_LINK =
-  "inline-flex min-h-11 items-center font-sans text-body-sm text-text-muted transition-colors duration-(--duration-fast) ease-standard hover:text-brand";
+  "inline-flex min-h-11 items-center font-sans text-body-sm text-text-muted transition-colors duration-(--duration-fast) ease-out hover:text-brand";
 
 /**
  * §7.3, laid out as four blocks: identity, handles, three link columns, copyright.

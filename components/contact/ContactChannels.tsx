@@ -37,7 +37,7 @@ export function ContactChannels({ site, layout = "row" }: ContactChannelsProps) 
             tab)" suffix that component always adds would be a lie. */}
         <a
           href={`mailto:${site.email}`}
-          className="text-brand underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness,color] duration-(--duration-fast) ease-standard hover:text-brand-hover hover:decoration-2"
+          className="text-brand underline decoration-1 underline-offset-[3px] transition-[text-decoration-thickness,color] duration-(--duration-fast) ease-out hover:text-brand-hover hover:decoration-2"
         >
           {site.email}
         </a>
