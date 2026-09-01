@@ -15,7 +15,9 @@ type FeaturedProjectsProps = { projects: Project[] };
  * sensibly if the owner features fewer.
  */
 export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
-  const [lead, ...rest] = projects;
+  // Only the first project is named here: it is the one that renders `featured` and spans
+  // both columns. The rest are peers and are mapped as such below.
+  const [lead] = projects;
   if (!lead) return null;
 
   return (
