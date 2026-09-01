@@ -288,7 +288,14 @@ function HoneypotField({
  * always-mounted node: assertive when something failed, polite otherwise. Nothing is
  * mounted at announce time either way, which is the property that actually matters.
  *
- * Never animated (§10.2).
+ * **The region is never animated; the message inside it fades** (§10.2, amended
+ * 2026-09-01). The `<p>` below carries `role` and `aria-live` and stays mounted and
+ * untouched — a live region that animates, remounts, or appears alongside its own content
+ * is a live region that announces unreliably. What changed is the span inside it, which
+ * crossfades as the status changes so the reader is not handed a different sentence in the
+ * same position with no transition between them. That distinction is the entire content of
+ * this row: the earlier "never animated" applied to both, and only the outer half needed
+ * it.
  */
 function StatusMessage({
   status,
@@ -313,22 +320,32 @@ function StatusMessage({
             : "font-sans text-body text-text-muted"
       }
     >
-      {status === "submitting" ? "Sending your message…" : null}
-      {status === "success"
-        ? "Thank you. Your message is on its way, and I read everything that arrives."
-        : null}
-      {status === "rate_limit" ? (
-        <>
-          That is a few messages in a short window. Try again in {formatRetry(retryAfter)}
-          , or email me directly at <MailLink email={email} />.
-        </>
-      ) : null}
-      {status === "error" ? (
-        <>
-          Something went wrong sending that. Email me directly at{" "}
-          <MailLink email={email} /> and it will reach me.
-        </>
-      ) : null}
+      {/* `opacity-0` at idle and `opacity-100` otherwise, transitioned — the same shape
+          `CopyButton` uses, rather than a keyframe, because the system has no `@keyframes`
+          and one element does not justify introducing the first. The span stays mounted
+          across every status, so this is an appearance change and not a remount. */}
+      <span
+        className={`inline-block transition-opacity duration-(--duration-fast) ease-out ${
+          status === "idle" ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {status === "submitting" ? "Sending your message…" : null}
+        {status === "success"
+          ? "Thank you. Your message is on its way, and I read everything that arrives."
+          : null}
+        {status === "rate_limit" ? (
+          <>
+            That is a few messages in a short window. Try again in{" "}
+            {formatRetry(retryAfter)}, or email me directly at <MailLink email={email} />.
+          </>
+        ) : null}
+        {status === "error" ? (
+          <>
+            Something went wrong sending that. Email me directly at{" "}
+            <MailLink email={email} /> and it will reach me.
+          </>
+        ) : null}
+      </span>
     </p>
   );
 }

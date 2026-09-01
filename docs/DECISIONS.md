@@ -1835,3 +1835,70 @@ a shorter duration rather than a second curve. Also: the comment in `globals.css
 turned the sentences *explaining* the distinction into sentences comparing the surviving
 curve to itself.
 **Affects:** §10.1, §10.2
+
+## 2026-09-01 — The project filter animated only the cards that stayed
+
+**Context:** §10.2 listed the filter row as shipped. `LayoutItem` gave `ProjectGrid` a
+`layout` prop and a slug key, so cards surviving a filter change repositioned correctly.
+Nothing wrapped the list in `AnimatePresence`, so React unmounted filtered-out cards
+immediately and mounted arrivals immediately.
+**Decision:** Add `components/motion/Presence.tsx` — the fourth wrapper, on the same §9.4
+reasoning that produced `LayoutItem` — and give `LayoutItem` an opt-in `animatePresence`
+prop supplying the opacity halves.
+**Reason:** The row was two-thirds true and read as a glitch: survivors glided gracefully
+around neighbours that popped in and out, which is worse than either animating everything
+or animating nothing. A reader cannot tell "these cards moved" from "the grid broke".
+**Also:** opacity only, no translate. `Reveal` translates because a section arriving from
+below the fold has a direction to arrive from; a filtered card does not — it is already
+where it belongs, and its neighbours are mid-reposition. A slide would put two different
+movements on one element at one moment. The fade runs at `fast` under the `base`
+reposition rather than matching it, so arrivals do not appear to lag the layout settling
+around them.
+**Affects:** §9.4, §10.2
+
+## 2026-09-01 — `ProjectGrid` takes a `filterable` prop, because its two animations exclude each other
+
+**Context:** Applying §10.2's stagger row to the card grids ran into `ProjectGrid` having
+two callers with opposite needs: `/projects` filters it (wants reposition and fade), the
+home page does not (wants an entrance stagger).
+**Decision:** `filterable` selects one. `ProjectExplorer` passes it; `FeaturedProjects`
+does not. Never both animations on the same cards.
+**Reason:** A stagger is an entrance — it runs once, on first scroll-in. The filter
+animation runs on every click, indefinitely. Combining them means a filter click re-runs a
+60ms-per-card cascade on top of the reposition and the fade: three animations on one
+element for one click, and the cascade describes an entrance that already happened. The
+alternative — always stagger, never filter-animate — would have undone the fix above.
+**Cost:** One more prop on a component whose contract §9.3 already fixes, and the two
+callers now have to know which they are. The prop is documented at the type and the
+component explains why the branches exist, because "why does this grid animate differently
+over here" is exactly the question a future reader will have.
+**Affects:** §9.3, §10.2
+
+## 2026-09-01 — The contact form's live region is amended from "never animated" to "region never animated"
+
+**Context:** §10.2's contact-form row said the live region is never animated, and
+`StatusMessage`'s docblock said the same. Applying the motion pass meant deciding whether a
+status change — four quite different sentences swapping in one position — should transition.
+**Decision:** The `role="status"` / `aria-live` node stays mounted, unanimated, and
+unkeyed. A span *inside* it fades over `fast`. `CopyButton` gets the same treatment.
+**Reason:** The original rule was protecting a real property — a region that animates,
+remounts, or appears alongside its own content announces unreliably — but it was stated
+one level too broadly. Nothing about that property requires the *text* to snap. Splitting
+the rule keeps the guarantee and drops the constraint that was incidental to it.
+**Cost:** The rule is now a two-part rule, and the difference between the parts is exactly
+the kind of thing a later edit flattens back into "don't animate the status". Both
+components carry a comment at the animated span saying which half is which.
+**Affects:** §10.2, §10.4
+
+## 2026-09-01 — Smooth scrolling is on
+
+**Context:** §10.4 deferred `scroll-behavior: smooth` to the motion pass. This is that pass.
+**Decision:** One declaration on `html` in `globals.css`.
+**Reason:** The rail scrolls by moving focus to a section, and without this the page
+teleports — on a seven-stop page that is the difference between navigating and being
+relocated, since the reader is given no indication of distance or direction. Declared on
+`html` rather than passed per call because it has to cover both paths the rail uses,
+`scrollIntoView` and the focus scroll, and a `behavior` option only covers the first.
+**Reduced motion:** already handled. §10.3's block sets `scroll-behavior: auto !important`
+on `*`, which matches `html` and outranks this.
+**Affects:** §7.5, §10.2, §10.4

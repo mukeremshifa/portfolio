@@ -419,6 +419,17 @@ html:not([data-theme-pref]) .theme-label-system {
 
 html {
   scrollbar-width: none;
+
+  /* §10.2's rail row. The rail moves focus to a section to scroll there, and without this
+     the page teleports: the reader is given no indication of how far they travelled or in
+     which direction, which on a seven-stop page is the difference between navigating and
+     being relocated.
+
+     Declared here rather than passed per call, because it has to cover both paths the
+     rail uses — `scrollIntoView` and the focus scroll — and a `behavior` option only
+     covers the first. The reduced-motion block above already overrides this back to
+     `auto !important`, so the accessible path needs nothing further. */
+  scroll-behavior: smooth;
 }
 
 html::-webkit-scrollbar,

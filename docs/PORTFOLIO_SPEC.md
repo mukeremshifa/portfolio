@@ -1401,8 +1401,10 @@ cannot read a CSS custom property for a transition.
 | Mobile nav | Motion | panel slides from the right over `slow` | Yes |
 | Theme toggle | CSS | icon crossfade over `fast` | Yes |
 | Project filter | Motion `layout` | cards reposition over `base` | Yes |
-| Contact form state | CSS | button label crossfade; live region never animated | Yes |
+| Contact form state | CSS | button label crossfade; live **region** never animated, message inside it fades over `fast` | Yes — amended 2026-09-01 |
 | Section rail | CSS | active dash changes colour over `fast`; width never changes | Yes — added §7.5 |
+| Rail scroll | CSS | `scroll-behavior: smooth` on `html` | Yes — added 2026-09-01 |
+| Copy button | CSS | active scales to 0.98; result text fades over `fast` | Yes — added 2026-09-01 |
 
 **The nav indicator row is amended.** It specified a Motion `layoutId` underline sliding
 between items. It ships as a static indicator in CSS, because by the time the underline
@@ -1443,26 +1445,31 @@ it, and the reduced-motion path is already correct without touching this section
 that content render before scripting runs, so `Reveal` can simply start hidden and animate in
 without the `@media (scripting: enabled)` guard.)*
 
-### 10.4 Before the inventory is applied
+### 10.4 What the applied inventory settled
 
-§10.2's first two rows are the whole of the unbuilt motion work, and they are worth doing
-deliberately rather than by sweeping every section into a `Reveal`. Three things decide it:
+The pass that applied §10.2 is done. These are the rules it established, kept here because
+each one is a thing the next person to add an animation will otherwise re-derive or break:
 
-- **Which sections earn an entrance.** A `Reveal` on every section of the home page is
-  decoration by volume — the test in §10's opening paragraph is applied per section, not
-  once for the pattern. A grid of cards arriving as a group reads as a group; a paragraph
-  fading in reads as a page that was not ready.
-- **The rail and the reveal share a scroll.** `SectionRail` (§7.5) already observes section
-  intersection to move its marker. A `Reveal` firing on the same threshold means the marker
-  and the content animate together, which is either coherent or noisy depending on the
-  band. Whatever `Reveal` uses, it should be reasoned about against `rootMargin:
-  "-20% 0px -65% 0px"`, not chosen independently.
+- **Which sections earn an entrance.** A `Reveal` on every section is decoration by
+  volume — §10's test is applied per section, not once for the pattern. Four of the home
+  page's seven animate. A grid of cards arriving as a group reads as a group; a paragraph
+  fading in reads as a page that was not ready, and a call to action fading in is friction
+  between deciding to act and acting.
+- **One animation per animating section.** Where a section's grid staggers, the section is
+  not also revealed. Nesting them makes the last card wait out both.
+- **The rail and the reveal share a scroll, and are deliberately offset.** `SectionRail`
+  (§7.5) observes at `rootMargin: "-20% 0px -65% 0px"`; `Reveal` fires at `amount: 0.2`,
+  which is earlier. Content finishes arriving before the marker claims the section. Aligning
+  them makes the gutter twitch at the moment the column moves, and the two compete.
 - **`once: true` is already the setting.** Content that re-animates on scroll-up is motion
-  running while someone is reading, which §21 forbids. `Reveal` gets this right today; any
-  new wrapper has to keep it.
+  running while someone is reading, which §21 forbids. `Reveal` gets this right; any new
+  wrapper has to keep it.
+- **Live regions never animate; their contents may.** The `role="status"` node stays
+  mounted and untouched, because a region that animates or remounts announces unreliably.
+  `CopyButton` and `ContactForm` both fade a span *inside* the region.
 
-Smooth scrolling for the rail is one declaration on `html`, is currently deliberately
-absent, and belongs to this same pass. §10.3's reduced-motion block already overrides it.
+Smooth scrolling for the rail is now on: one declaration on `html`, with §10.3's
+reduced-motion block overriding it back to `auto !important`.
 
 ---
 

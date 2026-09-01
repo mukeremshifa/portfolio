@@ -70,12 +70,28 @@ export function CopyButton({ value, label }: CopyButtonProps) {
             : "font-sans text-body-sm text-text-muted"
         }
       >
-        {MESSAGES[state]}
+        {/* The fade is on this inner span, never on the `role="status"` node above: that
+            node has to stay mounted and unanimated for the announcement to be reliable,
+            which is the whole reason it renders unconditionally. Opacity is driven off
+            the state rather than a mount, so the text is always in the DOM and it is the
+            *appearance* that changes — nothing here remounts. */}
+        <span
+          className={`inline-block transition-opacity duration-(--duration-fast) ease-out ${
+            state === "idle" ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          {MESSAGES[state]}
+        </span>
       </span>
       <button
         type="button"
         onClick={copy}
-        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-none border border-border-strong px-3 font-sans text-body-sm font-medium text-text transition-colors duration-(--duration-fast) ease-out hover:bg-surface-alt"
+        // `active:scale-[0.98]` matches `Button.tsx` (§10.2's button row). This control
+        // was the one pressable element in the system without it, and it is the one where
+        // it matters most: the result is announced beside the button rather than by
+        // relabelling it, so without a press state a copy that works and a copy that does
+        // nothing look identical for the moment before the text changes.
+        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-none border border-border-strong px-3 font-sans text-body-sm font-medium text-text transition-[background-color,transform] duration-(--duration-fast) ease-out hover:bg-surface-alt active:scale-[0.98]"
       >
         Copy
         <VisuallyHidden> {label}</VisuallyHidden>
