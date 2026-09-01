@@ -1544,3 +1544,47 @@ deliberately — it is what makes re-enabling the optimizer a config change rath
 component change.
 
 **Affects:** §5.3, §9.1, §12.1, §12.2, Phase 5, Phase 6
+
+## 2026-09-01 — `content/site.json` is the contact endpoint's only switch
+
+**Context:** Phase 4a found two switches for one behaviour. `.env.example` documented
+`NEXT_PUBLIC_CONTACT_ENDPOINT`, and `SiteSchema` carried `contact.endpoint`. **Neither was
+read by any code, and nothing bridged them** — the env var had been written in Phase 0 as
+the anticipated mechanism and then superseded by the schema field without being removed.
+**Decision:** `site.contact.endpoint` is the switch. The `NEXT_PUBLIC_CONTACT_ENDPOINT`
+block is deleted from `.env.example`.
+**Reason:** §8.7, the Phase 3 note in `app/contact/page.tsx`, and the STUB-INVENTORY swap
+matrix all already name the content field — three places against the env var's one. It is
+also the better of the two on its merits: `content/` is parsed through `lib/content.ts` and
+validated by Zod at build, so a malformed endpoint fails the build with the file named,
+while a malformed env var fails at runtime on a visitor's submit. Keeping both would have
+meant two ways to turn the form on and no answer for which wins.
+**Affects:** §8.7, §14, `docs/STUB-INVENTORY.md`
+
+## 2026-09-01 — One live region that swaps role, not two regions
+
+**Context:** §8.7 asks for one `role="status" aria-live="polite"` region announcing pending,
+success, and failure. §14.1 asks for the hard-failure path to be a `role="alert"`. A single
+element cannot hold both roles, and the two clauses are both normative.
+**Decision:** One always-mounted node in `ContactForm`, whose `role` and `aria-live` swap to
+`alert`/`assertive` when `status` is `error` or `rate_limit`, and are `status`/`polite`
+otherwise.
+**Reason:** The property that actually decides whether a message is announced is that the
+region exists in the DOM *before* it has text — a region mounted at the same moment as its
+content is unreliable across screen readers. `CopyButton` already records this and solves it
+the same way. Two regions would satisfy both spec clauses literally while making the failure
+case worse: two live nodes competing to announce one event, one of them empty. The role swap
+keeps a single announcement point and gives failures the assertive treatment §14.1 wants.
+**Affects:** §8.7, §11.2, §14.1
+
+## 2026-09-01 — `renderedAt` is stamped in an effect, never during render
+
+**Context:** §14.1's payload carries `renderedAt`, "epoch ms, set when the form mounted,"
+feeding §14.2's 3s–30min time trap.
+**Decision:** `useRef(0)` plus a mount effect, re-stamped on a successful submit.
+**Reason:** `Date.now()` in a render body is a hydration mismatch, and on a statically
+rendered page it is *build* time — which the 30-minute ceiling would then reject for every
+visitor, turning an anti-spam check into a total outage of the contact path. The re-stamp on
+success matters for the same reason in miniature: without it, a second message in one
+session is still measured from the first mount and trips the same ceiling.
+**Affects:** §14.1, §14.2
