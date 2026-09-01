@@ -1,5 +1,8 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
+import { Assemble } from "@/components/motion/Assemble";
+import { ImageReveal } from "@/components/motion/ImageReveal";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Figure } from "@/components/ui/Figure";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -11,6 +14,14 @@ type ProjectCardProps = {
   project: Project;
   variant?: "featured" | "standard";
   headingLevel?: HeadingLevel;
+  /**
+   * Sequence the card's own parts as it enters (§10.3), so it appears to build itself
+   * rather than arrive finished.
+   *
+   * Only the home page's featured work passes this. See `components/motion/Assemble.tsx`
+   * for why it is not worth spending on the `/projects` grid.
+   */
+  assemble?: boolean;
 };
 
 // §8.1: cards show 3 to 6 technologies. The golden sample carries twelve, so the cap is
@@ -41,6 +52,7 @@ export function ProjectCard({
   project,
   variant = "standard",
   headingLevel = "h3",
+  assemble = false,
 }: ProjectCardProps) {
   const Heading = headingLevel;
   const featured = variant === "featured";
@@ -64,7 +76,11 @@ export function ProjectCard({
           which is exactly why a coverless project is invisible as such on `/projects` —
           the absence shows up on its own page, not in the grid. */}
       {featured && project.cover ? (
-        <div className="md:w-2/5 md:shrink-0">
+        // §10.3's blur-scale on the cover, so the image resolves into focus as the card
+        // builds around it rather than being the one finished thing on an assembling
+        // card. `className` carries the column sizing, because `ImageReveal` inserts the
+        // element that now occupies this slot in the card's flex row.
+        <ImageReveal className="md:w-2/5 md:shrink-0" delay={assemble ? 0.05 : 0}>
           <Figure
             src={project.cover.src}
             srcDark={project.cover.srcDark}
@@ -73,103 +89,117 @@ export function ProjectCard({
             height={project.cover.height}
             sizes="(min-width: 768px) 40vw, 100vw"
           />
-        </div>
+        </ImageReveal>
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p className="font-mono text-eyebrow text-text-muted uppercase">
-            {project.category} &middot;{" "}
-            {formatYearRange(project.year.start, project.year.end)}
-          </p>
-          <StatusBadge
-            state={project.status}
-            label={PROJECT_STATUS_LABELS[project.status]}
-          />
-        </div>
+        <Parts assemble={assemble}>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <p className="font-mono text-eyebrow text-text-muted uppercase">
+              {project.category} &middot;{" "}
+              {formatYearRange(project.year.start, project.year.end)}
+            </p>
+            <StatusBadge
+              state={project.status}
+              label={PROJECT_STATUS_LABELS[project.status]}
+            />
+          </div>
 
-        {/* Both families are spelled out per branch rather than layering `font-serif`
+          {/* Both families are spelled out per branch rather than layering `font-serif`
             over a base `font-sans`. Tailwind resolves two utilities for one property by
             stylesheet order, not by the order they appear in the attribute, so the
             "override" would win or lose depending on which rule Tailwind emitted last.
             See the note in `cn()` about why `tailwind-merge` is not installed. */}
-        <Heading
-          className={`font-semibold text-text ${
-            featured ? "font-serif text-heading-1" : "font-sans text-heading-2"
-          }`}
-        >
-          <Link
-            href={`/projects/${project.slug}`}
-            className="rounded-none underline-offset-[3px] group-hover:underline after:absolute after:inset-0 after:rounded-none focus-visible:underline"
+          <Heading
+            className={`font-semibold text-text ${
+              featured ? "font-serif text-heading-1" : "font-sans text-heading-2"
+            }`}
           >
-            {project.title}
-          </Link>
-        </Heading>
+            <Link
+              href={`/projects/${project.slug}`}
+              className="rounded-none underline-offset-[3px] group-hover:underline after:absolute after:inset-0 after:rounded-none focus-visible:underline"
+            >
+              {project.title}
+            </Link>
+          </Heading>
 
-        <p className="max-w-measure font-sans text-body text-text-muted">
-          {project.summary}
-        </p>
+          <p className="max-w-measure font-sans text-body text-text-muted">
+            {project.summary}
+          </p>
 
-        <ul className="mt-auto flex flex-wrap gap-2 pt-1">
-          {shown.map((technology) => (
-            <li key={technology} className="max-w-full">
-              <Tag>
-                <span className="break-words">{technology}</span>
-              </Tag>
-            </li>
-          ))}
-          {remaining > 0 ? (
-            <li>
-              <Tag>+{remaining} more</Tag>
-            </li>
-          ) : null}
-        </ul>
-
-        {hasLinks ? (
-          // `relative z-10` lifts these above the title's stretched overlay. Without it
-          // the overlay would swallow the clicks and every link on the card would
-          // navigate to the project page instead.
-          //
-          // `group-hover:text-brand-hover` keeps the links legible as the card surface
-          // shifts to `surface-alt` under the pointer. Re-measured against B4's dark
-          // stack: `brand` on `surface-alt` is 6.04:1 dark and 7.70:1 light, so it now
-          // clears AA on its own — the earlier 4.17:1 was the orange palette's number
-          // and outlived it. `brand-hover` there is 7.33:1 dark and 10.53:1 light, so
-          // the links still brighten with the background rather than trailing it.
-          <ul className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 font-sans text-body-sm">
-            {project.links.live ? (
-              <li>
-                <ExternalLink
-                  href={project.links.live}
-                  className="group-hover:text-brand-hover"
-                >
-                  Live <span aria-hidden="true">&#8599;</span>
-                </ExternalLink>
+          <ul className="mt-auto flex flex-wrap gap-2 pt-1">
+            {shown.map((technology) => (
+              <li key={technology} className="max-w-full">
+                <Tag>
+                  <span className="break-words">{technology}</span>
+                </Tag>
               </li>
-            ) : null}
-            {project.links.github ? (
+            ))}
+            {remaining > 0 ? (
               <li>
-                <ExternalLink
-                  href={project.links.github}
-                  className="group-hover:text-brand-hover"
-                >
-                  Source <span aria-hidden="true">&#8599;</span>
-                </ExternalLink>
-              </li>
-            ) : null}
-            {project.links.docs ? (
-              <li>
-                <ExternalLink
-                  href={project.links.docs}
-                  className="group-hover:text-brand-hover"
-                >
-                  Docs <span aria-hidden="true">&#8599;</span>
-                </ExternalLink>
+                <Tag>+{remaining} more</Tag>
               </li>
             ) : null}
           </ul>
-        ) : null}
+
+          {hasLinks ? (
+            // `relative z-10` lifts these above the title's stretched overlay. Without it
+            // the overlay would swallow the clicks and every link on the card would
+            // navigate to the project page instead.
+            //
+            // `group-hover:text-brand-hover` keeps the links legible as the card surface
+            // shifts to `surface-alt` under the pointer. Re-measured against B4's dark
+            // stack: `brand` on `surface-alt` is 6.04:1 dark and 7.70:1 light, so it now
+            // clears AA on its own — the earlier 4.17:1 was the orange palette's number
+            // and outlived it. `brand-hover` there is 7.33:1 dark and 10.53:1 light, so
+            // the links still brighten with the background rather than trailing it.
+            <ul className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 font-sans text-body-sm">
+              {project.links.live ? (
+                <li>
+                  <ExternalLink
+                    href={project.links.live}
+                    className="group-hover:text-brand-hover"
+                  >
+                    Live <span aria-hidden="true">&#8599;</span>
+                  </ExternalLink>
+                </li>
+              ) : null}
+              {project.links.github ? (
+                <li>
+                  <ExternalLink
+                    href={project.links.github}
+                    className="group-hover:text-brand-hover"
+                  >
+                    Source <span aria-hidden="true">&#8599;</span>
+                  </ExternalLink>
+                </li>
+              ) : null}
+              {project.links.docs ? (
+                <li>
+                  <ExternalLink
+                    href={project.links.docs}
+                    className="group-hover:text-brand-hover"
+                  >
+                    Docs <span aria-hidden="true">&#8599;</span>
+                  </ExternalLink>
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
+        </Parts>
       </div>
     </article>
   );
+}
+
+/**
+ * Sequences the card's parts when `assemble` is on, and is a plain fragment otherwise.
+ *
+ * A component rather than a ternary at the call site, so the un-assembled path renders
+ * markup identical to what it rendered before this feature existed — every other caller
+ * of `ProjectCard` is unaffected, including the filtered grid where a second entrance
+ * would fight the filter's own.
+ */
+function Parts({ assemble, children }: { assemble: boolean; children: ReactNode }) {
+  return assemble ? <Assemble delay={0.05}>{children}</Assemble> : <>{children}</>;
 }

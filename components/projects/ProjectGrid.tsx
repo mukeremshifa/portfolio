@@ -56,13 +56,24 @@ export function ProjectGrid({
     <ul className="grid gap-6 md:grid-cols-2">
       {filterable ? (
         <Presence>
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             // The key is the slug rather than the index, and that is load-bearing rather
             // than habitual: `layout` tracks an element across renders by key and
             // `AnimatePresence` decides what is leaving the same way, so an index key
             // would make every card think it had become a different card the moment the
             // filter changed — and the exit would run on the wrong ones.
-            <LayoutItem key={project.slug} as="li" animatePresence>
+            //
+            // `enterDelay` gives the grid an entrance on page load without a second
+            // wrapper. Before it, `/projects` was the one page whose cards never animated
+            // in: they carried the filter's fade, which only runs on a filter change, so
+            // arriving at the page showed a static grid. Capped at six for the same
+            // reason `Stagger` caps — past that the wait stops reading as sequence.
+            <LayoutItem
+              key={project.slug}
+              as="li"
+              animatePresence
+              enterDelay={Math.min(index, 5) * 0.07}
+            >
               <ProjectCard project={project} headingLevel={headingLevel} />
             </LayoutItem>
           ))}

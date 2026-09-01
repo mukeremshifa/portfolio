@@ -1,3 +1,4 @@
+import { Stagger } from "@/components/motion/Stagger";
 import { BulletList } from "@/components/ui/BulletList";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import type { Education } from "@/lib/schemas";
@@ -34,33 +35,37 @@ export function EducationList({ entries, headingLevel = "h3" }: EducationListPro
 
   return (
     <ul className="flex flex-col gap-10">
-      {entries.map((entry) => (
-        <li key={entry.id} className="flex flex-col gap-3">
-          <p className="font-mono text-eyebrow text-text-muted uppercase">
-            {formatMonthRange(entry.start, entry.end)}
-            {entry.location ? ` · ${entry.location}` : ""}
-          </p>
-
-          <div className="flex flex-col gap-1">
-            <Heading className="font-sans text-heading-2 font-semibold text-text">
-              {entry.credential}
-            </Heading>
-            <p className="font-sans text-body text-text-muted">
-              {entry.institutionUrl ? (
-                <ExternalLink href={entry.institutionUrl}>
-                  {entry.institution}
-                </ExternalLink>
-              ) : (
-                entry.institution
-              )}
+      {/* §10.3: the entries arrive in sequence rather than as a block. `Stagger` supplies
+          the `li`, so the map yields the row's contents and the list stays a list. */}
+      <Stagger as="li">
+        {entries.map((entry) => (
+          <div key={entry.id} className="flex flex-col gap-3">
+            <p className="font-mono text-eyebrow text-text-muted uppercase">
+              {formatMonthRange(entry.start, entry.end)}
+              {entry.location ? ` · ${entry.location}` : ""}
             </p>
+
+            <div className="flex flex-col gap-1">
+              <Heading className="font-sans text-heading-2 font-semibold text-text">
+                {entry.credential}
+              </Heading>
+              <p className="font-sans text-body text-text-muted">
+                {entry.institutionUrl ? (
+                  <ExternalLink href={entry.institutionUrl}>
+                    {entry.institution}
+                  </ExternalLink>
+                ) : (
+                  entry.institution
+                )}
+              </p>
+            </div>
+
+            <p className="max-w-measure font-sans text-body text-text">{entry.note}</p>
+
+            <BulletList items={entry.highlights} marker="star" tone="muted" />
           </div>
-
-          <p className="max-w-measure font-sans text-body text-text">{entry.note}</p>
-
-          <BulletList items={entry.highlights} marker="star" tone="muted" />
-        </li>
-      ))}
+        ))}
+      </Stagger>
     </ul>
   );
 }

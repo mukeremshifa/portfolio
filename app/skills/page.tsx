@@ -5,6 +5,7 @@ import { CertificationGrid } from "@/components/certifications/CertificationGrid
 import { Fade } from "@/components/motion/Fade";
 import { SplitText } from "@/components/motion/SplitText";
 import { Reveal } from "@/components/motion/Reveal";
+import { Stagger } from "@/components/motion/Stagger";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
@@ -92,28 +93,31 @@ export default function SkillsPage() {
               title="What I am focused on right now"
               lead="Three things I keep choosing to work on, and the tools each one actually runs on."
             />
+            {/* §10.3: each pillar arrives in turn. `Stagger` supplies the `li`. */}
             <ul className="flex flex-col gap-8">
-              {getFocus().map((pillar) => (
-                <li key={pillar.id} className="flex flex-col gap-3">
-                  <h3 className="max-w-measure font-sans text-heading-2 font-semibold text-text">
-                    {pillar.title}
-                  </h3>
-                  <p className="max-w-measure font-sans text-body text-text-muted">
-                    {pillar.body}
-                  </p>
-                  {pillar.technologies.length > 0 ? (
-                    <ul className="flex flex-wrap gap-2">
-                      {pillar.technologies.map((technology) => (
-                        <li key={technology} className="max-w-full">
-                          <Tag>
-                            <span className="break-words">{technology}</span>
-                          </Tag>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </li>
-              ))}
+              <Stagger as="li">
+                {getFocus().map((pillar) => (
+                  <div key={pillar.id} className="flex flex-col gap-3">
+                    <h3 className="max-w-measure font-sans text-heading-2 font-semibold text-text">
+                      {pillar.title}
+                    </h3>
+                    <p className="max-w-measure font-sans text-body text-text-muted">
+                      {pillar.body}
+                    </p>
+                    {pillar.technologies.length > 0 ? (
+                      <ul className="flex flex-wrap gap-2">
+                        {pillar.technologies.map((technology) => (
+                          <li key={technology} className="max-w-full">
+                            <Tag>
+                              <span className="break-words">{technology}</span>
+                            </Tag>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
+              </Stagger>
             </ul>
           </Reveal>
         </section>

@@ -44,13 +44,23 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
             latter shape wraps both remaining cards in one `li` and renders only the
             first. The cards differ by `variant`, not by nesting. */}
         <Stagger as="li">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.slug}
-              project={project}
-              variant={project.slug === lead.slug ? "featured" : "standard"}
-            />
-          ))}
+          {projects.map((project) => {
+            const isLead = project.slug === lead.slug;
+
+            return (
+              <ProjectCard
+                key={project.slug}
+                project={project}
+                variant={isLead ? "featured" : "standard"}
+                // Only the lead card assembles. It is the largest thing above the fold
+                // and the only card with a cover, so it has parts worth sequencing; the
+                // two standard cards beside it are a heading and a paragraph, where an
+                // internal sequence would be motion for its own sake. They still arrive
+                // in turn — that is the `Stagger` around all three.
+                assemble={isLead}
+              />
+            );
+          })}
         </Stagger>
       </ul>
     </section>

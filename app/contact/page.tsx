@@ -76,7 +76,14 @@ export default function ContactPage() {
             form arrived, which is what the Phase 3 note predicted. */}
         {site.contact.endpoint ? (
           <div id="form" data-rail-section>
-            <ContactForm endpoint={site.contact.endpoint} email={site.email} />
+            {/* Wrapped here rather than inside `ContactForm`, which owns five pieces of
+                state and should not also own an entrance. The form arrives as one block:
+                staggering its fields would animate a sequence the reader is about to
+                fill in top to bottom anyway, and a field that is still moving when the
+                cursor lands in it is a field fighting its user. */}
+            <Reveal>
+              <ContactForm endpoint={site.contact.endpoint} email={site.email} />
+            </Reveal>
           </div>
         ) : null}
 
