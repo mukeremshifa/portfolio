@@ -349,9 +349,22 @@ function MailLink({ email }: { email: string }) {
   );
 }
 
-/** Seconds are what the wire carries; minutes are what a person can act on. */
+/**
+ * Seconds are what the wire carries; a duration someone can act on is what they read.
+ *
+ * The units matter because the two limits are orders of magnitude apart: the per-IP
+ * window is minutes, and the global daily cap is a day. Formatting everything as minutes
+ * told a reader who tripped the daily limit to try again in "1440 minutes".
+ */
 function formatRetry(seconds: number | null): string {
   if (!seconds || seconds <= 60) return "a minute";
+
   const minutes = Math.ceil(seconds / 60);
-  return `${minutes} minutes`;
+  if (minutes < 60) return `${minutes} minutes`;
+
+  const hours = Math.ceil(minutes / 60);
+  if (hours < 24) return hours === 1 ? "an hour" : `${hours} hours`;
+
+  const days = Math.ceil(hours / 24);
+  return days === 1 ? "a day" : `${days} days`;
 }

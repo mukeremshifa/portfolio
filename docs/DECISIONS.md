@@ -1635,3 +1635,49 @@ Removing the resize handle takes away a real affordance for anyone writing a lon
 in a six-row box, and hiding the scrollbar removes the cue that there is more text above.
 Both were accepted knowingly.
 **Affects:** §8.7, §11.4
+
+## 2026-09-01 — Rate limiting: two windows, Upstash, and it fails open
+
+**Context:** §14.2 item 5 asks for "basic rate limiting per IP" without naming a
+mechanism, and the move to a Vercel route handler removed the Worker's native KV. Phase 4b
+had to choose a store and a policy.
+**Decision:** `lib/rate-limit.ts`, using Upstash Redis via `@upstash/ratelimit`. **Two**
+sliding windows: five per IP per ten minutes, and fifty across all IPs per day. It fails
+open. `UPSTASH_REDIS_REST_URL` / `_TOKEN` are the switch; absent, the route logs one
+warning per cold start and allows every request.
+
+**Why two limits and not one.** A per-IP limit alone is a speed bump for anyone with a
+proxy pool: each address stays under the ceiling and the limiter never fires. The global
+counter is what catches a distributed flood, and it is one extra Redis key. They stop
+different attacks, so neither substitutes for the other.
+
+**Why sliding and not fixed.** A fixed window lets someone spend the whole allowance at
+09:59 and again at 10:00 — twice the intended rate, at the boundary, for free.
+
+**Why it fails open, which is the arguable part.** If Upstash is unreachable the
+submission is allowed rather than refused. Failing closed would mean a real message is
+lost during an outage the sender cannot see or act on; failing open means a flood gets
+through during that same outage. For a portfolio contact form the first is worse: the
+honeypot and time trap still apply, the mailbox survives a bad afternoon, and a lost
+message is gone for good. A payment endpoint would choose the opposite.
+
+**Order matters.** The limiter runs *after* the parse, honeypot, and time trap. A crude
+flood is turned away without spending a Redis command, so the quota is left for the
+careful attacker the limiter actually exists to stop.
+
+**Also in this change:** `AbortSignal.timeout(8_000)` on the Resend call. Vercel's Hobby
+tier kills a function at 10s, and a hung provider would take the whole invocation with it
+— returning no JSON, which costs the client the specific failure copy it would otherwise
+show and leaves the visitor with a dead request instead of the direct address.
+**Affects:** §14.2, §14.3
+
+## 2026-09-01 — `formatRetry` speaks hours and days, not just minutes
+
+**Context:** `ContactForm` rendered every retry window as minutes. With the global daily
+cap added, a visitor who tripped it was told to try again in "1440 minutes".
+**Decision:** The formatter steps through minutes, hours, and days.
+**Reason:** The two limits are orders of magnitude apart — ten minutes and one day — and a
+single unit cannot serve both. Caught by a unit test of the formatter rather than by
+reading it, which is worth noting: the bug was invisible in the code and obvious in the
+output.
+**Affects:** §8.7
