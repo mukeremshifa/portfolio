@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { checkRateLimit, rateLimitConfigured } from "@/lib/rate-limit";
+
 import {
   ContactPayloadSchema,
   MAX_DWELL_MS,
@@ -29,6 +31,14 @@ export const dynamic = "force-dynamic";
 
 /** §14.2 item 1: a body big enough to be abuse is rejected before it is parsed. */
 const MAX_BODY_BYTES = 16_000;
+
+// Once per cold start, not once per request. An unconfigured limiter is a real gap and
+// should be visible in the logs; repeating it on every submit would bury everything else.
+if (!rateLimitConfigured) {
+  console.warn(
+    "[contact] rate limiting is OFF: UPSTASH_REDIS_REST_URL / _TOKEN are not set",
+  );
+}
 
 function json(body: ContactResponse, status: number) {
   // Every path returns JSON, including failures. The client reads `response.json()` and
@@ -116,15 +126,18 @@ export async function POST(request: Request) {
   }
 
   /**
-   * §14.2 item 5 is **not implemented**, and that is a recorded gap rather than an
-   * oversight — a Vercel function holds no state between invocations, so a per-IP counter
-   * needs an external store (Upstash, Vercel KV) that the owner chose not to add on
-   * 2026-09-01. The honeypot and the time trap above are the spam defence.
+   * §14.2 item 5, per IP and globally. See `lib/rate-limit.ts` for why there are two
+   * limits and why both fail open.
    *
-   * The seam is here. A limiter returns a retry window and this returns:
-   *   return json({ ok: false, error: "rate_limit", retryAfter: seconds }, 429);
-   * The client already renders that path in full, so adding a store is this file only.
+   * It runs *after* the cheap rejections above deliberately: a malformed body or a
+   * tripped honeypot costs no Redis command, so a crude flood is turned away without
+   * spending the quota that defends against a careful one.
    */
+  const verdict = await checkRateLimit(request);
+  if (!verdict.allowed) {
+    console.info("[contact] rejected: rate limit");
+    return json({ ok: false, error: "rate_limit", retryAfter: verdict.retryAfter }, 429);
+  }
 
   const sent = await sendEmail(payload);
   if (!sent) {
@@ -163,6 +176,10 @@ async function sendEmail(payload: {
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
+      // Vercel's Hobby tier kills a function at 10s. Without a timeout a hung provider
+      // takes the whole invocation with it, and the client gets no JSON and therefore no
+      // failure message — just a dead request. Eight seconds leaves room to answer.
+      signal: AbortSignal.timeout(8_000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -187,6 +204,7 @@ async function sendEmail(payload: {
 
     return true;
   } catch {
+    // Includes the AbortSignal timeout above.
     console.error("[contact] provider unreachable");
     return false;
   }
