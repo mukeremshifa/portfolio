@@ -1,5 +1,3 @@
-import { LayoutItem } from "@/components/motion/LayoutItem";
-import { Presence } from "@/components/motion/Presence";
 import { Stagger } from "@/components/motion/Stagger";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import type { Project } from "@/lib/schemas";
@@ -8,14 +6,6 @@ import type { HeadingLevel } from "@/lib/utils";
 type ProjectGridProps = {
   projects: Project[];
   headingLevel?: HeadingLevel;
-  /**
-   * Whether the caller filters this grid. It selects which of §10.2's two animations the
-   * cards get, and the two are mutually exclusive — see the note on the component.
-   *
-   * `/projects` passes `true` (the `ProjectExplorer` filters); the home page leaves it
-   * `false`, because a grid of six fixed cards has nothing to reposition.
-   */
-  filterable?: boolean;
 };
 
 /**
@@ -25,70 +15,38 @@ type ProjectGridProps = {
  * construction and `h-full` makes them match their row, which is the case a grid is
  * actually for; screenshots run from 21:9 to 9:16 and are the case it is not.
  *
- * `LayoutItem` wraps each card so §10.2's filter animation has somewhere to live without
- * this file importing `motion/react` (§9.4). The grid is otherwise a server component and
- * stays one — only the wrappers are client islands.
+ * **One animation, always: the cards stagger in.** This component used to carry two —
+ * a stagger for unfiltered callers and a `layout` reposition plus enter/exit fade for
+ * `/projects` — selected by a `filterable` prop, because filtering and entering are
+ * different events and each seemed to want its own treatment.
  *
- * `Presence` is the other half of that row, and it was missing until 2026-09-01. Without
- * it `LayoutItem`'s `exit` never runs: React unmounts a filtered-out card immediately, so
- * the surviving cards glided around neighbours that vanished and appeared instantly. See
- * `components/motion/Presence.tsx`.
+ * That is gone, and the reason is worth keeping. The reposition animation was solving a
+ * problem the design did not have to have: when a filter removes some cards and keeps
+ * others, the survivors slide to new positions while the newcomers fade, so a single
+ * click produced three different motions across one grid and the eye had nothing stable
+ * to track. `ProjectExplorer` now remounts this list on every filter change (see the
+ * `key` there), so a filter is not a rearrangement at all — it is a new list arriving,
+ * and it arrives exactly the way the page's first render does.
  *
- * **The two animations here are mutually exclusive, and `filterable` picks one.** This is
- * the one place applying §10.2 turned up a real conflict rather than a choice.
- *
- * A stagger is an entrance: it runs once, on first scroll-in. The filter animation runs on
- * every filter click, for as long as the reader keeps clicking. On `/projects` those are
- * the same cards, so having both means a filter click re-runs a 60ms-per-card cascade on
- * top of the reposition and the fade — three animations on one element for one click, and
- * the cascade is describing an entrance that already happened. On the home page there is
- * no filter at all, so the reposition and exit machinery is inert and the entrance is the
- * only thing worth having.
- *
- * So: filtered grids reposition and fade, unfiltered grids stagger. Never both.
+ * The result is that filtering needs no bespoke animation, `LayoutItem` and `Presence`
+ * are no longer used by anything, and the grid has one behaviour to reason about instead
+ * of two mutually exclusive ones. Simpler and better-looking is a rare pairing; take it.
  */
-export function ProjectGrid({
-  projects,
-  headingLevel = "h3",
-  filterable = false,
-}: ProjectGridProps) {
+export function ProjectGrid({ projects, headingLevel = "h3" }: ProjectGridProps) {
   return (
     <ul className="grid gap-6 md:grid-cols-2">
-      {filterable ? (
-        <Presence>
-          {projects.map((project, index) => (
-            // The key is the slug rather than the index, and that is load-bearing rather
-            // than habitual: `layout` tracks an element across renders by key and
-            // `AnimatePresence` decides what is leaving the same way, so an index key
-            // would make every card think it had become a different card the moment the
-            // filter changed — and the exit would run on the wrong ones.
-            //
-            // `enterDelay` gives the grid an entrance on page load without a second
-            // wrapper. Before it, `/projects` was the one page whose cards never animated
-            // in: they carried the filter's fade, which only runs on a filter change, so
-            // arriving at the page showed a static grid. Capped at six for the same
-            // reason `Stagger` caps — past that the wait stops reading as sequence.
-            <LayoutItem
-              key={project.slug}
-              as="li"
-              animatePresence
-              enterDelay={Math.min(index, 5) * 0.07}
-            >
-              <ProjectCard project={project} headingLevel={headingLevel} />
-            </LayoutItem>
-          ))}
-        </Presence>
-      ) : (
-        <Stagger as="li">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.slug}
-              project={project}
-              headingLevel={headingLevel}
-            />
-          ))}
-        </Stagger>
-      )}
+      {/* `Stagger` supplies the `li`, so the map yields the card and the list stays a
+          list (§11.1). `perRow={2}` matches `md:grid-cols-2`, so each *row* of the grid
+          arrives as a unit rather than the right-hand card trailing the left-hand one —
+          a row landing together is how a reader parses a two-column grid, and a
+          left-to-right offset inside one row animates the grid's internal ordering
+          instead of the content. Below `md` the grid is one column and `Stagger` follows
+          it, so this is inert on a phone. */}
+      <Stagger as="li" perRow={2}>
+        {projects.map((project) => (
+          <ProjectCard key={project.slug} project={project} headingLevel={headingLevel} />
+        ))}
+      </Stagger>
     </ul>
   );
 }

@@ -1902,3 +1902,60 @@ relocated, since the reader is given no indication of distance or direction. Dec
 **Reduced motion:** already handled. §10.3's block sets `scroll-behavior: auto !important`
 on `*`, which matches `html` and outranks this.
 **Affects:** §7.5, §10.2, §10.4
+
+## 2026-09-02 — The project filter remounts the grid instead of animating a rearrangement
+
+**Context:** Filtering `/projects` ran a `layout` reposition on surviving cards plus an
+enter/exit fade on the ones changing, via `LayoutItem` and `Presence`. The owner reported
+it as "odd to what's used elsewhere" and, after it was brought onto §10.1's curve, still
+as jarbled — the survivors slide, the newcomers fade, and the two happen at once.
+**Decision:** `ProjectExplorer` keys `<ProjectGrid>` on the filter value. Changing the key
+tears the grid down and mounts a new one, so every card runs the ordinary entrance stagger
+— the same motion the page shows on first load. `LayoutItem.tsx` and `Presence.tsx` are
+deleted; nothing else used them.
+**Reason:** Owner's suggestion, and it is better than what it replaced on every axis. A
+rearrangement animation asks the eye to track several cards moving different distances in
+different directions while others fade — three simultaneous motions describing one click.
+"Here is the new list" is both easier to read and a truer description of what a filter
+does. It also removes the last interaction on the site with bespoke motion: the grid now
+has one behaviour instead of two mutually exclusive ones selected by a `filterable` prop.
+**Cost:** Cards present in both the old and new filter are unmounted and rebuilt rather
+than tracked across the change. That is precisely what makes the effect work, and at seven
+cards of static content it costs nothing measurable. If this grid ever holds images that
+must not re-request, or state that must survive a filter, this is the decision to revisit.
+**Affects:** §9.3, §9.4, §10.3
+
+## 2026-09-02 — `Stagger` sequences by grid row, not by child
+
+**Context:** A two-column grid staggering per child makes the right-hand card land 70ms
+after the left-hand one, which reads as the row assembling itself left to right.
+**Decision:** `perRow` gives children sharing a row one delay, so rows land as units and
+the sweep runs down the grid. `ProjectGrid` and `CertificationGrid` pass 2.
+**Reason:** Owner's suggestion. A reader parses a multi-column grid by row, so a
+left-to-right offset inside one row animates the grid's internal ordering rather than the
+content arriving.
+**Cost, stated because it is a real inaccuracy:** the row width is read from one media
+query at `md`, not from the full responsive scale. `CertificationGrid` goes to three
+columns at `lg`, where the third card of each row shares a beat with the next row's first.
+At 70ms that is a rounding error in the sweep, and modelling the whole grid system inside
+a motion component to fix something invisible is the wrong trade. `useSyncExternalStore`
+reads the query rather than `useState` plus an effect, because `matchMedia` is an external
+store and the effect version writes state on mount for nothing.
+**Affects:** §9.4, §10.3
+
+## 2026-09-02 — Field errors collapse; the dialog backdrop fades
+
+**Context:** An animation sweep turned up two defects rather than polish gaps. A failed
+contact submit mounts up to three error messages at once, each shoving every field below
+it down by a line. And the mobile nav's scrim appeared instantly while its panel slid over
+`--duration-slow`, so one event was described at two speeds.
+**Decision:** `components/motion/Collapse.tsx` animates height 0 → auto with opacity over
+`fast`, used by `ContactField`. `dialog::backdrop` gets an opacity transition over `slow`,
+replacing the `backdrop:bg-black/50` utility that could not be transitioned from.
+**Reason:** Both are §10's second clause — motion that prevents a jarring change rather
+than decorating one. The form case is the only flow on the site with a commercial outcome
+and it was the one with visible layout jank.
+**Note:** the error `<p>` carries its own `pt-2` rather than relying on the parent's
+`gap-2`, because a parent gap is a fixed step between flex children and would appear at
+full size the instant the wrapper mounts — reintroducing a smaller version of the jump.
+**Affects:** §10.3

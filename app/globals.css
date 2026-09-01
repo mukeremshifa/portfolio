@@ -412,6 +412,38 @@ html:not([data-theme-pref]) .theme-label-system {
 /* §10.3, verbatim. Covers everything Motion does not own; the `MotionConfig
    reducedMotion="user"` in components/motion/MotionProvider.tsx covers the rest. */
 /* =============================================================================
+   Mobile navigation backdrop (§10.3)
+
+   The panel slides in over `--duration-slow` and the scrim behind it appeared instantly,
+   so one event was being described at two different speeds — the dimming had already
+   finished before the thing it was dimming for had started moving.
+
+   `::backdrop` is a real pseudo-element on `<dialog>`, and it can transition, but only if
+   the property is declared in both states: the closed rule below is what gives the open
+   one something to animate from. `@starting-style` is not needed because the dialog is
+   present in the DOM before it opens.
+
+   The exit works because `MobileNavigation` defers the native `close()` until Motion's
+   `onExitComplete` fires — the element keeps `[open]` for the whole exit, so the scrim
+   fades out alongside the panel rather than vanishing the instant the state flips.
+   ============================================================================= */
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+dialog[open]::backdrop {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog::backdrop {
+    transition: none;
+  }
+}
+
+/* =============================================================================
    Link underline wipe (§10.3)
 
    The audit that prompted the v3 motion rewrite found that forty-one of the site's

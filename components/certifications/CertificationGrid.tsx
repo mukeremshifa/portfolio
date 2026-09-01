@@ -31,8 +31,15 @@ export function CertificationGrid({
   return (
     <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* `Stagger` supplies the `li`, so the map yields the card and not the list item.
-          The key goes on the child it wraps; `Children.map` keeps the wrappers stable. */}
-      <Stagger as="li">
+          The key goes on the child it wraps; `Children.map` keeps the wrappers stable.
+
+          `perRow={2}` is the `md` column count. This grid also goes to three at `lg`,
+          which `Stagger` does not model — it reads one breakpoint, not a scale. The
+          mismatch is deliberate and cheap: at `lg` the third card of each row shares a
+          beat with the next row's first, which at 70ms is a rounding error in the sweep,
+          and modelling the full responsive scale would mean teaching a motion component
+          the whole grid system to fix something nobody can see. */}
+      <Stagger as="li" perRow={2}>
         {certifications.map((certification) => (
           <CertificationCard
             key={certification.id}

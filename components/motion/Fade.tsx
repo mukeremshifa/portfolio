@@ -27,12 +27,7 @@ const EASE_DRIFT = [0.2, 0.7, 0.2, 1] as const;
  * are usually part of a sequence where several elements are mid-animation at once, and the
  * full 1800ms drift across four staged items keeps the hero moving for far too long.
  */
-export function Fade({
-  children,
-  delay = 0,
-  distance = 16,
-  as = "div",
-}: FadeProps) {
+export function Fade({ children, delay = 0, distance = 16, as = "div" }: FadeProps) {
   const Component = motion[as];
 
   return (

@@ -82,7 +82,7 @@ export function MobileNavigation({ items, cta }: MobileNavigationProps) {
           close();
         }}
         onClose={close}
-        className="m-0 ml-auto h-dvh max-h-none w-[min(20rem,85vw)] max-w-none bg-transparent p-0 backdrop:bg-black/50"
+        className="m-0 ml-auto h-dvh max-h-none w-[min(20rem,85vw)] max-w-none bg-transparent p-0"
       >
         <AnimatePresence onExitComplete={() => dialogRef.current?.close()}>
           {open ? (

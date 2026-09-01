@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Fade } from "@/components/motion/Fade";
 import { ProjectFilter, type FilterValue } from "@/components/projects/ProjectFilter";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import type { CategoryFilter } from "@/lib/content";
@@ -50,17 +51,35 @@ export function ProjectExplorer({ projects, filters }: ProjectExplorerProps) {
       </p>
 
       {visible.length > 0 ? (
-        // `filterable` is what selects the reposition-and-fade animation over the
-        // stagger. This is the caller that filters, so it is the caller that opts in.
-        <ProjectGrid projects={visible} headingLevel="h2" filterable />
+        // **`key={value}` is the whole filter animation.** Changing the key tears down
+        // the grid and mounts a fresh one, so every card runs its normal entrance stagger
+        // — the same motion the page shows on first load — instead of the survivors
+        // sliding to new positions while newcomers fade in around them.
+        //
+        // That reposition-and-fade is what this replaced. It was three motions at once
+        // for one click and gave the eye nothing stable to track; a filter reads far
+        // better as "here is the new list" than as "watch the old list rearrange".
+        //
+        // The cost, stated plainly: cards common to both filters are thrown away and
+        // rebuilt rather than tracked across the change. That is exactly what makes the
+        // effect work, and at seven cards of static content it is free.
+        <ProjectGrid key={value} projects={visible} headingLevel="h2" />
       ) : (
         // Reachable only if a category has no projects, which the stub set does not
         // produce but `getCategoryFilters` deliberately allows: it emits every category,
         // including one with a count of zero. An empty grid with no sentence in it would
         // read as a broken page rather than as an honest answer.
-        <p className="max-w-measure font-sans text-body text-text-muted">
-          Nothing in this category yet.
-        </p>
+        //
+        // `Fade` rather than `Reveal`, and keyed like the grid above: this replaces a
+        // grid that just disappeared, so it has to arrive on mount rather than wait for a
+        // viewport trigger it has already satisfied. A short distance because it is one
+        // line of text taking the place of something much larger, and a long travel would
+        // draw more attention to the absence than to the sentence explaining it.
+        <Fade key={value} delay={0.05} distance={10}>
+          <p className="max-w-measure font-sans text-body text-text-muted">
+            Nothing in this category yet.
+          </p>
+        </Fade>
       )}
     </div>
   );

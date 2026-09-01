@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 
+import { Collapse } from "@/components/motion/Collapse";
 import { VisuallyHidden } from "@/components/ui/VisuallyHidden";
 import type { ContactFieldName } from "@/lib/contact";
 
@@ -129,11 +130,22 @@ export function ContactField({
           `ContactForm` and by focus moving to the first invalid control; marking each
           error as its own region would announce three of them at once on a failed
           submit, on top of the summary. */}
-      {error ? (
-        <p id={errorId} className="font-sans text-body-sm text-danger">
+      {/* `Collapse` animates the height so an appearing message pushes the fields below
+          it rather than teleporting in and shoving them. A failed submit can add three of
+          these at once, and instant mounting jolted the whole form.
+
+          The `<p>` keeps its id unconditionally-shaped markup: `aria-describedby` on the
+          control points at `errorId`, and the element it names either exists or does not
+          — the wrapper animates around it and never replaces it. */}
+      <Collapse open={Boolean(error)}>
+        {/* `pt-2` rather than relying on the parent's `gap-2`: the padding has to grow
+            and shrink *with* the message, and a parent gap is a fixed step between flex
+            children that would appear at full size the instant the wrapper mounts —
+            reintroducing a smaller version of the jump this is here to remove. */}
+        <p id={errorId} className="pt-2 font-sans text-body-sm text-danger">
           {error}
         </p>
-      ) : null}
+      </Collapse>
     </div>
   );
 }

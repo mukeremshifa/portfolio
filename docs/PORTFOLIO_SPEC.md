@@ -1424,13 +1424,15 @@ and both were wrong together.
 | Hero heading | char split | per-character opacity, `--step-char` apart, no per-char transform |
 | Hero accent word | blur-slide | `translateX(-20px)` + `blur(10px)` → settled, on one word only |
 | Section entrance | decoupled reveal | §10.2, `once: true` |
-| Card grids | staggered reveal | `--step-item` between children, capped at 6 |
+| Card grids | staggered reveal | `--step-item` between children, capped at 6; multi-column grids pass `perRow` so a **row** shares a delay and the sweep runs down the grid rather than through it |
 | Images | blur-scale | `scale(1.04)` + `blur(12px)` → settled over `--duration-drift` |
 | Route change | page transition | outgoing fades and lifts, incoming reveals; never blocks the click |
 | Card hover | lift + border | `translateY(-4px)` over `base` |
 | Link hover | underline wipe | `scaleX(0)` → `1` from the left, over `base` |
 | Button press | scale | `0.98`, `fast` |
-| Filter | layout + presence | reposition over `base`, enter/exit fade over `fast` |
+| Project filter | remount | the grid is keyed on the filter value, so a change mounts a new list and it staggers in exactly as a first load does — no bespoke filter animation |
+| Field errors | collapse | height 0 → auto with opacity, `fast`; an error pushes the fields below it rather than shoving them |
+| Dialog backdrop | CSS | scrim fades over `slow`, matching the panel it dims |
 | Cursor | desktop only | follows the pointer, grows over interactive targets, `pointer: fine` only |
 | Rail | colour only | the dash never moves or resizes; it is a position readout, not an animation |
 
