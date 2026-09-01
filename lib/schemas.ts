@@ -199,7 +199,18 @@ export const SiteSchema = z.object({
   contact: z.object({
     headline: z.string(),
     body: z.string(),
-    endpoint: z.url().optional(),
+    /**
+     * Where `ContactForm` posts, and the switch that decides whether it renders at all
+     * (§8.7). Absent means the page shows the direct channels alone.
+     *
+     * `AssetPathOrUrl` rather than `z.url()` for the same reason `resume.url` uses it:
+     * the endpoint became same-origin on 2026-09-01 when §14's Cloudflare Worker was
+     * dropped for a Next route handler, and `/api/contact` is not a URL. Writing
+     * `https://mukeremshifa.com/api/contact` instead would hard-code the origin
+     * `SITE_ORIGIN` exists to derive once, and would post every preview deployment's
+     * form at production. See docs/DECISIONS.md.
+     */
+    endpoint: AssetPathOrUrl.optional(),
   }),
 });
 

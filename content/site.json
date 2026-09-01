@@ -90,6 +90,7 @@
   },
   "contact": {
     "headline": "Tell me what you are building.",
-    "body": "I read everything that arrives. If you are hiring, scoping a project, or stuck on a multi-tenancy or LLM integration problem, a few sentences about the constraint is enough to start a useful conversation."
+    "body": "I read everything that arrives. If you are hiring, scoping a project, or stuck on a multi-tenancy or LLM integration problem, a few sentences about the constraint is enough to start a useful conversation.",
+    "endpoint": "/api/contact"
   }
 }

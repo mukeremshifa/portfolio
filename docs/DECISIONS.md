@@ -1588,3 +1588,50 @@ visitor, turning an anti-spam check into a total outage of the contact path. The
 success matters for the same reason in miniature: without it, a second message in one
 session is still measured from the first mount and trips the same ceiling.
 **Affects:** §14.1, §14.2
+
+## 2026-09-01 — The contact endpoint is a Next route, not a Cloudflare Worker
+
+**Context:** §2 and §14 put the contact endpoint on a Cloudflare Worker at
+`api.mukeremshifa.com`, with the subdomain reserved in Phase 0. Phase 4a shipped the form
+against that contract. Before 4b was built, the owner chose to drop the Worker and
+implement §14 as a Next route handler on Vercel instead.
+**Decision:** `app/api/contact/route.ts`. `site.contact.endpoint` is `/api/contact`,
+same-origin. No `worker/` package, no wrangler, no second deploy. Resend is unchanged.
+**Reason:** Same-origin removes §14.1's CORS allowlist entirely — the clause the spec
+called "load-bearing rather than a formality" only existed because the endpoint was
+cross-origin. It also removes a second toolchain and a second deploy from a one-form
+feature. §14.1's wire contract, §14.2's checks and §14.3's logging rules all survive the
+move; what changes is where the code runs.
+
+**What it costs, recorded because it is a real gap and not a detail.** §14.2 item 5, the
+per-IP rate limit, is **not implemented.** A Vercel function holds no state between
+invocations, so a counter needs an external store (Upstash, Vercel KV) and the owner chose
+on 2026-09-01 not to add one yet. The honeypot and the time trap are the spam defence
+until then. `ContactForm` already renders the 429 path in full and `ContactResponse` still
+carries `rate_limit`, so adding a store later is one file — the seam is marked in the
+route.
+
+**Two consequential details.** `SiteSchema.contact.endpoint` moves from `z.url()` to
+`AssetPathOrUrl`, because `/api/contact` is not a URL — the same widening `resume.url`
+needed, for the same reason: writing the absolute origin into a content file would break
+localhost and post every preview's form at production. And the route answers 400s from
+`lib/contact.ts`'s `messageFor` rather than Zod's own strings, since the client renders the
+`fields` map verbatim under the inputs.
+**Affects:** §2, §5.2, §14, §14.1, §14.2, §18 Phase 4
+
+## 2026-09-01 — Hints render as placeholders, and the message field does not resize
+
+**Context:** Owner's direction after seeing the form.
+**Decision:** `ContactField`'s `hint` renders as the control's `placeholder` as well as
+being wired to `aria-describedby`; the paragraph beneath the field is gone. The textarea
+takes `resize-none` and hides its scrollbar.
+**Reason:** Owner's call on the visual, made with the accessibility cost stated. Recorded
+because both halves are deliberate deviations someone will otherwise read as mistakes.
+A placeholder disappears on first keystroke, so the hint is no longer visible while
+someone writes — the `aria-describedby` link survives that, which is why the text is kept
+in a visually hidden node rather than deleted, and the `<label>` above is untouched (§8.7's
+"placeholders are not labels" still holds: they are not labels here, they are hints).
+Removing the resize handle takes away a real affordance for anyone writing a long message
+in a six-row box, and hiding the scrollbar removes the cue that there is more text above.
+Both were accepted knowingly.
+**Affects:** §8.7, §11.4
