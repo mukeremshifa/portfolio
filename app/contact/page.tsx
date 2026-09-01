@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ContactChannels } from "@/components/contact/ContactChannels";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { BulletList } from "@/components/ui/BulletList";
+import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { getSite } from "@/lib/content";
@@ -37,10 +38,21 @@ export const metadata: Metadata = buildMetadata({
 export default function ContactPage() {
   const site = getSite();
 
+  // Built here rather than as a module constant, because the form section is conditional
+  // (§8.7's switch, below) and a rail stop pointing at an element that was not rendered
+  // is a dead link. With no endpoint the page has three stops, which is exactly the
+  // minimum the rail draws itself for.
+  const sections: RailSection[] = [
+    { id: "intro", label: "Contact" },
+    ...(site.contact.endpoint ? [{ id: "form", label: "Send a message" }] : []),
+    { id: "channels", label: "Direct channels" },
+    { id: "what-helps", label: "What helps" },
+  ];
+
   return (
     <Container width="prose">
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
-        <div className="flex flex-col gap-4">
+        <div id="intro" data-rail-section className="flex flex-col gap-4">
           <h1 className="font-serif text-display-2 font-semibold text-text">Contact</h1>
           <p className="max-w-measure font-sans text-body-lg text-text-muted">
             Tell me a little about the product, role, or technical challenge. A few
@@ -53,10 +65,12 @@ export default function ContactPage() {
             contact rather than a stand-in for one. Nothing below this line moved when the
             form arrived, which is what the Phase 3 note predicted. */}
         {site.contact.endpoint ? (
-          <ContactForm endpoint={site.contact.endpoint} email={site.email} />
+          <div id="form" data-rail-section>
+            <ContactForm endpoint={site.contact.endpoint} email={site.email} />
+          </div>
         ) : null}
 
-        <section className="flex flex-col gap-heading">
+        <section id="channels" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading
             title="Direct channels"
             lead="These reach me whichever way you prefer."
@@ -64,7 +78,7 @@ export default function ContactPage() {
           <ContactChannels site={site} layout="stack" />
         </section>
 
-        <section className="flex flex-col gap-heading">
+        <section id="what-helps" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading title="What helps" />
           {/* The square, like every other list of peers on the site. This briefly took the
               chevron on the argument that the items ask something of the reader rather than
@@ -82,6 +96,8 @@ export default function ContactPage() {
           />
         </section>
       </div>
+
+      <SectionRail sections={sections} />
     </Container>
   );
 }

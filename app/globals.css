@@ -392,3 +392,43 @@ html:not([data-theme-pref]) .theme-label-system {
     scroll-behavior: auto !important;
   }
 }
+
+/* =============================================================================
+   Scrollbar — §6.7's square edges, and the one piece of chrome the system does not draw
+
+   The native scrollbar is the only rounded, differently-coloured, differently-shaped
+   element on the page. It cannot be squared off: `scrollbar-width` takes `thin` and
+   `none` and nothing else, and the WebKit pseudo-elements style a track and thumb whose
+   metrics still belong to the platform. So it is removed rather than restyled, and
+   `SectionRail` renders the position it was carrying.
+
+   Removed on the *viewport*, not globally. Code blocks (§12.4) scroll horizontally and are
+   required to be keyboard-scrollable with a visible affordance; taking their scrollbar
+   away would remove the only signal that there is more to the right. Scoping to
+   `html`/`body` leaves every inner scroll region exactly as it is.
+
+   The page still scrolls by wheel, touch, keyboard, and the rail. What is gone is the
+   painted indicator, which is what the rail replaces — including below `md`, where the
+   rail does not render: on phones and tablets the scrollbar is an overlay that is
+   already absent at rest, so there is nothing to replace.
+   ============================================================================= */
+
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* §11.2: the rail scrolls to a section by moving focus to it, and a focused section must
+   not land under the sticky header. `scroll-margin-top` is what the browser honours for
+   both `scrollIntoView` and the focus scroll, so the offset is declared on the target
+   rather than computed by the caller. 64px is the header's `min-h-16` plus the gap that
+   keeps the heading from sitting flush against it. */
+@media (min-width: 48rem) {
+  [data-rail-section] {
+    scroll-margin-top: 96px;
+  }
+}

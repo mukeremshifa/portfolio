@@ -1,7 +1,7 @@
 # Portfolio — Specification v2.1 (Quality-First)
 
-**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 2 — golden sample
-**Spec version:** 2.1.4 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15
+**Owner:** Mukerem Shifa · **Repo:** `mukeremshifa/portfolio` · **Domain:** `mukeremshifa.com` · **Status:** Phase 4 complete — next is Phase 5 (content sweep)
+**Spec version:** 2.1.6 · **Supersedes:** MASTERPLAN v1.0 (removed from the repo) · **Drafted:** 2026-08-15 · **Last reconciled against the tree:** 2026-09-01
 
 ## Why this version exists
 
@@ -180,39 +180,54 @@ product to measure. §12 covers what "later" looks like when it arrives.
 
 ## 4. Repository layout
 
+Reconciled against the tree on 2026-09-01. Where this drifted from what shipped, the tree
+won and this section was rewritten — the drift itself is recorded in §4.2 rather than
+silently corrected, because three of the differences were decisions rather than oversights.
+
 ```text
 portfolio/
-├── .github/workflows/
-│   └── ci.yml                  # format, lint, typecheck — informational, not blocking
+├── .github/workflows/          # empty; `ci.yml` was never written (§4.2, §16.2)
 ├── app/
-│   ├── layout.tsx              # html/body, fonts, theme script, MotionConfig, skip link
-│   ├── globals.css             # tailwind import, @theme tokens, base layer
+│   ├── layout.tsx              # html/body, fonts, theme script, MotionProvider, skip link
+│   ├── globals.css             # tailwind import, @theme tokens, base layer, scrollbar removal
 │   ├── page.tsx                # home
 │   ├── not-found.tsx
 │   ├── sitemap.ts
 │   ├── robots.ts
+│   ├── manifest.ts             # PWA manifest (§13.5)
+│   ├── opengraph-image.tsx     # root OG card (§13.4)
+│   ├── icon.svg, apple-icon.png, favicon.ico
+│   ├── api/contact/route.ts    # the contact endpoint (§14) — a Next route, not a Worker
 │   ├── about/page.tsx
 │   ├── projects/page.tsx
 │   ├── projects/[slug]/page.tsx
+│   ├── projects/[slug]/opengraph-image.tsx
 │   ├── experience/page.tsx
-│   ├── certifications/page.tsx
-│   └── contact/page.tsx
+│   ├── skills/page.tsx         # renamed from certifications/ (§7.1)
+│   ├── contact/page.tsx
+│   └── dev/primitives/page.tsx # Phase 1 primitive gallery; not linked, not in the sitemap
 ├── components/
-│   ├── layout/                 # SiteHeader, MobileNavigation, SiteFooter, SkipLink, ThemeToggle
-│   ├── home/                   # Hero, FeaturedProjects, EngineeringFocus, FeaturedCaseStudy,
-│   │                           #   ExperiencePreview, CredentialsPreview, ContactCallout
-│   ├── projects/               # ProjectCard, ProjectGrid, ProjectFilter, ProjectFacts,
-│   │                           #   CodeHighlight, ScreenshotGallery, CaseStudyNavigation
+│   ├── layout/                 # SiteHeader, MainNav, MobileNavigation, SiteFooter, SkipLink,
+│   │                           #   ThemeToggle, ThemeScript, SectionRail
+│   ├── brand/                  # Monogram, Wordmark, Signature (§13.5)
+│   ├── home/                   # Hero, FeaturedProjects, EngineeringFocus, ExperiencePreview,
+│   │                           #   CredentialsPreview, TechnologyList, ContactCallout
+│   ├── projects/               # ProjectCard, ProjectGrid, ProjectFilter, ProjectExplorer,
+│   │                           #   ProjectFacts, CaseStudySummary, CaseStudyNavigation,
+│   │                           #   CodeHighlight, ScreenshotGallery
 │   ├── experience/             # ExperienceTimeline, ExperienceEntry
-│   ├── certifications/         # CertificationCard, CertificationGrid
-│   ├── contact/                # ContactForm, ContactChannels
-│   ├── motion/                 # Reveal, Stagger — client wrappers with no visual opinion
+│   ├── about/                  # ProfileHeader, EducationList
+│   ├── certifications/         # CertificationCard, CertificationGrid — rendered by /skills/
+│   ├── contact/                # ContactForm, ContactField, ContactChannels
+│   ├── motion/                 # MotionProvider, Reveal, Stagger, LayoutItem (§9.4)
 │   └── ui/                     # Button, Tag, SectionHeading, ExternalLink, StatusBadge,
-│                               #   Container, Prose, Figure, CodeBlock, VisuallyHidden
+│                               #   Container, Prose, Figure, CodeBlock, CopyButton, BulletList,
+│                               #   BrandIcon, VisuallyHidden
 ├── content/
-│   ├── site.json               # identity, socials, availability, location, résumé
+│   ├── site.json               # identity, socials, availability, location, résumé, portrait
 │   ├── projects/*.json
 │   ├── experience/timeline.json
+│   ├── education/education.json    # split out of the timeline 2026-08-31
 │   ├── certifications/certifications.json
 │   ├── skills/skills.json
 │   └── focus/focus.json        # engineering-focus pillars
@@ -221,18 +236,25 @@ portfolio/
 │   ├── content.ts              # load, validate, and derived selectors
 │   ├── metadata.ts             # buildMetadata(), canonical URLs
 │   ├── structured-data.ts      # JSON-LD builders
+│   ├── og.ts                   # shared OG card rendering (§13.4)
+│   ├── contact.ts              # endpoint payload handling and delivery (§14)
+│   ├── rate-limit.ts           # Upstash two-window limiter (§14.2)
+│   ├── brand-marks.ts          # generated by scripts/build_brand.py; Prettier-ignored
 │   └── utils.ts                # cn(), formatDate(), and friends
 ├── public/
-│   ├── images/                 # real assets once available; placeholders until then (§5.6)
-│   ├── placeholders/           # generic stub svg/png/webp used during early phases
-│   └── og/                     # OG images
-├── tests/
-│   ├── unit/                   # vitest — advisory
-│   └── e2e/                    # playwright — advisory
-├── worker/                     # contact endpoint — Cloudflare Worker (§14), added in Phase 4
+│   ├── images/                 # real assets; projects/ holds the light/dark cover pairs
+│   ├── placeholders/           # generic stub svg/pdf still referenced by §5.6
+│   ├── brand/                  # monogram, wordmark, avatar, OG monogram
+│   ├── icons/                  # PWA icons
+│   └── Mukerem-Shifa-Resume.pdf
+├── scripts/
+│   ├── build_brand.py          # renders the brand marks into lib/brand-marks.ts
+│   └── build_covers.py         # 8K source renders → committed AVIF cover pairs
 └── docs/
     ├── PORTFOLIO_SPEC.md       # this file
-    └── DECISIONS.md            # append-only log of deviations from this spec
+    ├── DECISIONS.md            # append-only log of deviations from this file
+    ├── STUB-INVENTORY.md       # the swap matrix and what is still synthetic
+    └── templates/              # project JSON template and its README
 ```
 
 ### 4.1 Conventions (kept from v1.0, these were never about performance)
@@ -245,6 +267,21 @@ portfolio/
 - Content files are `kebab-case.json`; for projects the filename matches the `slug` field.
 - No component reads the filesystem. Content enters through `lib/content.ts` only.
 - `docs/DECISIONS.md` gets one entry per meaningful deviation from this spec.
+
+### 4.2 Where the tree and this section had diverged
+
+Recorded rather than quietly fixed, because each of these is a standing fact about the
+project and not a typo:
+
+| Was specified | What is actually there | Standing |
+|---|---|---|
+| `worker/` for the contact endpoint | `app/api/contact/route.ts` | **Decided.** The endpoint is a Next route on Vercel, not a Cloudflare Worker — `DECISIONS.md`, 2026-09-01. §14 is amended to match |
+| `tests/unit/`, `tests/e2e/` | Neither exists; Vitest is not installed | **Outstanding.** Phase 2's exit criterion named the §5.5 invariant tests and they were never written. See §15.3 |
+| `.github/workflows/ci.yml` | `.github/` is empty | **Outstanding.** Phase 0 called for a stub; nothing was committed. §16.2 now says so |
+| `public/og/` | OG cards are generated per route by `opengraph-image.tsx` | **Decided.** §13.4 always described generation; the directory was a leftover from a static-export draft |
+| `app/certifications/page.tsx` | `app/skills/page.tsx` | **Decided.** Renamed 2026-08-31, §7.1, with a permanent redirect in `next.config.ts` |
+| `components/motion/` "Reveal, Stagger" | Also `MotionProvider` and `LayoutItem` | **Decided.** §9.4 |
+
 ---
 
 ## 5. Content model
@@ -521,8 +558,11 @@ During Phases 0 through 4, real content will not exist yet. That is expected, no
   stubs are deliberately realistic — a stub email looks like an email, so the design can be
   judged through content that behaves like content — and the cost of that is that grepping
   for the word "placeholder" no longer finds them. The inventory is the mitigation, and it
-  stops being one the moment it drifts out of date. A test in `tests/unit/` holds the half a
-  machine can check: every image `src` in `content/` still points under `/placeholders/`.
+  stops being one the moment it drifts out of date. A test in `tests/unit/` was to hold the
+  half a machine can check — every image `src` in `content/` still pointing under
+  `/placeholders/` — and **it was never written** (§15.3), so the whole sweep is currently
+  a human reading the inventory. `STUB-INVENTORY.md` says the same under its own last
+  heading.
 
 ---
 
@@ -877,6 +917,51 @@ Location comes from `site.json` so it cannot be overstated in markup.
 
 ---
 
+### 7.5 Section rail and the scrollbar
+
+**Added 2026-09-01.** The native scrollbar is the one piece of chrome the design system does
+not draw: it is rounded where §6.7 makes every edge square, it carries the OS palette rather
+than this one, and its metrics are per-platform. It cannot be restyled into the system —
+`scrollbar-width` accepts `thin` and `none` and nothing else, and the WebKit pseudo-elements
+still leave the platform's shape underneath. So it is **removed on the viewport** in
+`globals.css` and `SectionRail` renders the position it was carrying.
+
+- Removal is scoped to `html`/`body`, never globally. Code blocks scroll horizontally and
+  §11.2 requires a visible affordance for that; taking their scrollbar away would delete the
+  only signal that there is more to the right. Every inner scroll region keeps its own.
+- The rail is `<nav aria-label="Sections">`: one dash per section, `fixed` in the right
+  gutter, vertically centred, `md` and up. Below `md` there is no gutter, and mobile
+  scrollbars are overlays already invisible at rest, so nothing is replaced and nothing
+  renders.
+- The active dash is marked with `aria-current="true"` — position *within* the page, which
+  is what `true` means on a link that is not a different page. The visible state reads the
+  same attribute, so announced and painted state cannot drift.
+- Each label is present in the DOM at `opacity: 0`, not `display: none`, so it stays the
+  link's accessible name. It is revealed on both `group-hover` and `group-focus-visible`,
+  per §21's no-hover-only rule.
+- The active section is the **topmost** one intersecting a band 20% from the top and 65% up
+  from the bottom. Topmost rather than most-visible: a short section fully on screen would
+  otherwise beat the tall one the reader is actually inside. Between two sections the last
+  dash stays lit rather than blanking.
+- Pages declare their own stops in page order. Ids go on wrappers, not inside components —
+  a component owning a page-level anchor id can only be used once per page. `globals.css`
+  hangs `scroll-margin-top` on `[data-rail-section]` so the sticky header never covers the
+  heading just jumped to.
+- The rail sits **after** its content in the DOM, so it never lands between the skip link and
+  the page. Being `fixed`, its position in the flow costs nothing.
+- Stops per route today: home 7, `/skills/` 5, `/about/` 5, `/contact/` 3 or 4 (the form stop
+  exists only when `site.contact.endpoint` does), `/experience/` 3. `/projects/` and
+  `/projects/[slug]/` have **no rail** — see §8.2 and §8.3.
+- Below `minSections` (default 3) the rail renders nothing. Two dashes are a control telling
+  the reader what they can already see.
+
+Motion is deliberately absent here beyond a colour transition: no smooth scroll is set, no
+scroll animation is driven from JS, and the dash width is fixed so the stack never reflows as
+the reader scrolls. A rail whose dashes resize is motion running while someone reads, driven
+by the reading itself, which §21 rules out. See §10.4.
+
+---
+
 ## 8. Page specifications
 
 ### 8.1 Home — `/`
@@ -943,6 +1028,9 @@ h1  Projects
   conveyed by text weight, a border change, **and** `aria-pressed`, never colour alone.
 - Changing the filter updates an `aria-live="polite"` status line: "Showing 3 of 7 projects."
 - No URL search params in v1. Revisit past roughly 12 projects.
+- **No section rail** (§7.5). The page is one filterable grid, not a sequence of sections;
+  a rail here would either name a single stop or invent divisions the reader cannot see.
+  The filter is the navigation this page has.
 
 ### 8.3 Project detail — `/projects/[slug]/`
 
@@ -980,6 +1068,13 @@ carries exactly one image — its cover. See `docs/DECISIONS.md`.
   variations on the same list.
 - `CodeHighlight` and `ScreenshotGallery` remain in `components/projects/` and are
   reachable from no page. That is deliberate, not an oversight — see §9.3.
+- **No section rail today** (§7.5), and this is the one route where that is an open call
+  rather than a decision. The five other content routes got one; this page has four `h2`
+  sections plus a facts block, which clears §7.5's minimum comfortably. It was left off
+  because the sections here are per-project and conditional — a project with no case study
+  renders three stops, one with no features renders fewer — so the stop list has to be
+  derived from the data the way `/contact/` derives its form stop, rather than declared as a
+  constant. Worth deciding before launch; it is additive either way.
 
 ### 8.4 Experience — `/experience/`
 
@@ -1154,6 +1249,9 @@ type VisuallyHiddenProps = { children: React.ReactNode; focusable?: boolean };
 | `SiteFooter` | no | Takes `site`. Computes the year. |
 | `SkipLink` | no | First focusable element; `href="#main"`. |
 | `ThemeToggle` | yes | Cycles system, light, dark. `aria-label` names the next state. |
+| `MainNav` | no | The desktop link row. Active route gets `aria-current="page"` and the brand colour (§10.2). |
+| `ThemeScript` | no | The inline no-flash script, emitted before paint. |
+| `SectionRail` | yes | Takes `sections: {id, label}[]` and an optional `minSections` (default 3); renders nothing below it. One dash per section, `fixed` in the right gutter, `md` and up. Marks position with `aria-current="true"`. See §7.5. |
 
 ### 9.3 Domain components
 
@@ -1211,28 +1309,47 @@ report. Nothing else in the tree is allowed to be in this state.
 ```ts
 type RevealProps = {
   children: React.ReactNode;
-  delay?: number;
+  delay?: number;             // seconds; Stagger sets it, callers rarely do
   as?: "div" | "section" | "li";
 };
 
 type StaggerProps = {
   children: React.ReactNode;
-  step?: number;
+  step?: number;              // milliseconds between children; §10.2 specifies 60
   as?: "div" | "section" | "li";
 };
 
 // §10.2's project-filter row needs `layout`, which neither wrapper above exposes.
 type LayoutItemProps = { children: React.ReactNode; as?: "div" | "li" };
+
+// The reduced-motion boundary (§10.3). `app/layout.tsx` stays a server component, so
+// `MotionConfig` lives behind this one-prop pass-through.
+type MotionProviderProps = { children: React.ReactNode };
 ```
 
-These are the only components that import from `motion/react` outside `app/layout.tsx`.
----
+These are the only components that import from `motion/react` **outside**
+`components/layout/MobileNavigation.tsx`, which imports `AnimatePresence` directly because
+its panel animates on exit and no wrapper here exposes that. That exception is deliberate
+and is the only one; anything else that needs Motion gets a wrapper in this directory
+first.
+
+Motion's numbers are §10.1's tokens transcribed into Motion's units — seconds, and easings
+as their four control points — because Motion cannot read a CSS custom property for a
+transition. When a token changes in `globals.css`, these four files change with it. That
+duplication is the price of having both a CSS and a JS animation path, and it is small
+enough to pay by hand.
 
 ## 10. Motion system
 
 Motion is used freely where it improves comprehension, never as decoration. Test for any
 animation: **remove it and ask whether the interface got harder to understand.** If not, it
 does not ship.
+
+**Status, 2026-09-01.** The machinery is complete and the inventory is not. All four
+wrappers in §9.4 exist, `MotionConfig` is mounted, the tokens are in `globals.css`, and the
+CSS-level rows below all ship. What is missing is application: `Reveal` and `Stagger` are
+imported by `app/dev/primitives/page.tsx` and by nothing else, so no real page currently
+uses a section entrance or a stagger. §10.2 marks each row with what is true today.
 
 ### 10.1 Tokens
 
@@ -1244,27 +1361,40 @@ does not ship.
 --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 ```
 
+`ease-out` is for entrances — something arriving from nothing. `ease-standard` is for
+everything already on screen that moves or changes: repositions, hovers, colour changes.
+Both are in `@theme`, so `duration-(--duration-fast)` and `ease-standard` are available as
+Tailwind utilities; the four wrappers in §9.4 carry the same numbers transcribed for Motion.
+
 ### 10.2 Inventory
 
-| Where | Motion | Spec |
-|---|---|---|
-| Section entrance | `Reveal` | opacity 0 to 1, `translateY(12px)` to 0, `base`, `ease-out` |
-| Card grids | `Stagger` | 60ms between children, capped at 6 |
-| Card hover | CSS | border/background over `fast`; `translateY(-2px)` |
-| Button hover/active | CSS | background over `fast`; active scales to 0.98 |
-| Nav active indicator | Motion `layoutId` | underline slides between items |
-| Mobile nav | Motion | panel slides from the right over `slow` |
-| Theme toggle | CSS | icon crossfade over `fast` |
-| Project filter | Motion `layout` | cards reposition over `base` |
-| Contact form state | CSS | button label crossfade; live region never animated |
+| Where | Motion | Spec | Built? |
+|---|---|---|---|
+| Section entrance | `Reveal` | opacity 0 to 1, `translateY(12px)` to 0, `base`, `ease-out` | Wrapper yes, **applied nowhere** |
+| Card grids | `Stagger` | 60ms between children, capped at 6 | Wrapper yes, **applied nowhere** |
+| Card hover | CSS | border/background over `fast`; `translateY(-2px)` | Yes |
+| Button hover/active | CSS | background over `fast`; active scales to 0.98 | Yes |
+| Nav active indicator | CSS | `aria-current="page"` plus the brand colour | Yes — **amended**, see below |
+| Mobile nav | Motion | panel slides from the right over `slow` | Yes |
+| Theme toggle | CSS | icon crossfade over `fast` | Yes |
+| Project filter | Motion `layout` | cards reposition over `base` | Yes |
+| Contact form state | CSS | button label crossfade; live region never animated | Yes |
+| Section rail | CSS | active dash changes colour over `fast`; width never changes | Yes — added §7.5 |
+
+**The nav indicator row is amended.** It specified a Motion `layoutId` underline sliding
+between items. It ships as a static indicator in CSS, because by the time the underline
+would slide the navigation has already happened and the animation describes a transition
+the reader has completed. Logged in `DECISIONS.md`, 2026-08-15; the row above is the
+correction, not the original.
 
 Excluded: parallax, scroll-jacking, ticking counters, typewriter effects, looping background
 animation, cursor followers, blob gradients, anything that moves while someone is reading.
 
 ### 10.3 Reduced motion
 
-`app/layout.tsx` wraps the tree in `<MotionConfig reducedMotion="user">`, plus a CSS block
-covering everything Motion does not own:
+`app/layout.tsx` wraps the tree in `MotionProvider`, which is `<MotionConfig
+reducedMotion="user">` (§9.4), plus a CSS block in `globals.css` covering everything Motion
+does not own:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -1278,11 +1408,38 @@ covering everything Motion does not own:
 ```
 
 Under reduced motion, every interaction stays legible: hover states become instant colour
-changes, the mobile panel appears rather than slides, filtered cards jump rather than glide.
+changes, the mobile panel appears rather than slides, filtered cards jump rather than glide,
+and `Reveal` keeps its opacity while dropping its transform, so content still arrives — it
+just does not move.
+
+Note the `scroll-behavior: auto !important` line already in that block. It means smooth
+scrolling can be turned on with a single declaration on `html` whenever §7.5's rail wants
+it, and the reduced-motion path is already correct without touching this section.
 
 *(The v1.0 "no-JavaScript constraint on motion" section is gone. There is no requirement
 that content render before scripting runs, so `Reveal` can simply start hidden and animate in
 without the `@media (scripting: enabled)` guard.)*
+
+### 10.4 Before the inventory is applied
+
+§10.2's first two rows are the whole of the unbuilt motion work, and they are worth doing
+deliberately rather than by sweeping every section into a `Reveal`. Three things decide it:
+
+- **Which sections earn an entrance.** A `Reveal` on every section of the home page is
+  decoration by volume — the test in §10's opening paragraph is applied per section, not
+  once for the pattern. A grid of cards arriving as a group reads as a group; a paragraph
+  fading in reads as a page that was not ready.
+- **The rail and the reveal share a scroll.** `SectionRail` (§7.5) already observes section
+  intersection to move its marker. A `Reveal` firing on the same threshold means the marker
+  and the content animate together, which is either coherent or noisy depending on the
+  band. Whatever `Reveal` uses, it should be reasoned about against `rootMargin:
+  "-20% 0px -65% 0px"`, not chosen independently.
+- **`once: true` is already the setting.** Content that re-animates on scroll-up is motion
+  running while someone is reading, which §21 forbids. `Reveal` gets this right today; any
+  new wrapper has to keep it.
+
+Smooth scrolling for the rail is one declaration on `html`, is currently deliberately
+absent, and belongs to this same pass. §10.3's reduced-motion block already overrides it.
 
 ---
 
@@ -1521,9 +1678,18 @@ are square, per §6.7's zero-radius rule.
 
 ## 14. Contact backend
 
-A Cloudflare Worker on `api.mukeremshifa.com`, built in Phase 4. Because the app runs on
-Vercel and the endpoint runs on Cloudflare, every request to it is cross-origin, which makes
-the CORS allowlist below load-bearing rather than a formality.
+**Amended 2026-09-01: this is a Next route handler, not a Cloudflare Worker.** It ships as
+`app/api/contact/route.ts`, same origin as the app, built in Phase 4. The original design
+put it on a Worker at `api.mukeremshifa.com`, which made every submission cross-origin and
+made the CORS allowlist below load-bearing. Same-origin, **CORS stops applying at all** —
+there is no preflight, no allowlist to keep in sync with the deploy URL, and no second thing
+to deploy. Read the CORS material below as the record of a design that was not taken.
+Rationale in `DECISIONS.md`, 2026-09-01.
+
+What the move does not change: §14.1's contract, §14.2's server-side checks, and the
+`sendEmail()` seam are all identical either way. Rate limiting is Upstash over HTTP
+(`lib/rate-limit.ts`), which works the same from either runtime and **fails open** —
+a limiter outage must not take the contact form down with it.
 
 ### 14.1 Contract
 
@@ -1588,6 +1754,28 @@ Visual regression snapshots, component tests for presentational markup, Lighthou
 bundle-size assertions, a dedicated no-JS test project. All of this was in service of the
 constraints removed in §2.1. Add any of it back later if there is an actual reason to.
 
+### 15.3 What actually exists, 2026-09-01
+
+| Layer | Status |
+|---|---|
+| Types | **Yes.** `pnpm typecheck` is `tsc --noEmit` and is clean |
+| Lint | **Config only.** `eslint.config.mjs` is written; there is no `lint` script in `package.json` |
+| Format | **Config only.** Prettier and `.prettierignore` are set up; there is no `format:check` script, though AGENTS.md refers to one |
+| Build | Available as `next build`, but not run during the active dev gate (see AGENTS.md) |
+| Unit | **No.** Vitest is not installed and `tests/` does not exist |
+| E2E, a11y, links | **No.** As §15.1 intended for this stage |
+
+`package.json` currently defines exactly two scripts: `dev` and `typecheck`. That is a
+deliberate consequence of AGENTS.md's active development gate, which asks for the minimum
+needed to validate a change and defers full validation to a deployment checkpoint.
+
+**The gap that matters is the unit row.** Phase 2's exit criterion named the §5.5
+cross-file invariant tests, and they were never written — every invariant in §5.5 is
+currently enforced by reading, and the `links.*` row in `STUB-INVENTORY.md` names a
+`tests/unit/links.test.ts` that does not exist. §5.5's invariants are the highest-value
+tests in §15.1's table precisely because content changes are the thing this project does
+most, and they are the class of change a type checker cannot see.
+
 ---
 
 ## 16. CI/CD & deployment
@@ -1629,6 +1817,12 @@ unfinished site out of the index while still promoting, `robots.ts` disallows ev
 behind an environment flag until the Phase 6 hardening pass flips it (§13.3).
 
 ### 16.2 `ci.yml` — informational, not a gate
+
+**Not built as of 2026-09-01.** `.github/workflows/` is empty; Phase 0 called for a stub and
+none was committed. Nothing has depended on it, because none of it was ever a gate and
+Vercel builds every push regardless (§16.3). It is listed as outstanding in §18 rather than
+quietly dropped — the `unit` step below cannot be written before §15.3's tests exist, and
+the rest is worth having the day someone else touches this repo.
 
 ```text
 setup      → pnpm install, Node LTS, pnpm cache
@@ -1699,7 +1893,21 @@ release finished, not conditions a PR is blocked on.
 Same seven-phase shape as v1.0, minus the phases (and spikes) that only existed to de-risk
 static export.
 
-### Phase 0 — Foundations
+**Where this stands, 2026-09-01.** Phases 0 through 4 are done and tagged `phase-0` through
+`phase-3` on `dev` (Phase 4 is complete but not yet tagged). Next is **Phase 5, the content
+sweep**. Three items were carried past their phase rather than completed in it, and none of
+them blocks Phase 5:
+
+| Carried | From | Where it is tracked |
+|---|---|---|
+| §5.5 invariant tests (Vitest) | Phase 2 | §15.3 |
+| `ci.yml` | Phase 0 | §16.2 |
+| §10.2's `Reveal` / `Stagger` application | Phase 1 built the wrappers; applying them was never scheduled | §10.4 |
+
+The third is the only one that is a *product* gap rather than a tooling gap, and it is the
+motion work described in §10.4.
+
+### Phase 0 — Foundations ✅
 
 - Scaffold Next.js + TypeScript + Tailwind v4 with pnpm; commit the lockfile.
 - Set up `next.config.ts` (no `output: "export"`; `images.unoptimized: true` per §12.2),
@@ -1714,7 +1922,11 @@ static export.
 **Exit:** an empty site is live on `mukeremshifa.com` over HTTPS with `www` redirecting to
 it, pushes to `dev` produce previews, and `pnpm check` is clean.
 
-### Phase 1 — Design system and application shell
+*Left behind:* `ci.yml` was never committed (§16.2), and `pnpm check` does not exist as a
+script (§15.3). Neither was load-bearing — Vercel builds every push, and nothing here was
+ever a gate.
+
+### Phase 1 — Design system and application shell ✅
 
 - `globals.css` with the full token set (§6.4) and the three-family type scale (§6.6).
 - Theme mechanics: inline no-flash script, `ThemeToggle`.
@@ -1724,7 +1936,11 @@ it, pushes to `dev` produce previews, and `pnpm check` is clean.
 **Exit:** a demo route renders every primitive in both themes; header, footer, and mobile
 navigation are keyboard-operable.
 
-### Phase 2 — Golden sample
+*Met, at `app/dev/primitives/`.* Note what "the `motion/` wrappers" meant here: building
+them, not applying them. The demo route is still the only consumer of `Reveal` and
+`Stagger`, which is why §10.4 exists.
+
+### Phase 2 — Golden sample ✅
 
 - `lib/schemas.ts`, `lib/content.ts` with the validation gate.
 - `ui/Figure` (using `next/image`, `unoptimized: true`).
@@ -1745,7 +1961,11 @@ navigation are keyboard-operable.
 **Exit:** the golden project page is complete and adding a second project requires zero
 component changes.
 
-### Phase 3 — Remaining pages
+*Met on the page; the Vitest line was not done* (§15.3). The exit criterion itself was
+proved the hard way in Phase 5's run-up, when six synthetic projects were deleted and four
+real ones added with no component changes.
+
+### Phase 3 — Remaining pages ✅
 
 - Home: all seven sections in order (§8.1).
 - `/projects/` with the filter and its live region.
@@ -1762,7 +1982,7 @@ and every resource the owner supplies is swappable by editing `content/` or drop
 into `public/` — verified by performing each row of the swap matrix rather than asserting
 it.
 
-### Phase 4 — Contact path
+### Phase 4 — Contact path ✅
 
 - Contact endpoint implementing §14, on whatever host was chosen.
 - `ContactForm` with validation, error wiring, live regions, honeypot.
@@ -1771,7 +1991,12 @@ it.
 
 **Exit:** a real message arrives; disabling the endpoint degrades to the email-only path.
 
-### Phase 5 — Content sprint
+*Met, with one design change:* the endpoint is `app/api/contact/route.ts`, not a Cloudflare
+Worker (§14). Rate limiting (two windows, Upstash, fails open) and a provider timeout were
+added beyond what §14.2 specified; both are logged in `DECISIONS.md`, 2026-09-01. The
+`site.contact.endpoint` switch is the single control for the degraded path.
+
+### Phase 5 — Content sprint ← next
 
 - Replace all placeholder assets and stub copy with the real thing (§5.6 sweep, §20
   checklist).
@@ -1818,6 +2043,13 @@ the project set are all rows of the swap matrix in `docs/STUB-INVENTORY.md`, eac
 by editing `content/` or dropping a file into `public/`. Q2 stays a one-file seam behind
 `sendEmail()`. Raise one of these again only if something makes it structural rather than
 a value.
+
+**Updated 2026-09-01.** Q1 and Q2 are now closed: the mailbox is `hello@mukeremshifa.com`,
+forwarded to the owner's real inbox by Cloudflare Email Routing, and outbound delivery from
+the contact endpoint is Resend behind `sendEmail()`. Q4's résumé sub-question closed too —
+`public/`, not R2, at `/Mukerem-Shifa-Resume.pdf`, with a deliberately undated filename. See
+`STUB-INVENTORY.md`. The table below is left intact as the record; the two live rows are Q3
+and what remains of Q4.
 
 What is left genuinely needs your input, eventually:
 
@@ -1898,13 +2130,33 @@ to raise; "no client-side syntax highlighting," reversed, it is now the plan per
 
 ## Appendix A — Command reference
 
+**What `package.json` defines today:**
+
 ```bash
-pnpm dev              # local development
-pnpm build            # production build
+pnpm dev              # local development, http://localhost:3000
+pnpm typecheck        # tsc --noEmit
+```
+
+**What this spec has been assuming, and which do not exist yet** (§15.3). Written here as
+the target, not as usable commands:
+
+```bash
+pnpm build            # production build — works as `next build`, no script alias
 pnpm start            # serve the production build locally
 pnpm check            # prettier + eslint + tsc + unit tests — informational
 pnpm test:e2e         # playwright, run when useful, not on every push
 pnpm test:a11y        # axe sweep, run periodically
+```
+
+Note that AGENTS.md's active development gate asks agents not to run build, test, or
+CI-style commands during day-to-day iteration — `pnpm typecheck` is the sanctioned check.
+The list above becomes real at a deployment checkpoint, not before.
+
+**Asset generation** (Python, run by hand, outputs committed):
+
+```bash
+python scripts/build_brand.py    # brand marks → lib/brand-marks.ts
+python scripts/build_covers.py   # 8K source renders → public/images/projects/*.avif
 ```
 
 ## Appendix B — Golden sample definition
@@ -1925,6 +2177,7 @@ through 4.
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1.6 | 2026-09-01 | **Reconciliation pass — the spec is re-derived from the tree rather than the tree from the spec.** §4 rewritten against the actual file layout, with a new §4.2 recording the six places they had diverged and whether each was a decision or an oversight. New §7.5 specifies `SectionRail` and the viewport scrollbar removal. New §10.4 states what remains before the motion inventory is applied. §10 gains a build-status column and amends the nav-indicator row to the CSS implementation that shipped 2026-08-15. §9.2 gains `MainNav`, `ThemeScript`, `SectionRail`; §9.4 gains `MotionProvider` and names `MobileNavigation` as the one sanctioned exception to the wrapper rule. §14 amended: the contact endpoint is a Next route, not a Cloudflare Worker, and CORS therefore does not apply. New §15.3 and an amended §16.2 record that the Vitest invariant tests and `ci.yml` were never built. Appendix A separates the two commands that exist from the five this spec had been assuming. §18 gains a status header, per-phase notes on what each phase left behind, and marks Phase 5 next. §8.2 and §8.3 record why the two project routes have no rail. §19: Q1, Q2, and Q4's résumé sub-question closed. Header status corrected from "Phase 2 — golden sample", which had been stale since 2026-08-18. |
 | 1.0 | 2026-08-15 | Initial full specification, derived from the rough brief. Removed from the repo when superseded. |
 | 2.0 | 2026-08-15 | Rewritten per owner direction: removed static-export, no-JS, and bundle-budget constraints; dropped `shiki` and `sharp`; added a third typeface (Source Serif 4, Instrument Sans, IBM Plex Mono); added the em-dash rarity rule; downgraded testing, a11y, and performance from CI gates to advisory guidance; added the placeholder-content policy for early phases. |
 | 2.0.1 | 2026-08-15 | Domain resolved to `mukeremshifa.com` and applied throughout (§2, §13, §14.1, §16.4, §17.2, Phase 0). v1.0 `MASTERPLAN.md` and `scripts/check-contrast.mjs` deleted from the repo; `docs/DECISIONS.md` reset to a v2 baseline. Repaired three malformed rows in the §19 table and a stale `assets/raw/` reference in §12.2. |

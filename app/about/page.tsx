@@ -4,6 +4,7 @@ import Link from "next/link";
 import { EducationList } from "@/components/about/EducationList";
 import { ProfileHeader } from "@/components/about/ProfileHeader";
 import { ContactCallout } from "@/components/home/ContactCallout";
+import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import { Prose } from "@/components/ui/Prose";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -36,6 +37,15 @@ export const metadata: Metadata = buildMetadata({
  * canonical all still say About — only the visible heading changed, so nothing that
  * navigates or indexes by title moved.
  */
+// The rail's stops, in page order. See components/layout/SectionRail.tsx.
+const SECTIONS: RailSection[] = [
+  { id: "profile", label: "Profile" },
+  { id: "education", label: "Education" },
+  { id: "how-i-work", label: "How I work" },
+  { id: "outside", label: "Outside engineering" },
+  { id: "contact", label: "Contact" },
+];
+
 export default function AboutPage() {
   const site = getSite();
 
@@ -47,14 +57,16 @@ export default function AboutPage() {
       />
 
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
-        <ProfileHeader site={site} />
+        <div id="profile" data-rail-section>
+          <ProfileHeader site={site} />
+        </div>
 
-        <section className="flex flex-col gap-heading">
+        <section id="education" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading title="Education" />
           <EducationList entries={getEducation()} />
         </section>
 
-        <section className="flex flex-col gap-heading">
+        <section id="how-i-work" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading title="How I work" />
           <Prose>
             <p>
@@ -78,7 +90,7 @@ export default function AboutPage() {
           </Prose>
         </section>
 
-        <section className="flex flex-col gap-heading">
+        <section id="outside" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading title="Outside engineering" />
           <Prose>
             <p>
@@ -104,8 +116,12 @@ export default function AboutPage() {
           .
         </p>
 
-        <ContactCallout site={site} />
+        <div id="contact" data-rail-section>
+          <ContactCallout site={site} />
+        </div>
       </div>
+
+      <SectionRail sections={SECTIONS} />
     </Container>
   );
 }

@@ -7,6 +7,7 @@ import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { ExperiencePreview } from "@/components/home/ExperiencePreview";
 import { Hero } from "@/components/home/Hero";
 import { TechnologyList } from "@/components/home/TechnologyList";
+import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import {
   getCertifications,
@@ -30,6 +31,19 @@ export const metadata: Metadata = buildMetadata({
 // selectors, not new ones. §5.1's API stays the size it is (see docs/DECISIONS.md).
 const EXPERIENCE_SHOWN = 3;
 const CREDENTIALS_SHOWN = 4;
+
+// The rail's stops, in page order. Labels are shorter than the headings they point at —
+// they sit in a gutter, and "Selected work" is what the reader is looking for out of
+// "Selected work, and what each one had to solve". The ids are on the wrappers below.
+const SECTIONS: RailSection[] = [
+  { id: "intro", label: "Intro" },
+  { id: "work", label: "Selected work" },
+  { id: "focus", label: "Focus" },
+  { id: "experience", label: "Experience" },
+  { id: "credentials", label: "Credentials" },
+  { id: "technology", label: "Technology" },
+  { id: "contact", label: "Contact" },
+];
 
 /**
  * §8.1, six sections in order: who, proof, how, history, credibility, contact.
@@ -68,15 +82,39 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: jsonLdScript(webSiteJsonLd()) }}
       />
 
+      {/* §11.2: the rail is in the DOM after the content it points into, so it never
+          sits between the skip link and the page. It is `fixed`, so its position in the
+          flow costs nothing. */}
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
-        <Hero site={site} />
-        <FeaturedProjects projects={getFeaturedProjects()} />
-        <EngineeringFocus pillars={getFocus()} />
-        <ExperiencePreview entries={featuredExperience} />
-        <CredentialsPreview certifications={featuredCertifications} />
-        <TechnologyList />
-        <ContactCallout site={site} />
+        {/* Each stop is a wrapper rather than an `id` inside the component: the section
+            elements belong to the components, and a component that owns a page-level
+            anchor id can only ever be used once per page. `data-rail-section` is what
+            `globals.css` hangs `scroll-margin-top` on, so the sticky header never covers
+            the heading the reader just jumped to. */}
+        <div id="intro" data-rail-section>
+          <Hero site={site} />
+        </div>
+        <div id="work" data-rail-section>
+          <FeaturedProjects projects={getFeaturedProjects()} />
+        </div>
+        <div id="focus" data-rail-section>
+          <EngineeringFocus pillars={getFocus()} />
+        </div>
+        <div id="experience" data-rail-section>
+          <ExperiencePreview entries={featuredExperience} />
+        </div>
+        <div id="credentials" data-rail-section>
+          <CredentialsPreview certifications={featuredCertifications} />
+        </div>
+        <div id="technology" data-rail-section>
+          <TechnologyList />
+        </div>
+        <div id="contact" data-rail-section>
+          <ContactCallout site={site} />
+        </div>
       </div>
+
+      <SectionRail sections={SECTIONS} />
     </Container>
   );
 }

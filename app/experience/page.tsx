@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { Button } from "@/components/ui/Button";
+import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import { getExperience, getSite } from "@/lib/content";
 import { buildMetadata } from "@/lib/metadata";
@@ -27,6 +28,13 @@ export const metadata: Metadata = buildMetadata({
  * The page ends with the résumé link and the contact callout, per §8.4 and §7.4: no page
  * is a dead end, and the résumé block disappears entirely when `site.resume` is removed.
  */
+// The rail's stops, in page order. See components/layout/SectionRail.tsx.
+const SECTIONS: RailSection[] = [
+  { id: "intro", label: "Overview" },
+  { id: "timeline", label: "Timeline" },
+  { id: "contact", label: "Contact" },
+];
+
 export default function ExperiencePage() {
   const site = getSite();
   const entries = [...getExperience()].sort((a, b) => b.start.localeCompare(a.start));
@@ -34,7 +42,7 @@ export default function ExperiencePage() {
   return (
     <Container>
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
-        <div className="flex flex-col gap-4">
+        <div id="intro" data-rail-section className="flex flex-col gap-4">
           <h1 className="font-serif text-display-2 font-semibold text-text">
             Experience
           </h1>
@@ -45,7 +53,9 @@ export default function ExperiencePage() {
           </p>
         </div>
 
-        <ExperienceTimeline entries={entries} headingLevel="h2" />
+        <div id="timeline" data-rail-section>
+          <ExperienceTimeline entries={entries} headingLevel="h2" />
+        </div>
 
         {/* Education left this timeline on 2026-08-31 and a reader who scrolled looking
             for it deserves to be told where it went rather than left to assume it is
@@ -61,8 +71,12 @@ export default function ExperiencePage() {
           </Link>
         </p>
 
-        <ContactCallout site={site} />
+        <div id="contact" data-rail-section>
+          <ContactCallout site={site} />
+        </div>
       </div>
+
+      <SectionRail sections={SECTIONS} />
     </Container>
   );
 }

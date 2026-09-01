@@ -1681,3 +1681,132 @@ single unit cannot serve both. Caught by a unit test of the formatter rather tha
 reading it, which is worth noting: the bug was invisible in the code and obvious in the
 output.
 **Affects:** §8.7
+
+## 2026-09-01 — The native scrollbar is removed, and a rail renders the position instead
+
+**Context:** §6.7 makes every edge in the system square and §6.2/§6.3 define every surface
+colour. The scrollbar obeys neither: it is rounded, it carries the OS palette, and its
+metrics change per platform. It was the only element on the page the design system did not
+draw.
+**Decision:** Remove it on the viewport — `scrollbar-width: none` on `html`, plus the
+WebKit pseudo-element on `html`/`body` — and render a `SectionRail` in the right gutter as
+the position indicator.
+**Reason:** It cannot be restyled into the system. `scrollbar-width` accepts `thin` and
+`none` and nothing else, and the WebKit pseudo-elements let you paint a track and thumb
+whose shape and metrics still belong to the platform. So the options were to accept one
+foreign element on every page or to rebuild the indicator in the system's own vocabulary.
+The rail is the second: one dash per section, `BulletList`'s square stretched along the
+axis it indicates, in the marker colour.
+
+**Scoped to the viewport, deliberately.** Removal is on `html`/`body` only. Code blocks
+scroll horizontally and §11.2 requires a visible affordance for that; a global rule would
+have deleted the only signal that there is more to the right. Every inner scroll region
+keeps its scrollbar untouched.
+
+**What is not lost.** The page still scrolls by wheel, touch, keyboard and the rail. What
+is gone is the painted indicator, which is the thing the rail replaces. Below `md` the rail
+does not render and nothing is missing either: mobile scrollbars are overlays, already
+invisible at rest.
+**Affects:** §6.7, §7.5, §11.2
+
+## 2026-09-01 — The rail marks the topmost visible section, not the most visible one
+
+**Context:** `SectionRail` decides which dash is lit from an `IntersectionObserver`. Two
+rules were available and they disagree often.
+**Decision:** The topmost section intersecting a band 20% from the top and 65% up from the
+bottom wins. Between two sections, the last active dash stays lit.
+**Reason:** Picking by intersection ratio — "most visible" — fails on unequal sections: a
+short section fully on screen sits at ratio 1 while the tall one the reader is actually
+inside sits at 0.4, so the marker jumps forward to the section occupying *less* of the
+screen. Topmost matches what a scrollbar reports, which is where the viewport is rather
+than what is biggest inside it.
+
+**The band, rather than the viewport or a line.** The whole viewport reports three sections
+at once on a tall screen, which makes "topmost" pick whichever merely peeks in at the top.
+A single line (`-50% 0px -50%`) goes blank whenever a section boundary lands on it. The
+band has neither failure.
+
+**Holding the visible set across callbacks** is what makes the rule stable: the observer
+reports only what *changed*, so deciding from `entries` alone would make the answer depend
+on which sections happened to cross a boundary in that one frame.
+**Affects:** §7.5
+
+## 2026-09-01 — Rail stops are wrappers on the page, not ids inside components
+
+**Context:** Each rail stop needs an element with an `id`. The obvious place was inside the
+section components themselves — `ContactCallout` renders a section, so let it own
+`id="contact"`.
+**Decision:** Pages wrap each stop in a `div` carrying the `id` and `data-rail-section`.
+Components never carry a page-level anchor id. Stop lists are module constants in page
+order, except `/contact/`, which builds its list in the component body because the form
+stop exists only when `site.contact.endpoint` does.
+**Reason:** A component owning a page-level id can only be used once per page, and
+`ContactCallout` already appears on four routes. The wrapper also gives `globals.css` a
+single hook — `[data-rail-section]` — for the `scroll-margin-top` that keeps the sticky
+header off a heading the reader just jumped to, so the offset is declared on the target
+rather than computed by every caller.
+
+**The rail renders after its content** in the DOM so it never sits between the skip link and
+the page. It is `fixed`, so its position in the flow costs nothing.
+**Affects:** §7.5, §11.2
+
+## 2026-09-01 — The rail is accessibility-first: `aria-current`, and labels always in the tree
+
+**Context:** A rail of bare dashes is a set of nameless links, and the labels only appear on
+hover.
+**Decision:** Each label is in the DOM at `opacity: 0` rather than `display: none`, so it is
+always the link's accessible name, and it is revealed on `group-focus-visible` as well as
+`group-hover`. The active dash is marked `aria-current="true"`.
+**Reason:** `group-hover` cannot help a screen reader, and hiding the label with `display`
+would leave the link with no name at all. Revealing on focus is §21's no-hover-only rule:
+the keyboard path is the mouse path. `aria-current="true"` rather than `"location"` because
+the rail marks position *within* this page, which is what `true` means on a link that is not
+a different page — and the visible styling reads the same attribute, so painted and
+announced state cannot drift apart.
+**Affects:** §7.5, §11.2, §21
+
+## 2026-09-01 — The rail deliberately does not animate, and smooth scroll is deferred
+
+**Context:** A scroll-position indicator is the obvious place to reach for motion —
+dashes that grow, a marker that slides, smooth scrolling on jump.
+**Decision:** None of it, for now. The active state is a colour change over `fast` and
+nothing else; the dash width is fixed; no `scroll-behavior: smooth` is set and no scroll is
+driven from JS.
+**Reason:** §21 forbids animation that runs while someone is reading. A rail whose dashes
+resize as the reader scrolls is exactly that — motion driven by the reading itself — and a
+fixed width also guarantees the stack never reflows. Smooth scroll is a different question
+and a defensible one, but it is one declaration on `html` and belongs to the motion pass
+rather than to this change; §10.3's reduced-motion block already overrides it back to
+`auto`, so the accessibility half is done in advance.
+**Affects:** §7.5, §10.2, §10.4, §21
+
+## 2026-09-01 — Below three stops the rail renders nothing
+
+**Context:** `/contact/` has four stops with the form enabled and three without. A rail can
+be given any number.
+**Decision:** `minSections` defaults to 3; below it the component returns `null`.
+**Reason:** Two dashes are a control that tells the reader what they can already see —
+the whole page is on screen, so there is nothing to indicate and nowhere to go. The
+threshold is a prop rather than a constant so a page with an argument for a lower one can
+make it explicitly, but no caller passes it today.
+**Affects:** §7.5
+
+## 2026-09-01 — The spec is reconciled against the tree, and the drift is recorded rather than erased
+
+**Context:** The spec header still said "Phase 2 — golden sample" while Phase 4 was
+complete. §4's file tree named a `worker/` directory, a `tests/` tree, a `public/og/`
+directory and an `app/certifications/page.tsx`, none of which exist. §10.2 still specified a
+Motion `layoutId` nav underline that was replaced with CSS on 2026-08-15 by an entry in this
+very log. Appendix A listed six commands, of which two exist.
+**Decision:** Re-derive the spec from the tree, and add §4.2 listing each divergence with
+whether it was a decision or an oversight, rather than silently editing the tree into the
+document.
+**Reason:** The spec is used as the source of truth by anyone picking the project up,
+including agents, and a document that is confidently wrong in six places is worse than one
+that is visibly incomplete. Marking *which* gaps were chosen — the Worker, the OG
+directory, the rename — and which were simply never done — the tests, `ci.yml` — is the
+information a reader actually needs, and it is exactly what this log's opening paragraph
+asks for. §10.2 gains a build-status column for the same reason: "specified" and "shipped"
+had quietly become different things, and the two rows where they differ are the entire
+remaining motion backlog (§10.4).
+**Affects:** §4, §7.5, §8.2, §8.3, §9.2, §9.4, §10, §14, §15.3, §16.2, §18, §19, Appendix A

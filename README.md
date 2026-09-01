@@ -3,10 +3,16 @@
 Personal portfolio website for Mukerem Shifa, AI Engineer & Full-Stack Developer.
 Domain: [mukeremshifa.com](https://mukeremshifa.com)
 
-Status: **Phase 3 — every page built.** All seven routes in section 7.1 exist and no
-internal link 404s. They are built against an expanded stub content set, so every layout is
-exercised at the lengths and in the combinations real content will have, and the design can
-be reviewed end to end before any of it is written.
+Status: **Phase 4 complete — next is Phase 5, the content sweep.** All seven routes in
+section 7.1 exist, no internal link 404s, and the contact form delivers through
+`app/api/contact/route.ts` with rate limiting behind it. Real project copy, covers,
+credentials, timeline and portrait have landed; what is left is listed in
+`docs/STUB-INVENTORY.md`.
+
+Three things were carried past their phase and none of them blocks Phase 5: the section 5.5
+invariant tests (Vitest is not installed), `ci.yml` (`.github/workflows/` is empty), and
+applying section 10.2's `Reveal`/`Stagger` inventory — the wrappers exist but no real page
+uses them. Section 10.4 says what to decide before that last one starts.
 
 Every resource the owner supplies is a content change: the portrait, the resume, the
 address, the email, a project, a credential. Editing `content/` or dropping a file into
@@ -40,8 +46,19 @@ pnpm).
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3000
-pnpm build        # production build
-pnpm start        # serve the production build
+pnpm typecheck    # tsc --noEmit
+```
+
+Those are the only two scripts `package.json` defines. `next build` works, but per
+`AGENTS.md` this repo is in a local-only dev phase: iterate with `pnpm dev`, validate with
+`pnpm typecheck`, and leave build, test and release checks for a real deployment
+checkpoint. Appendix A of the spec lists the fuller command set as the target.
+
+The two asset generators are Python, run by hand, with their output committed:
+
+```bash
+python scripts/build_brand.py    # brand marks -> lib/brand-marks.ts
+python scripts/build_covers.py   # 8K source renders -> public/images/projects/*.avif
 ```
 
 Copy `.env.example` to `.env.local` if you need to override anything locally. Nothing in it

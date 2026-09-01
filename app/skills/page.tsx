@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { CertificationGrid } from "@/components/certifications/CertificationGrid";
 import { ContactCallout } from "@/components/home/ContactCallout";
+import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
@@ -41,6 +42,15 @@ export const metadata: Metadata = buildMetadata({
  * absent from the machine-readable list. Prose can be read with judgement; structured data
  * is an assertion, and asserting something unverifiable is the thing to avoid.
  */
+// The rail's stops, in page order. See components/layout/SectionRail.tsx.
+const SECTIONS: RailSection[] = [
+  { id: "intro", label: "Overview" },
+  { id: "focus", label: "Current focus" },
+  { id: "tools", label: "Tools" },
+  { id: "certifications", label: "Certifications" },
+  { id: "contact", label: "Contact" },
+];
+
 export default function SkillsPage() {
   const site = getSite();
   const certifications = [...getCertifications()].sort((a, b) =>
@@ -57,7 +67,7 @@ export default function SkillsPage() {
       />
 
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
-        <div className="flex flex-col gap-4">
+        <div id="intro" data-rail-section className="flex flex-col gap-4">
           <h1 className="font-serif text-display-2 font-semibold text-text">Skills</h1>
           <p className="max-w-measure font-sans text-body-lg text-text-muted">
             Core technologies, languages, and frameworks, including what I am working on
@@ -66,7 +76,7 @@ export default function SkillsPage() {
           </p>
         </div>
 
-        <section className="flex flex-col gap-heading">
+        <section id="focus" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading
             title="What I am focused on right now"
             lead="Three things I keep choosing to work on, and the tools each one actually runs on."
@@ -96,7 +106,7 @@ export default function SkillsPage() {
           </ul>
         </section>
 
-        <section className="flex flex-col gap-heading">
+        <section id="tools" data-rail-section className="flex flex-col gap-heading">
           <SectionHeading
             title="Tools I reach for"
             lead="Grouped by what I use them for, with no proficiency scale attached to any of them."
@@ -123,7 +133,11 @@ export default function SkillsPage() {
           </dl>
         </section>
 
-        <section className="flex flex-col gap-heading">
+        <section
+          id="certifications"
+          data-rail-section
+          className="flex flex-col gap-heading"
+        >
           <SectionHeading
             title="Certifications"
             lead="Continuous learning backed by industry-recognized certifications across AI engineering and modern backend development. The issuer, the date, and a link to verify where one exists."
@@ -147,8 +161,12 @@ export default function SkillsPage() {
           .
         </p>
 
-        <ContactCallout site={site} />
+        <div id="contact" data-rail-section>
+          <ContactCallout site={site} />
+        </div>
       </div>
+
+      <SectionRail sections={SECTIONS} />
     </Container>
   );
 }
