@@ -6,6 +6,13 @@ import type { ReactNode } from "react";
 type LayoutItemProps = {
   children: ReactNode;
   as?: "div" | "li";
+  /**
+   * Fade the item in as it mounts and out as it unmounts, on top of the repositioning
+   * this component has always done. Off by default, because the enter and exit halves
+   * only actually run inside a `Presence` — outside one, `exit` is silently ignored and
+   * `initial` would animate a card that nothing is filtering. Opt in where both are true.
+   */
+  animatePresence?: boolean;
 };
 
 /**
@@ -34,11 +41,41 @@ type LayoutItemProps = {
  * `MotionProvider` drops transform animations, and a `layout` animation is a transform,
  * so filtered cards jump rather than glide — which is exactly what §10.3 asks for.
  */
-export function LayoutItem({ children, as = "div" }: LayoutItemProps) {
+export function LayoutItem({
+  children,
+  as = "div",
+  animatePresence = false,
+}: LayoutItemProps) {
   const Component = motion[as];
 
+  // Opacity only, and no `y`. `Reveal` translates because a section arriving from below
+  // the fold has a direction to arrive from; a filtered card does not — it is already
+  // where it belongs, and the cards around it are mid-reposition. Adding a slide here
+  // would put two different movements on the same element at the same moment.
+  //
+  // `fast` rather than `base`: the fade is the shorter half of a transition whose long
+  // half is the reposition, and matching them would make arrivals feel like they lag the
+  // layout settling around them.
+  const presence = animatePresence
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+      }
+    : {};
+
   return (
-    <Component layout transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}>
+    <Component
+      layout
+      {...presence}
+      transition={{
+        // The reposition keeps `base`; the opacity halves run at `fast` underneath it.
+        // Motion takes per-property transitions as keys alongside the defaults.
+        duration: 0.2,
+        ease: [0.16, 1, 0.3, 1],
+        opacity: { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+      }}
+    >
       {children}
     </Component>
   );
