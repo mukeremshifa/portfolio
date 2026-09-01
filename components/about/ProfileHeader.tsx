@@ -1,5 +1,8 @@
 import Image from "next/image";
 
+import { Fade } from "@/components/motion/Fade";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { SplitText } from "@/components/motion/SplitText";
 import type { Site } from "@/lib/schemas";
 
 type ProfileHeaderProps = { site: Site };
@@ -33,22 +36,37 @@ export function ProfileHeader({ site }: ProfileHeaderProps) {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
         {site.avatar ? (
-          <Image
-            src={site.avatar.src}
-            alt={site.avatar.alt}
-            width={site.avatar.width}
-            height={site.avatar.height}
-            priority
-            className="size-32 shrink-0 rounded-full border border-border-subtle object-cover md:size-40"
-          />
+          // §10.3's blur-scale, on mount because the avatar is above the fold. `still`
+          // drops the 4% overscale: this image is a 128px circle, and a scale on
+          // something that small reads as a wobble rather than as focus being found.
+          <ImageReveal delay={0.1} onMount still className="shrink-0 rounded-full">
+            <Image
+              src={site.avatar.src}
+              alt={site.avatar.alt}
+              width={site.avatar.width}
+              height={site.avatar.height}
+              priority
+              className="size-32 shrink-0 rounded-full border border-border-subtle object-cover md:size-40"
+            />
+          </ImageReveal>
         ) : null}
 
-        <h1 className="font-serif text-display-2 font-semibold text-text">
-          Hi, I&rsquo;m {site.name.split(" ")[0]}
-        </h1>
+        {/* The greeting is composed here rather than passed as JSX, because `SplitText`
+            splits a string — it cannot see through an interpolation. The typographic
+            apostrophe is the literal character for the same reason: an HTML entity would
+            arrive as six separate characters to animate. */}
+        <SplitText
+          as="h1"
+          delay={0.25}
+          className="font-serif text-display-2 font-semibold text-text"
+        >
+          {`Hi, I’m ${site.name.split(" ")[0]}`}
+        </SplitText>
       </div>
 
-      <p className="max-w-measure font-sans text-body-lg text-text-muted">{site.bio}</p>
+      <Fade delay={0.55}>
+        <p className="max-w-measure font-sans text-body-lg text-text-muted">{site.bio}</p>
+      </Fade>
 
       {/* `items-baseline`, not the grid default of `stretch`. The term is `text-eyebrow`
           (0.75rem/1.4) and the value is `text-body` (1rem/1.7), so their line boxes are

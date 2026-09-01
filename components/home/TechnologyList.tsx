@@ -1,4 +1,5 @@
 import { BrandIcon, type BrandIconName } from "@/components/ui/BrandIcon";
+import { ChipStagger } from "@/components/motion/ChipStagger";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 /**
@@ -43,15 +44,29 @@ export function TechnologyList() {
         title="Tools I work with"
         lead="A working set of platforms, languages, frameworks, and AI tools."
       />
+      {/* §10.3: the chips arrive as a wave rather than as a block.
+
+          `ChipStagger` rather than the shared `Stagger`, and the difference is the cap.
+          `Stagger` stops offsetting after six children so a card grid's last row does not
+          wait — correct there, wrong here, where there are twenty-two chips and the cap
+          would land eighteen of them simultaneously, producing a small sequence followed
+          by a thud. This wave runs across all of them at a much finer step.
+
+          The hover keeps `--duration-fast` and gains a lift: these are the densest
+          interactive targets on the page, and a chip that only tints is the flatness the
+          v3 rewrite exists to fix. */}
       <ul className="flex flex-wrap gap-3" aria-label="Technologies and tools">
-        {technologies.map((technology) => (
-          <li key={technology.name}>
-            <span className="inline-flex min-h-11 items-center gap-2 border border-border-subtle bg-surface px-3 py-2 font-mono text-body-sm text-text transition-[background-color,border-color] duration-(--duration-fast) ease-out hover:border-border-strong hover:bg-surface-alt">
+        <ChipStagger>
+          {technologies.map((technology) => (
+            <span
+              key={technology.name}
+              className="inline-flex min-h-11 items-center gap-2 border border-border-subtle bg-surface px-3 py-2 font-mono text-body-sm text-text transition-[background-color,border-color,transform] duration-(--duration-fast) ease-out hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-alt"
+            >
               <BrandIcon name={technology.icon} size={18} />
               <span>{technology.name}</span>
             </span>
-          </li>
-        ))}
+          ))}
+        </ChipStagger>
       </ul>
     </section>
   );

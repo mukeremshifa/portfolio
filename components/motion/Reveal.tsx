@@ -14,6 +14,16 @@ type RevealProps = {
    * raise it.
    */
   distance?: number;
+  /**
+   * Classes for the wrapper itself.
+   *
+   * Needed because this component inserts a `div` into the tree, which silently breaks a
+   * parent's layout when that parent is a flex or grid container: its children become
+   * *this* element's children, and the parent's `gap` then applies to a single item.
+   * Wrapping a `flex flex-col gap-heading` section without moving those classes down is
+   * exactly the bug it causes, and it is invisible in a diff.
+   */
+  className?: string;
 };
 
 // §10.1's tokens, transcribed into Motion's units. Motion cannot read a CSS custom
@@ -48,11 +58,13 @@ export function Reveal({
   delay = 0,
   as = "div",
   distance = DISTANCE,
+  className,
 }: RevealProps) {
   const Component = motion[as];
 
   return (
     <Component
+      className={className}
       initial={{ opacity: 0, y: distance }}
       whileInView={{ opacity: 1, y: 0 }}
       // `once` because content that re-animates on scroll-up is motion competing with

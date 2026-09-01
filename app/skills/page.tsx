@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CertificationGrid } from "@/components/certifications/CertificationGrid";
+import { Fade } from "@/components/motion/Fade";
+import { SplitText } from "@/components/motion/SplitText";
+import { Reveal } from "@/components/motion/Reveal";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
@@ -68,69 +71,80 @@ export default function SkillsPage() {
 
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
         <div id="intro" data-rail-section className="flex flex-col gap-4">
-          <h1 className="font-serif text-display-2 font-semibold text-text">Skills</h1>
-          <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            Core technologies, languages, and frameworks, including what I am working on
-            getting good at, what I actually build with, and the credentials that back
-            some of it up.
-          </p>
+          <SplitText
+            as="h1"
+            className="font-serif text-display-2 font-semibold text-text"
+          >
+            Skills
+          </SplitText>
+          <Fade delay={0.35}>
+            <p className="max-w-measure font-sans text-body-lg text-text-muted">
+              Core technologies, languages, and frameworks, including what I am working on
+              getting good at, what I actually build with, and the credentials that back
+              some of it up.
+            </p>
+          </Fade>
         </div>
 
         <section id="focus" data-rail-section className="flex flex-col gap-heading">
-          <SectionHeading
-            title="What I am focused on right now"
-            lead="Three things I keep choosing to work on, and the tools each one actually runs on."
-          />
-          <ul className="flex flex-col gap-8">
-            {getFocus().map((pillar) => (
-              <li key={pillar.id} className="flex flex-col gap-3">
-                <h3 className="max-w-measure font-sans text-heading-2 font-semibold text-text">
-                  {pillar.title}
-                </h3>
-                <p className="max-w-measure font-sans text-body text-text-muted">
-                  {pillar.body}
-                </p>
-                {pillar.technologies.length > 0 ? (
-                  <ul className="flex flex-wrap gap-2">
-                    {pillar.technologies.map((technology) => (
-                      <li key={technology} className="max-w-full">
-                        <Tag>
-                          <span className="break-words">{technology}</span>
-                        </Tag>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <Reveal className="flex flex-col gap-heading">
+            <SectionHeading
+              title="What I am focused on right now"
+              lead="Three things I keep choosing to work on, and the tools each one actually runs on."
+            />
+            <ul className="flex flex-col gap-8">
+              {getFocus().map((pillar) => (
+                <li key={pillar.id} className="flex flex-col gap-3">
+                  <h3 className="max-w-measure font-sans text-heading-2 font-semibold text-text">
+                    {pillar.title}
+                  </h3>
+                  <p className="max-w-measure font-sans text-body text-text-muted">
+                    {pillar.body}
+                  </p>
+                  {pillar.technologies.length > 0 ? (
+                    <ul className="flex flex-wrap gap-2">
+                      {pillar.technologies.map((technology) => (
+                        <li key={technology} className="max-w-full">
+                          <Tag>
+                            <span className="break-words">{technology}</span>
+                          </Tag>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </section>
 
         <section id="tools" data-rail-section className="flex flex-col gap-heading">
-          <SectionHeading
-            title="Tools I reach for"
-            lead="Grouped by what I use them for, with no proficiency scale attached to any of them."
-          />
-          <dl className="flex flex-col gap-6">
-            {getSkills().map((group) => (
-              <div key={group.id} className="flex flex-col gap-2">
-                <dt className="font-mono text-eyebrow text-text-muted uppercase">
-                  {group.title}
-                </dt>
-                <dd>
-                  <ul className="flex flex-wrap gap-2">
-                    {group.items.map((item) => (
-                      <li key={item} className="max-w-full">
-                        <Tag>
-                          <span className="break-words">{item}</span>
-                        </Tag>
-                      </li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <Reveal className="flex flex-col gap-heading">
+            <SectionHeading
+              title="Tools I reach for"
+              lead="Grouped by what I use them for, with no proficiency scale attached to any of them."
+            />
+            <dl className="flex flex-col gap-6">
+              {getSkills().map((group) => (
+                <div key={group.id} className="flex flex-col gap-2">
+                  <dt className="font-mono text-eyebrow text-text-muted uppercase">
+                    {group.title}
+                  </dt>
+                  <dd>
+                    <ul className="flex flex-wrap gap-2">
+                      {group.items.map((item) => (
+                        <li key={item} className="max-w-full">
+                          <Tag>
+                            <span className="break-words">{item}</span>
+                          </Tag>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
         </section>
 
         <section
@@ -138,11 +152,13 @@ export default function SkillsPage() {
           data-rail-section
           className="flex flex-col gap-heading"
         >
-          <SectionHeading
-            title="Certifications"
-            lead="Continuous learning backed by industry-recognized certifications across AI engineering and modern backend development. The issuer, the date, and a link to verify where one exists."
-          />
-          <CertificationGrid certifications={certifications} headingLevel="h3" />
+          <Reveal className="flex flex-col gap-heading">
+            <SectionHeading
+              title="Certifications"
+              lead="Continuous learning backed by industry-recognized certifications across AI engineering and modern backend development. The issuer, the date, and a link to verify where one exists."
+            />
+            <CertificationGrid certifications={certifications} headingLevel="h3" />
+          </Reveal>
         </section>
 
         {/* §7.4: no page is a dead end, and this one previously handed the reader

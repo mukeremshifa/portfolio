@@ -92,27 +92,28 @@ export default function Home() {
             anchor id can only ever be used once per page. `data-rail-section` is what
             `globals.css` hangs `scroll-margin-top` on, so the sticky header never covers
             the heading the reader just jumped to. */}
-        {/* §10's test is applied per section, not once for the pattern, so four of these
-            seven animate and three deliberately do not.
+        {/* Every section below the hero animates. Under the v2 spec three of them
+            deliberately did not, and scrolling the page hit a dead patch at "Experience"
+            that read as the motion having broken rather than as restraint — which is the
+            owner's report that prompted §10's v3 rewrite. Consistency down the scroll is
+            worth more here than a per-section judgment call.
 
-            The four split into two kinds. **Focus** and **Technology** get a `Reveal` —
-            they are prose and a chip list, so the section arrives as one thing.
-            **Selected work** and **Credentials** get nothing here, because the grids
-            inside them stagger their own cards; a reveal on top would delay the section
-            and *then* cascade inside it. Each animating section runs one animation.
+            What still differs is *which* animation, and that is decided by what the
+            section contains rather than by how important it is:
 
-            The three that stay still, and why:
+            - **Focus** and **Experience** get a `Reveal` — one block of prose or timeline
+              arriving as one thing.
+            - **Selected work**, **Credentials**, and **Technology** get nothing at this
+              level, because their contents run their own sequence: the first two stagger
+              their cards, the third waves its chips. A reveal on top would delay the
+              section and *then* cascade within it, so the last item waits out both.
+            - **Contact** carries its own `Reveal` plus an inner `Stagger`, inside
+              `ContactCallout`, because it renders on three routes and has to bring its
+              own motion with it.
 
-            **Hero** is the first thing above the fold. An entrance there is a page that
-            was not ready — the reader watches the name assemble instead of reading it.
-            Everything below has earned a scroll; the hero has not.
-
-            **Experience** is three rows of dense text rather than a group of objects. A
-            grid of cards arriving as a group reads as a group; three text entries
-            arriving as a group reads as a loading state.
-
-            **Contact** is the last section and a call to action. Motion between a reader
-            deciding to act and the control they act with is friction, not clarity.
+            The hero is the one section with no scroll entrance, and that stays true: it
+            is above the fold with its own four-stage load sequence, and an entrance on
+            something already on screen at first paint is an animation nobody sees.
 
             The `Reveal`s sit inside the rail wrappers rather than replacing them: the
             `id` and `data-rail-section` belong to a stable element, and a motion wrapper
@@ -130,17 +131,19 @@ export default function Home() {
           </Reveal>
         </div>
         <div id="experience" data-rail-section>
-          <ExperiencePreview entries={featuredExperience} />
+          <Reveal>
+            <ExperiencePreview entries={featuredExperience} />
+          </Reveal>
         </div>
         {/* No `Reveal`, for the same reason as "Selected work" above: `CredentialsPreview`
             renders a `CertificationGrid`, and that grid staggers its own cards. */}
         <div id="credentials" data-rail-section>
           <CredentialsPreview certifications={featuredCertifications} />
         </div>
+        {/* No `Reveal`: the chips inside run their own wave, and the same
+            no-nesting rule that applies to the card grids applies here. */}
         <div id="technology" data-rail-section>
-          <Reveal>
-            <TechnologyList />
-          </Reveal>
+          <TechnologyList />
         </div>
         <div id="contact" data-rail-section>
           <ContactCallout site={site} />

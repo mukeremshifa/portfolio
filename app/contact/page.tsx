@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
 import { ContactChannels } from "@/components/contact/ContactChannels";
+import { Fade } from "@/components/motion/Fade";
+import { SplitText } from "@/components/motion/SplitText";
+import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { BulletList } from "@/components/ui/BulletList";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
@@ -53,11 +56,18 @@ export default function ContactPage() {
     <Container width="prose">
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
         <div id="intro" data-rail-section className="flex flex-col gap-4">
-          <h1 className="font-serif text-display-2 font-semibold text-text">Contact</h1>
-          <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            Tell me a little about the product, role, or technical challenge. A few
-            sentences about the constraint is enough to start.
-          </p>
+          <SplitText
+            as="h1"
+            className="font-serif text-display-2 font-semibold text-text"
+          >
+            Contact
+          </SplitText>
+          <Fade delay={0.35}>
+            <p className="max-w-measure font-sans text-body-lg text-text-muted">
+              Tell me a little about the product, role, or technical challenge. A few
+              sentences about the constraint is enough to start.
+            </p>
+          </Fade>
         </div>
 
         {/* §8.7's switch, now live. With no `endpoint` the page is exactly what it was
@@ -71,29 +81,33 @@ export default function ContactPage() {
         ) : null}
 
         <section id="channels" data-rail-section className="flex flex-col gap-heading">
-          <SectionHeading
-            title="Direct channels"
-            lead="These reach me whichever way you prefer."
-          />
-          <ContactChannels site={site} layout="stack" />
+          <Reveal className="flex flex-col gap-heading">
+            <SectionHeading
+              title="Direct channels"
+              lead="These reach me whichever way you prefer."
+            />
+            <ContactChannels site={site} layout="stack" />
+          </Reveal>
         </section>
 
         <section id="what-helps" data-rail-section className="flex flex-col gap-heading">
-          <SectionHeading title="What helps" />
-          {/* The square, like every other list of peers on the site. This briefly took the
-              chevron on the argument that the items ask something of the reader rather than
-              record something done — true, and not worth a second marker: three stacked
-              chevrons under a heading are the shape of a collapsed accordion, and a reader
-              who tries to click one has been told something false about the page. Three
-              items that are peers of one another get the peer marker. */}
-          <BulletList
-            items={[
-              "The constraint you are working against, more than the feature list.",
-              "Whether this is a role, a contract, or a question.",
-              "Anything I can read before replying: a repository, a spec, a ticket.",
-            ]}
-            tone="muted"
-          />
+          <Reveal className="flex flex-col gap-heading">
+            <SectionHeading title="What helps" />
+            {/* The square, like every other list of peers on the site. This briefly took the
+                chevron on the argument that the items ask something of the reader rather than
+                record something done — true, and not worth a second marker: three stacked
+                chevrons under a heading are the shape of a collapsed accordion, and a reader
+                who tries to click one has been told something false about the page. Three
+                items that are peers of one another get the peer marker. */}
+            <BulletList
+              items={[
+                "The constraint you are working against, more than the feature list.",
+                "Whether this is a role, a contract, or a question.",
+                "Anything I can read before replying: a repository, a spec, a ticket.",
+              ]}
+              tone="muted"
+            />
+          </Reveal>
         </section>
       </div>
 

@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ContactCallout } from "@/components/home/ContactCallout";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { Reveal } from "@/components/motion/Reveal";
+import { SplitText } from "@/components/motion/SplitText";
 import { CaseStudyNavigation } from "@/components/projects/CaseStudyNavigation";
 import { CaseStudySummary } from "@/components/projects/CaseStudySummary";
 import { ProjectFacts } from "@/components/projects/ProjectFacts";
@@ -92,9 +95,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <p className="font-mono text-eyebrow text-text-muted uppercase">
               {project.category} &middot; {timeline}
             </p>
-            <h1 className="max-w-measure font-serif text-display-2 font-semibold text-text">
+            {/* §10.3's character split, the same treatment the home hero's role line
+                gets. This is the one other real-text `h1` on the site — the home page's
+                is drawn artwork — so it is the one other place the effect belongs.
+                `SplitText` scales its step to the string, so an 80-character title
+                sweeps rather than crawls. */}
+            <SplitText
+              as="h1"
+              delay={0.1}
+              className="max-w-measure font-serif text-display-2 font-semibold text-text"
+            >
               {project.title}
-            </h1>
+            </SplitText>
             <p className="max-w-measure font-sans text-body-lg text-text-muted">
               {project.summary}
             </p>
@@ -123,22 +135,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           ) : null}
         </div>
 
-        <ProjectFacts project={project} />
+        <Reveal>
+          <ProjectFacts project={project} />
+        </Reveal>
 
         {/* Absent on a brief project (§5.3). The page opens straight into "Overview"
             then, which is the intended shape rather than a degraded one — there is no
             placeholder and no reserved empty band, because a box holding nothing is worse
             than a page that is simply shorter. */}
         {project.cover ? (
-          <Figure
-            src={project.cover.src}
-            srcDark={project.cover.srcDark}
-            alt={project.cover.alt}
-            width={project.cover.width}
-            height={project.cover.height}
-            priority
-            sizes="(min-width: 1200px) 1200px, 100vw"
-          />
+          // §10.3's blur-scale. This is the page's lead image and the largest thing on
+          // it; `onMount` because it sits above the fold on most screens, where a
+          // viewport trigger fires instantly and the reveal is wasted.
+          <ImageReveal delay={0.35} onMount>
+            <Figure
+              src={project.cover.src}
+              srcDark={project.cover.srcDark}
+              alt={project.cover.alt}
+              width={project.cover.width}
+              height={project.cover.height}
+              priority
+              sizes="(min-width: 1200px) 1200px, 100vw"
+            />
+          </ImageReveal>
         ) : null}
 
         <Section title="Overview">
@@ -181,7 +200,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </Section>
         ) : null}
 
-        <CaseStudyNavigation prev={adjacent.prev} next={adjacent.next} />
+        <Reveal>
+          <CaseStudyNavigation prev={adjacent.prev} next={adjacent.next} />
+        </Reveal>
 
         <ContactCallout site={getSite()} />
       </div>
@@ -202,9 +223,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
  */
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-heading">
-      <SectionHeading title={title} />
-      {children}
-    </section>
+    // §10.3's entrance, applied here rather than at each of the four call sites above.
+    // A case study is the longest scroll on the site and every section of it was static
+    // — putting the `Reveal` in the shared helper means Overview, Key features, Lessons,
+    // and Case study all animate, and any section added later inherits it instead of
+    // being the one that does not move.
+    <Reveal as="section">
+      <div className="flex flex-col gap-heading">
+        <SectionHeading title={title} />
+        {children}
+      </div>
+    </Reveal>
   );
 }

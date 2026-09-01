@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
+import { Fade } from "@/components/motion/Fade";
+import { SplitText } from "@/components/motion/SplitText";
 import { ContactCallout } from "@/components/home/ContactCallout";
 import { Button } from "@/components/ui/Button";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
@@ -43,14 +45,19 @@ export default function ExperiencePage() {
     <Container>
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
         <div id="intro" data-rail-section className="flex flex-col gap-4">
-          <h1 className="font-serif text-display-2 font-semibold text-text">
+          <SplitText
+            as="h1"
+            className="font-serif text-display-2 font-semibold text-text"
+          >
             Experience
-          </h1>
-          <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            A blend of full-stack development, AI integrations, leadership, and community.
-            Focused on building scalable features, optimizing performance, and shipping
-            production-grade solutions.
-          </p>
+          </SplitText>
+          <Fade delay={0.35}>
+            <p className="max-w-measure font-sans text-body-lg text-text-muted">
+              A blend of full-stack development, AI integrations, leadership, and community.
+              Focused on building scalable features, optimizing performance, and shipping
+              production-grade solutions.
+            </p>
+          </Fade>
         </div>
 
         <div id="timeline" data-rail-section>

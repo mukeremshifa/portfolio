@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { ProjectExplorer } from "@/components/projects/ProjectExplorer";
+import { Fade } from "@/components/motion/Fade";
+import { SplitText } from "@/components/motion/SplitText";
 import { Container } from "@/components/ui/Container";
 import { getAllProjects, getCategoryFilters } from "@/lib/content";
 import { buildMetadata } from "@/lib/metadata";
@@ -37,12 +39,22 @@ export default function ProjectsPage() {
 
       <div className="flex flex-col gap-section py-section md:gap-section-lg md:py-section-lg">
         <div className="flex flex-col gap-4">
-          <h1 className="font-serif text-display-2 font-semibold text-text">Projects</h1>
-          <p className="max-w-measure font-sans text-body-lg text-text-muted">
-            AI and full-stack work, from multi-tenant platforms to smaller pieces worth
-            keeping. Each one has a page with the decisions behind it, including the ones
-            that turned out to be wrong.
-          </p>
+          <SplitText
+            as="h1"
+            className="font-serif text-display-2 font-semibold text-text"
+          >
+            Projects
+          </SplitText>
+          {/* The lead follows the title in, on mount rather than on scroll — it is above
+              the fold, so a viewport trigger would fire before the `h1` had finished
+              sweeping and the two would land together. */}
+          <Fade delay={0.35}>
+            <p className="max-w-measure font-sans text-body-lg text-text-muted">
+              AI and full-stack work, from multi-tenant platforms to smaller pieces worth
+              keeping. Each one has a page with the decisions behind it, including the
+              ones that turned out to be wrong.
+            </p>
+          </Fade>
         </div>
 
         <ProjectExplorer projects={projects} filters={getCategoryFilters(projects)} />

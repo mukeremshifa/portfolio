@@ -14,6 +14,12 @@ type ImageRevealProps = {
    * `delay` that places it in the load sequence.
    */
   onMount?: boolean;
+  /**
+   * Classes for the wrapper. This component inserts a `div`, which takes the image's
+   * place in a parent's flex or grid layout — so anything the image relied on there
+   * (`shrink-0`, a column span) has to move onto the wrapper or it is silently lost.
+   */
+  className?: string;
 };
 
 const EASE_DRIFT = [0.2, 0.7, 0.2, 1] as const;
@@ -48,12 +54,13 @@ export function ImageReveal({
   delay = 0,
   still = false,
   onMount = false,
+  className,
 }: ImageRevealProps) {
   const settled = { opacity: 1, scale: 1, filter: "blur(0px)" };
 
   return (
     <motion.div
-      className="overflow-hidden"
+      className={className ? `overflow-hidden ${className}` : "overflow-hidden"}
       initial={{
         opacity: 0,
         scale: still ? 1 : 1.04,
