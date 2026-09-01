@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ContactChannels } from "@/components/contact/ContactChannels";
+import { ContactForm } from "@/components/contact/ContactForm";
 import { BulletList } from "@/components/ui/BulletList";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -47,11 +48,13 @@ export default function ContactPage() {
           </p>
         </div>
 
-        {/* Phase 4's slot. `site.contact.endpoint` is the switch §8.7 already specifies:
-            when it exists, <ContactForm endpoint={...} email={site.email} /> renders here
-            and everything below stays put. No placeholder, no "coming soon" (§21) — a
-            page either ships finished or it does not ship, and the direct channels are a
-            finished way to make contact rather than a stand-in for one. */}
+        {/* §8.7's switch, now live. With no `endpoint` the page is exactly what it was
+            in Phase 3 — the direct channels alone, which is a finished way to make
+            contact rather than a stand-in for one. Nothing below this line moved when the
+            form arrived, which is what the Phase 3 note predicted. */}
+        {site.contact.endpoint ? (
+          <ContactForm endpoint={site.contact.endpoint} email={site.email} />
+        ) : null}
 
         <section className="flex flex-col gap-heading">
           <SectionHeading
