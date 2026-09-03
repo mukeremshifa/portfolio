@@ -1,0 +1,49 @@
+# Informational, not a gate (spec §16.2). A red X here does not block a merge; it is
+# here so a regression is visible, not to hold the branch hostage.
+#
+# Deviation from §16.2: no `next build` step. Vercel builds every push through its Git
+# integration and reports on the commit and the PR, so repeating it here buys a minute
+# of runtime and no new signal. See docs/DECISIONS.md. Unit tests joined the matrix in
+# Phase 2, when Vitest arrived; they run the §5.5 cross-file invariants and are advisory
+# for the same reason everything else here is.
+# Restored 2026-09-04. This file was deleted by `b4d5d05` — a commit titled "Refactor
+# code structure for improved readability and maintainability" that also removed the
+# whole `tests/unit/` suite and six package.json scripts — and §16.2 was subsequently
+# written as though it had never been committed. It is restored verbatim; the four
+# matrix tasks all exist again.
+
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: ${{ matrix.task }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [format:check, lint, typecheck, test:unit]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm ${{ matrix.task }}

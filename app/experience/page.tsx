@@ -5,12 +5,10 @@ import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { Fade } from "@/components/motion/Fade";
 import { SplitText } from "@/components/motion/SplitText";
 import { ContactCallout } from "@/components/home/ContactCallout";
-import { Button } from "@/components/ui/Button";
 import { SectionRail, type RailSection } from "@/components/layout/SectionRail";
 import { Container } from "@/components/ui/Container";
 import { getExperience, getSite } from "@/lib/content";
 import { buildMetadata } from "@/lib/metadata";
-import { formatMonth } from "@/lib/utils";
 
 export const metadata: Metadata = buildMetadata({
   title: "Experience",

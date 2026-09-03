@@ -2102,3 +2102,73 @@ deliveries — screenshots excluded from v1, and the three coverless projects le
 Both are recorded above, because the inventory's whole design is that an unnoticed absence
 and a deliberate one look identical in the rendered site.
 **Affects:** §18, §20; `docs/STUB-INVENTORY.md`
+
+## 2026-09-04 — A new test suite, written against the current architecture
+
+**Context:** `b4d5d05` deleted six test files, `vitest.config.mts` and the `test:unit`
+script. Restoring them verbatim was possible — they sit at `b4d5d05^` — but they were
+written against an architecture that has since changed: projects lost `codeSnippets` and
+`screenshots` on 2026-08-30, and education split out of the timeline on 2026-08-31.
+**Decision:** Rewrite rather than restore. Six files, 57 tests: §5.5's invariants, the
+loader's ordering and adjacency, the JSON-LD builders and their escaping, the pure
+formatters, the link policy, and the routing surface. `links.test.ts` is the one taken
+largely verbatim, because the bug it catches has not changed. Vitest pinned at 3.2.4;
+`test:unit` rejoins `pnpm check` in its original position.
+**Reason:** A restored suite that asserts on absent fields is worse than none — it fails
+for the wrong reason and gets deleted again. Two findings justify the rewrite on their own.
+First, §5.5's invariant 8 does **not** close both ways as the spec claims: `SQL`,
+`Framer Motion`, `nginx` and `WordPress` sit in `skills.json` groups that no project's
+`technologies` name. That assertion is `test.fails` — executing, green while the
+discrepancy stands, red the moment someone fixes it — because which of the four is a
+missing project technology and which is a claim to drop is an owner decision. Second,
+restoring `lint` surfaced three `jsx-a11y/alt-text` errors in `Figure`, where `alt` was
+passed through a spread the rule cannot follow; passing it explicitly fixes the component
+rather than silencing the rule, which matters because the next real omission would have
+been indistinguishable from those three false positives.
+**Affects:** §5.5, §15.3, §16.2
+
+## 2026-09-04 — `/dev/primitives` survives, with the condition now asserted
+
+**Context:** The route set its own terms in Phase 1: it survives past Phase 6 as a living
+reference **only if** its `noindex` and its sitemap exclusion are both verified in the
+hardening pass, and is deleted otherwise.
+**Decision:** Both verified; the route stays. `tests/unit/routes.test.ts` now asserts both
+halves, plus the blocked branch of `robots.ts`.
+**Reason:** The condition was the right one and hand-verification satisfies it once. Both
+halves are a careless edit away from silently reversing, and neither failure is visible on
+the page — a route that has quietly entered the sitemap looks exactly like one that has
+not. Asserting it costs four tests and converts a promise into a guarantee.
+**Affects:** §13.3, §15.3
+
+## 2026-09-04 — Security headers, and deliberately no CSP
+
+**Context:** §16.4 lists security headers as Phase 6 work and `next.config.ts` had none.
+**Decision:** Added HSTS (two years, `includeSubDomains`, `preload`), `X-Frame-Options:
+DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+strict-origin-when-cross-origin`, a `Permissions-Policy` denying camera/microphone/
+geolocation, and `Cache-Control: no-store` on `/api/*`. **No `Content-Security-Policy`.**
+**Reason:** A CSP worth having forbids `unsafe-inline` for scripts, and this site has two
+inline scripts it cannot give up: `ThemeScript`, which must run before first paint or the
+page flashes the wrong theme, and §13.2's JSON-LD. Allowing them needs per-request nonces,
+and a nonce makes every response dynamic — converting all 30 prerendered routes to
+server-rendered to harden a static site with no authentication, no cookies, no user input
+rendered back, and one POST endpoint that echoes nothing. The alternative, a CSP carrying
+`unsafe-inline`, is a header that looks like protection and provides close to none.
+Revisit if a route ever renders untrusted input. Note HSTS `preload` is a commitment that
+is easy to undo slowly and impossible to undo quickly.
+**Affects:** §16.4
+
+## 2026-09-04 — `unoptimized: true` stays; the numbers did not justify a pipeline
+
+**Context:** §18's Phase 6 asks whether `images.unoptimized` needs replacing with real
+optimization, and says to decide with real data rather than assume.
+**Decision:** It stays. No image pipeline, no `sharp`, no responsive `srcset`.
+**Reason:** Measured on the production build. The entire `public/` tree is 1.1 MB. The
+largest cover is 82 KB and the four light/dark pairs run 53–82 KB each as AVIF q65; the
+portrait is 70 KB. The home page — the heaviest route — is 261 KB of HTML that gzips to
+**60.4 KB**, and no page loads more than two images. An optimizer earns its place when
+images dominate the payload; here the largest single asset is the 110 KB résumé PDF, which
+no pipeline would touch. The discipline the export-size table imposed in Phase 5 is what
+made this the right answer — the assets were exported at 2× their rendered size and
+converted deliberately, so there is nothing left for a build step to reclaim.
+**Affects:** §12.2, §18

@@ -78,21 +78,33 @@ export function Figure({
   priority = false,
   sizes,
 }: FigureProps) {
-  const shared = { alt, width, height, priority, sizes };
+  // `alt` is deliberately **not** in this object. Spread through it, the prop is
+  // invisible to `jsx-a11y/alt-text`, which reads the JSX statically and cannot follow a
+  // spread — every `<Image>` below reported as missing `alt` while all three had it. The
+  // fix is to pass it explicitly rather than to silence the rule: an image whose `alt`
+  // cannot be seen at the call site is exactly what the rule is for, and the next real
+  // omission would have been indistinguishable from these three false positives.
+  const shared = { width, height, priority, sizes };
 
   return (
     <figure className="flex flex-col gap-3">
       {srcDark ? (
         <>
-          <Image {...shared} src={src} className={`${IMAGE_CLASS} dark:hidden`} />
           <Image
             {...shared}
+            alt={alt}
+            src={src}
+            className={`${IMAGE_CLASS} dark:hidden`}
+          />
+          <Image
+            {...shared}
+            alt={alt}
             src={srcDark}
             className={`${IMAGE_CLASS} hidden dark:block`}
           />
         </>
       ) : (
-        <Image {...shared} src={src} className={IMAGE_CLASS} />
+        <Image {...shared} alt={alt} src={src} className={IMAGE_CLASS} />
       )}
       {caption ? (
         <figcaption className="max-w-measure font-sans text-body-sm text-text-muted">
