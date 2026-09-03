@@ -1998,19 +1998,30 @@ release finished, not conditions a PR is blocked on.
 Same seven-phase shape as v1.0, minus the phases (and spikes) that only existed to de-risk
 static export.
 
-**Where this stands, 2026-09-01.** Phases 0 through 4 are done and tagged `phase-0` through
-`phase-3` on `dev` (Phase 4 is complete but not yet tagged). Next is **Phase 5, the content
-sweep**. Three items were carried past their phase rather than completed in it, and none of
-them blocks Phase 5:
+**Where this stands, 2026-09-04.** Phases 0 through 5 are done and tagged `phase-0` through
+`phase-5` on `dev`. Next is **Phase 6, performance and hardening** — the last phase, ending
+at `v1.0.0`.
 
-| Carried | From | Where it is tracked |
-|---|---|---|
-| §5.5 invariant tests (Vitest) | Phase 2 | §15.3 |
-| `ci.yml` | Phase 0 | §16.2 |
-| §10.2's `Reveal` / `Stagger` application | Phase 1 built the wrappers; applying them was never scheduled | §10.4 |
+The content is finished: `docs/STUB-INVENTORY.md` is empty, every external URL has been
+opened by hand, and the two absences that outlived the sweep (screenshots, and covers for
+the three projects with no front end) are decisions in `DECISIONS.md` rather than gaps.
 
-The third is the only one that is a *product* gap rather than a tooling gap, and it is the
-motion work described in §10.4.
+Two items were carried past their phase, and both turned out to be misreported. They were
+built and then **deleted** by `b4d5d05`, a commit titled "Refactor code structure for
+improved readability and maintainability" that also carried an unrelated content change:
+
+| Carried | From | Status | Where it is tracked |
+|---|---|---|---|
+| §5.5 invariant tests (Vitest) | Phase 2 | Six files under `tests/unit/` plus `vitest.config.mts`, deleted. Recoverable at `b4d5d05^` | §15.3 |
+| `ci.yml` | Phase 0 | Written in full, deleted. Recoverable at `b4d5d05^` | §16.2 |
+
+Phase 1's third carried item — applying §10.2's `Reveal` / `Stagger` — was the only
+*product* gap of the three, and it closed during Phase 5's motion work (§10.4).
+
+Both survivors are Phase 6 work. The architecture they were written against has since
+changed — projects lost their `codeSnippets` and `screenshots` fields, education split out
+of the timeline — so the suite is being rewritten against the current shape rather than
+restored verbatim; `b4d5d05^` is a reference, not a target.
 
 ### Phase 0 — Foundations ✅
 
@@ -2101,7 +2112,7 @@ Worker (§14). Rate limiting (two windows, Upstash, fails open) and a provider t
 added beyond what §14.2 specified; both are logged in `DECISIONS.md`, 2026-09-01. The
 `site.contact.endpoint` switch is the single control for the degraded path.
 
-### Phase 5 — Content sprint ← next
+### Phase 5 — Content sprint ✅
 
 - Replace all placeholder assets and stub copy with the real thing (§5.6 sweep, §20
   checklist).
@@ -2113,6 +2124,14 @@ added beyond what §14.2 specified; both are logged in `DECISIONS.md`, 2026-09-0
 
 **Exit:** zero placeholder content anywhere, all links resolve, every page reads as finished
 prose.
+
+*Met 2026-09-04, tagged `phase-5`.* `docs/STUB-INVENTORY.md`'s Phase 5 table is entirely
+struck, which is what made the exit checkable. Two rows closed as decisions rather than
+deliveries: screenshots are excluded from v1, and the three projects without a front end
+stay coverless. Both are in `DECISIONS.md` — in the rendered site a deliberate absence and
+a forgotten one look the same, so the log is the only place the difference survives. The
+owner verified all 33 external URLs by hand; nothing automated guards them, since
+`links.test.ts` went with `b4d5d05`.
 
 ### Phase 6 — Performance & hardening (moved to last, on purpose)
 

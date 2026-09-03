@@ -2072,3 +2072,33 @@ still recoverable. `AGENTS.md` already invoked `pnpm format:check` as though it 
 The two PNGs were unreferenced from `content/`, `components/`, `app/` and `lib/`, are PNG
 photographs the export table forbids, and sit outside the `public/images/` naming rule.
 **Affects:** §15.3, §16.2, §18
+
+## 2026-09-04 — The three coverless projects stay coverless
+
+**Context:** `amteclinks-website-seo`, `java-shopping-cart` and `little-lemon-capstone`
+carry no `cover`. `cover` became optional on 2026-08-31 and the card falls back cleanly, so
+the absence is invisible — which is why the stub inventory tracked it as an open decision
+rather than letting it pass as done.
+**Decision:** All three stay coverless in v1. No renders, no `scripts/build_covers.py` run.
+**Reason:** The owner's call, and it is about honesty rather than effort: none of the three
+has a front end substantial enough for a cover render to represent. A generated render of a
+project whose value is an SEO engagement, a Java exercise, and a course capstone would be
+decoration standing in for substance — worse than the fallback, which says plainly that
+there is no image. Only the featured four are visually led work, and all four have real
+2400×1350 light/dark pairs. Revisit if any of the three gains a front end.
+**Affects:** §5.3, §9.2; `docs/STUB-INVENTORY.md`
+
+## 2026-09-04 — Phase 5 closed; the stub inventory is empty
+
+**Context:** §18 set Phase 5's exit at "zero placeholder content anywhere, all links
+resolve, every page reads as finished prose," and `docs/STUB-INVENTORY.md` made that
+checkable by requiring its own inventory to be empty.
+**Decision:** Phase 5 is complete and tagged `phase-5` on `dev`.
+**Reason:** Every row in the inventory's Phase 5 table is struck. `content/` holds zero
+placeholder references; the portrait, avatar and résumé are real; all seven projects carry
+the owner's own prose; experience, education, certifications, skills and focus are the
+owner's. The two rows that outlived the content sweep both closed as decisions rather than
+deliveries — screenshots excluded from v1, and the three coverless projects left coverless.
+Both are recorded above, because the inventory's whole design is that an unnoticed absence
+and a deliberate one look identical in the rendered site.
+**Affects:** §18, §20; `docs/STUB-INVENTORY.md`
