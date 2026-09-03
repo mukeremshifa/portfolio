@@ -1998,9 +1998,10 @@ release finished, not conditions a PR is blocked on.
 Same seven-phase shape as v1.0, minus the phases (and spikes) that only existed to de-risk
 static export.
 
-**Where this stands, 2026-09-04.** Phases 0 through 5 are done and tagged `phase-0` through
-`phase-5` on `dev`. Next is **Phase 6, performance and hardening** — the last phase, ending
-at `v1.0.0`.
+**Where this stands, 2026-09-04.** All seven phases are done and tagged `phase-0` through
+`phase-6` on `dev`. Phase 6, the last, closed with the profiling pass, the security
+headers, the two items carried since Phases 0 and 2, and the verification passes — leaving
+`v1.0.0`.
 
 The content is finished: `docs/STUB-INVENTORY.md` is empty, every external URL has been
 opened by hand, and the two absences that outlived the sweep (screenshots, and covers for
@@ -2133,7 +2134,7 @@ a forgotten one look the same, so the log is the only place the difference survi
 owner verified all 33 external URLs by hand; nothing automated guards them, since
 `links.test.ts` went with `b4d5d05`.
 
-### Phase 6 — Performance & hardening (moved to last, on purpose)
+### Phase 6 — Performance & hardening (moved to last, on purpose) ✅
 
 **Goal:** now that the product is real, make it fast and buttoned-up.
 
@@ -2146,6 +2147,22 @@ owner verified all 33 external URLs by hand; nothing automated guards them, sinc
 - Security headers, HTTPS, DNS, canonical host, analytics. Final domain and hosting
   configuration finalized here if it was not earlier.
 - Tag `v1.0.0`.
+
+**Exit:** the site is fast on real numbers rather than assumed ones, hardened, verified on
+the production origin, and indexable.
+
+*Met 2026-09-04.* Profiled on the deployed site: desktop 99/100/100/100, mobile 81 with a
+3.2 s LCP, which WebPageTest traced on 4G to the hero portrait requesting at `priority =
+Low` — Next 16 had deprecated `priority` to a silent no-op, and three call sites that all
+looked correct were unprioritized. `images.unoptimized` **stays**: the whole `public/` tree
+is 1.1 MB, the home page gzips to 60.4 KB, and no route loads more than two images, so
+there is nothing for a pipeline to reclaim. Security headers shipped with a deliberate and
+documented absence of a CSP. `ci.yml` and the test suite, both carried since Phases 0 and
+2, were rebuilt against the current architecture rather than restored from `b4d5d05^`.
+The responsive, keyboard and screen-reader passes turned up one question — words breaking
+at hyphens they already contain — closed as correct behaviour. `ALLOW_INDEXING=true` was
+thrown last, after the sweep and the passes, per §16.1. Every item in §17.2 is checked
+against production and the contact form re-verified end to end. All in `DECISIONS.md`.
 
 ---
 

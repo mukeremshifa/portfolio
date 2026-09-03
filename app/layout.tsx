@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Instrument_Sans, Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
@@ -108,6 +109,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </main>
           <SiteFooter site={site} nav={NAV} />
         </MotionProvider>
+        {/* Vercel Analytics (§19 Q4, closed 2026-09-04). Outside `MotionProvider`
+            because it renders no DOM and participates in no animation, and last in
+            `<body>` so its script never sits ahead of content in the parse. Collection
+            only happens on a Vercel deployment with Analytics enabled for the project;
+            locally it no-ops, which is why `pnpm dev` shows nothing. */}
+        <Analytics />
       </body>
     </html>
   );

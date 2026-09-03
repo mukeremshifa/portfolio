@@ -2201,3 +2201,74 @@ profile with extensions loaded. And Lighthouse's 470 ms TBT is a lab artifact of
 profile plus 4× CPU throttling; WebPageTest measured **79 ms** on 4G in a clean browser.
 Re-run Lighthouse mobile in an incognito/clean profile to get a comparable number.
 **Affects:** §12.1, §12.2, §18
+
+## 2026-09-04 — Vercel Analytics, and the dashboard toggle is not the install
+
+**Context:** §19's Q4 left analytics open, and Phase 6 lists it. The owner enabled
+Analytics in the Vercel dashboard and reported the dashboard empty despite real traffic.
+**Decision:** `@vercel/analytics` 2.0.1, pinned, with `<Analytics />` last in `<body>` in
+`app/layout.tsx`. That closes Q4.
+**Reason:** The dashboard toggle provisions the project side; it does not inject the
+script. On the App Router nothing collects until the component is mounted, which is
+exactly why the dashboard read zero while the site was being visited — the failure is
+silent and looks identical to having no visitors. Placed outside `MotionProvider` because
+it renders no DOM and joins no animation, and last in `<body>` so it never sits ahead of
+content in the parse. It no-ops off Vercel, so `pnpm dev` showing nothing is correct and
+not a second instance of this bug.
+
+Speed Insights is a separate package and is **not** installed; §12's position is that
+performance is guidance rather than a gate, and the Phase 6 profiling run already answered
+the question it would answer continuously.
+**Affects:** §19 Q4, §18
+
+## 2026-09-04 — Words break at their own hyphens, and that is left alone
+
+**Context:** The responsive pass found "multi-tenant" and some project titles breaking
+across lines on small screens, and asked whether that was expected.
+**Decision:** Expected. No `hyphens`, `word-break`, or `overflow-wrap` rule added.
+**Reason:** Every observed break is at a hyphen the copy already contains — the hero's
+"multi-tenant", and the titles "Multi-Tenant AI Chat Platform", "Multi-Tenant Learning
+Management System", "AI-Powered Flashcards with Spaced-Repetition". Breaking after an
+existing hyphen is default browser line-breaking, not hyphenation: nothing in this repo
+sets `hyphens`, and without it CSS cannot insert a hyphen that is not in the text, so no
+word is being split mid-syllable. The `break-words` that does appear is scoped to
+technology tags, where a single unbreakable token would otherwise overflow its chip.
+
+Recorded because the fix would have been worse than the symptom. `hyphens: none` would
+push "Multi-Tenant" whole onto the next line and open a ragged gap at 320px, and
+`overflow-wrap: break-word` on headings would license breaks at non-hyphens — real
+mid-word splits, the thing that was mistakenly suspected here.
+**Affects:** §6.6, §11.5
+
+## 2026-09-04 — Phase 6's verification passes, and what they did not find
+
+**Context:** Phase 6 calls for a responsive review at 320/768/1280 plus 400% zoom, a
+manual keyboard pass, a screen-reader pass, and §17.2's release checks. Absent from the
+log, these are indistinguishable from skipped.
+**Decision:** All performed by the owner and passed. The only observation worth keeping is
+the hyphen question above, closed as correct behaviour.
+**Reason:** A phase whose exit is "checked by hand" leaves no artifact, so the entry is the
+artifact. Recorded alongside it, verified against the production origin — the only place
+these resolve for real: apex serves HTTPS; `www` 308s to the apex; `/certifications` 308s
+to `/skills`; an unknown deep path 404s; the résumé downloads; all six security headers
+arrive with Vercel's own not displacing them; `/api/*` carries `no-store`; the canonical is
+the bare apex; `robots.txt` allows with the sitemap and no `noindex` meta remains; the
+sitemap lists 13 URLs. The contact form was re-verified end to end with a real address
+after the header and route changes, so §17.2's delivery row stands on a current check
+rather than the 2026-09-01 one.
+
+`ALLOW_INDEXING=true` is set in Vercel Production. Per §16.1 it is deliberately the last
+switch thrown: it was flipped after the content sweep and these passes, not before.
+**Affects:** §11, §12.1, §17.2, §18
+
+## 2026-09-04 — CI actions moved to the node24 majors
+
+**Context:** GitHub deprecated the Node 20 runtime. `pnpm/action-setup@v4` was being
+force-run on Node 24 and annotated every one of the four matrix jobs.
+**Decision:** `checkout@v5→v7`, `pnpm/action-setup@v4→v6`, `setup-node@v5→v7`.
+**Reason:** Only `pnpm/action-setup` was flagged, but all three were moved together so the
+next runtime retirement does not reintroduce the same notice one action at a time. All
+three majors declare `using: node24`, checked before the bump rather than assumed. Nothing
+here gates a merge (§16.2) — this is a warning, not a failure — but a workflow that is
+noisy by default is one nobody reads when it has something real to say.
+**Affects:** §16.2

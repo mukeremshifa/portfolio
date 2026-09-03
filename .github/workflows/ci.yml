@@ -11,6 +11,11 @@
 # whole `tests/unit/` suite and six package.json scripts — and §16.2 was subsequently
 # written as though it had never been committed. It is restored verbatim; the four
 # matrix tasks all exist again.
+#
+# Actions bumped to node24 majors 2026-09-04: GitHub deprecated the Node 20 runtime and
+# was force-running `pnpm/action-setup@v4` on Node 24 with a warning on every job. All
+# three moved together so the next major retirement does not reintroduce the same notice
+# one action at a time.
 
 name: CI
 
@@ -35,11 +40,11 @@ jobs:
       matrix:
         task: [format:check, lint, typecheck, test:unit]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
