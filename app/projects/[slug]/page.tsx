@@ -154,7 +154,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               alt={project.cover.alt}
               width={project.cover.width}
               height={project.cover.height}
-              priority
+              preload
               sizes="(min-width: 1200px) 1200px, 100vw"
             />
           </ImageReveal>

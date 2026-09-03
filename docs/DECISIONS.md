@@ -2172,3 +2172,32 @@ no pipeline would touch. The discipline the export-size table imposed in Phase 5
 made this the right answer — the assets were exported at 2× their rendered size and
 converted deliberately, so there is nothing left for a build step to reclaim.
 **Affects:** §12.2, §18
+
+## 2026-09-04 — Next 16 deprecated `priority` to a no-op; the LCP image was loading at Low
+
+**Context:** Phase 6's Lighthouse/WebPageTest pass on the deployed site. Desktop scored
+99/100/100/100, mobile 81 on performance with LCP 3.2 s. WebPageTest on 4G put the same
+LCP at 5.4 s and named the element: the hero portrait, requested at **`priority = Low`**.
+**Decision:** Renamed `Figure`'s `priority` prop to `preload` and updated all three
+above-the-fold call sites (`Hero`, `ProfileHeader`, the project cover).
+**Reason:** Next 16 deprecated `priority` in favour of `preload`. It is not an alias — it
+does nothing, silently, with no type error and no runtime warning, which is why three call
+sites that all *looked* correct produced an unprioritized LCP image. This is exactly the
+class of breakage AGENTS.md's managed block warns about: the prop is still valid in the
+training-data version of the API and still compiles here.
+
+The theme-pair branch takes `fetchPriority="high"` rather than `preload`, per the Next
+docs' explicit note on light/dark pairs: `preload` inserts a `<link rel="preload">` per
+rendition, so a pair would fetch *both* files at high priority from the `<head>` — the
+cost this component already documents accepting, made worse. `fetchPriority` raises the
+priority of the request the `<img>` issues anyway without adding a preload. The single-
+image branch has no such conflict and takes `preload`, which also gets it discovered in
+the `<head>` rather than at parse time.
+
+Two things the run flagged that are **not** defects, recorded so they are not re-chased:
+the `unminified-javascript` and `unused-javascript` findings are almost entirely
+`chrome-extension://` URLs (a content script and React DevTools) — the audit ran in a
+profile with extensions loaded. And Lighthouse's 470 ms TBT is a lab artifact of the same
+profile plus 4× CPU throttling; WebPageTest measured **79 ms** on 4G in a clean browser.
+Re-run Lighthouse mobile in an incognito/clean profile to get a comparable number.
+**Affects:** §12.1, §12.2, §18

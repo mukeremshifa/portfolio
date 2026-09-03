@@ -155,7 +155,7 @@ export function Hero({ site }: HeroProps) {
                   alt={site.portrait.alt}
                   width={site.portrait.width}
                   height={site.portrait.height}
-                  priority
+                  preload
                   sizes="(min-width: 1024px) 20rem, 16rem"
                 />
               </ImageReveal>

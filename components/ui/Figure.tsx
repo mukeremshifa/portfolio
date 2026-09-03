@@ -25,8 +25,13 @@ type FigureProps = {
   width: number;
   height: number;
   caption?: string;
-  /** Above the fold. Everything else lazy-loads, which is §12.1's one free habit. */
-  priority?: boolean;
+  /**
+   * Above the fold. Everything else lazy-loads, which is §12.1's one free habit.
+   *
+   * Next 16 deprecated `priority` to a no-op in favour of `preload`, which is why this
+   * is spelled `preload` now — see the THEME PAIRS note for why a pair cannot use it.
+   */
+  preload?: boolean;
   sizes?: string;
 };
 
@@ -59,9 +64,17 @@ const IMAGE_CLASS =
  * loads per page (`/projects` renders none — `ProjectCard` shows a cover only in its
  * `featured` variant, and only the home lead card uses it).
  *
- * `priority` applies to both for the same reason. The theme is resolved on the client
+ * Eagerness applies to both for the same reason. The theme is resolved on the client
  * after the server has already rendered, so the server cannot know which rendition will
  * be the LCP element, and marking only one would be a guess that is wrong half the time.
+ *
+ * But a pair must NOT use `preload`: that inserts a `<link rel="preload">` per rendition
+ * and would fetch both files at high priority in the `<head>`, ahead of everything else —
+ * the one cost this component already accepts, made worse. `fetchPriority="high"` raises
+ * the priority of the request the `<img>` makes anyway without adding a preload, which is
+ * exactly what the Next docs prescribe for a theme pair. A single image has no such
+ * conflict and takes `preload`, which also gets it discovered in the `<head>` rather than
+ * on parse.
  *
  * Accessibility is handled by the swap itself rather than by `aria-hidden`: the hidden
  * rendition is `display: none`, which removes it from the accessibility tree, so exactly
@@ -75,7 +88,7 @@ export function Figure({
   width,
   height,
   caption,
-  priority = false,
+  preload = false,
   sizes,
 }: FigureProps) {
   // `alt` is deliberately **not** in this object. Spread through it, the prop is
@@ -84,7 +97,7 @@ export function Figure({
   // fix is to pass it explicitly rather than to silence the rule: an image whose `alt`
   // cannot be seen at the call site is exactly what the rule is for, and the next real
   // omission would have been indistinguishable from these three false positives.
-  const shared = { width, height, priority, sizes };
+  const shared = { width, height, sizes };
 
   return (
     <figure className="flex flex-col gap-3">
@@ -94,17 +107,25 @@ export function Figure({
             {...shared}
             alt={alt}
             src={src}
+            fetchPriority={preload ? "high" : undefined}
             className={`${IMAGE_CLASS} dark:hidden`}
           />
           <Image
             {...shared}
             alt={alt}
             src={srcDark}
+            fetchPriority={preload ? "high" : undefined}
             className={`${IMAGE_CLASS} hidden dark:block`}
           />
         </>
       ) : (
-        <Image {...shared} alt={alt} src={src} className={IMAGE_CLASS} />
+        <Image
+          {...shared}
+          alt={alt}
+          src={src}
+          preload={preload}
+          className={IMAGE_CLASS}
+        />
       )}
       {caption ? (
         <figcaption className="max-w-measure font-sans text-body-sm text-text-muted">

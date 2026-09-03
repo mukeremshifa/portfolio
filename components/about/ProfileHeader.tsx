@@ -17,8 +17,9 @@ type ProfileHeaderProps = { site: Site };
  * collapses to a single column rather than reserving a circle for nothing — the same
  * behaviour §8.1 asks of the hero, for the same reason.
  *
- * `priority` because this is the largest element above the fold on the page and the only
- * candidate for its LCP.
+ * `preload` because this is the largest element above the fold on the page and the only
+ * candidate for its LCP. (Next 16 deprecated `priority` to a no-op; `preload` is the
+ * spelling that still does something.)
  *
  * The facts render as a `<dl>`, which is what they are: term and value. §5.4's refusal of
  * proficiency scales applies to the languages too — `level` is whatever the content says
@@ -45,7 +46,7 @@ export function ProfileHeader({ site }: ProfileHeaderProps) {
               alt={site.avatar.alt}
               width={site.avatar.width}
               height={site.avatar.height}
-              priority
+              preload
               className="size-32 shrink-0 rounded-full border border-border-subtle object-cover md:size-40"
             />
           </ImageReveal>
