@@ -2030,3 +2030,45 @@ is absent, which is a state no shipped configuration currently reaches. It is co
 the swap matrix in `docs/STUB-INVENTORY.md` and was verified by rendering the hero without
 the field before this was committed.
 **Affects:** §8.1, §7.4
+
+## 2026-09-04 — Screenshots stay out of v1; the gallery path stays open
+
+**Context:** §20's intake checklist allots up to 8 screenshots per project, and
+`docs/STUB-INVENTORY.md` carried capturing them as Phase 5 work. None of the seven real
+projects has any, and `public/placeholders/` still holds six screenshot placeholders at
+ratios nothing consumes. The gap is silent: an absent gallery renders correctly, so
+nothing surfaces it.
+**Decision:** v1 ships with no project screenshots, by the owner's call. `ScreenshotSchema`
+and `ScreenshotGallery` stay where they are — typed, compiling, unreferenced — and no
+project gains the field.
+**Reason:** Screenshots are the most expensive content left and the least load-bearing:
+every project already carries a cover, prose, and a live link where one exists, and four
+of seven have real 2400×1350 light/dark cover pairs doing the visual work. Capturing,
+redacting (§20's content warnings), exporting at 2× under `unoptimized: true`, and writing
+alt text for up to 56 images is a sprint on its own, and it would gate a launch that is
+otherwise content-complete. Keeping the schema and the component is the same call already
+made on 2026-08-30 for `CodeHighlight`: the cost of retaining them is two exported types,
+and the cost of deleting them is rebuilding a gallery from scratch when a project earns
+one. This entry exists so the absence reads as a decision rather than an oversight — which
+is precisely what the stub inventory warned about for the three coverless projects.
+**Affects:** §5.3, §17.1, §20; `docs/STUB-INVENTORY.md`
+
+## 2026-09-04 — Restored the scripts and the test suite that `b4d5d05` removed
+
+**Context:** `b4d5d05` ("Refactor code structure for improved readability and
+maintainability") deleted `.github/workflows/ci.yml`, all six files under `tests/unit/`,
+`vitest.config.mts`, and the `build`, `start`, `lint`, `format`, `format:check`,
+`test:unit` and `check` scripts from `package.json` — while also carrying an unrelated
+content change (the location swap the stub inventory already flags) and adding two
+unreferenced PNGs to `public/`. §16.2 and §15.3 were subsequently written as though none
+of it had ever existed, recording `ci.yml` and the invariant tests as work never done.
+**Decision:** Restore the seven scripts, minus `test:unit`, and drop it from `check` until
+the suite is back. Delete `public/portrait.png` and `public/project_cover.png`. Correct
+§16.2 and §15.3 to say the work was removed rather than never written.
+**Reason:** The spec was describing the wrong failure. "Never built" invites rebuilding
+from scratch; "deleted in a refactor" points at `b4d5d05^`, where the real `ci.yml` and a
+`links.test.ts` that catches exactly the apex-URL bug `176e8fc` later fixed by hand are
+still recoverable. `AGENTS.md` already invoked `pnpm format:check` as though it existed.
+The two PNGs were unreferenced from `content/`, `components/`, `app/` and `lib/`, are PNG
+photographs the export table forbids, and sit outside the `public/images/` naming rule.
+**Affects:** §15.3, §16.2, §18

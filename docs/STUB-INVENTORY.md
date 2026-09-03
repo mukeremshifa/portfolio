@@ -67,8 +67,9 @@ eye, which is exactly why they are listed here instead.
 | ~~`site.avatar`~~ | **Closed 2026-08-31.** `/images/avatar-1x1.jpeg`, 360×360. The "two exports of one photograph" this row predicted is exactly what arrived: the same studio headshot, cropped square with the headroom a circular frame needs and the 3:4 export does not have |
 | ~~`site.resume`~~ | **Closed 2026-09-01.** `/Mukerem-Shifa-Resume.pdf`, `updated: 2026-08`. §19 Q4 resolved to `public/` rather than R2 — one origin, no second thing to keep in sync for a 110 KB file. The URL is deliberately **undated**: a dated filename breaks every link, QR code and emailed copy already in circulation on each revision, and the date is already rendered from `updated`. Revising the résumé means overwriting this path, not adding a sibling |
 | ~~`content/projects/*.json`~~ | **Closed 2026-08-31, amended 2026-09-01.** All six synthetic projects were deleted. **There are now seven real ones, not the four this row first named:** `conversekit-ai-chatbot`, `synapsedeck-ai-flashcards`, `gamified-survey-prototype` and `multitenant-lms-platform`, plus `amteclinks-website-seo`, `java-shopping-cart` and `little-lemon-capstone`. All seven are the owner's own copy. Their *prose* is real; their assets and links are not, see the rows below. Note the slug is `gamified-survey-prototype` — this file and the export table below both misspelled it `servey` |
-| Project `links.*` hosts | All seven projects' own `github.com/mukeremshifa/…` and `<slug>.mukeremshifa.com` URLs | **Unverified, not synthetic.** These now name repositories and deployments the owner believes exist, which is a different risk from the stub era: a wrong URL here is a broken promise rather than an obvious placeholder. Every one needs opening by hand once. Nothing catches a 404 — `tests/unit/links.test.ts` was planned and never written |
+| Project `links.*` hosts | All seven projects' own `github.com/mukeremshifa/…` and `<slug>.mukeremshifa.com` URLs | **Owner verifying by hand, 2026-09-04.** These name repositories and deployments the owner believes exist, which is a different risk from the stub era: a wrong URL here is a broken promise rather than an obvious placeholder. The survey project's repo was renamed on GitHub and its URL corrected here the same day (`gamified-servey-project` → `gamified-survey-project`). Nothing catches a 404 — `tests/unit/links.test.ts` existed and was deleted by `b4d5d05`; it is recoverable at `b4d5d05^` |
 | `cover.src` — the other three | `amteclinks-website-seo`, `java-shopping-cart` and `little-lemon-capstone` have **no `cover` at all**. That renders correctly — `cover` became optional on 2026-08-31 and the card falls back — so nothing is broken and nothing flags it either. Decide per project whether it gets a render or stays coverless; a deliberate no is a valid answer, an unnoticed no is not. If they get one, `scripts/build_covers.py` is the path and the pair must be light **and** dark |
+| ~~Project screenshots~~ | **Closed 2026-09-04.** No project carries a `screenshots` array, and none will in v1 | **Nothing.** The owner decided v1 ships without screenshots. Note the field is not merely unpopulated — it was removed from `ProjectSchema` on 2026-08-30, and `ScreenshotSchema` / `ScreenshotGallery` are retained deliberately as the starting point if a project ever earns a gallery. The six screenshot SVGs in `public/placeholders/` are consumed only by `app/dev/primitives/`. See `DECISIONS.md`, 2026-09-04 |
 | ~~`cover.src` — the four featured~~ | **Closed 2026-09-01.** All four are real, and all four are light/dark pairs at 2400×1350: `<slug>-cover-16x9-{light,dark}.avif` under `/images/projects/`. The three broken paths this row tracked are gone, and ConverseKit's 1577×887 title card was replaced by a product render at the full export size, which also closes the softness noted in the export table below. Sources were 8K PNGs (~28 MB); `scripts/build_covers.py` produces the committed 515 KB. `cover.srcDark` is the schema field that carries the pair — see `DECISIONS.md`, 2026-09-01 |
 
 ### Already real, listed so nobody re-stubs them
@@ -159,8 +160,13 @@ image that measures 16:9 is a cover that was described as an OG.
 
 **None of it, currently.** This section described `tests/unit/stubs.test.ts` — asserting that
 every image `src` in `content/` still points under `/placeholders/`, so that landing a real
-asset fails the test and reminds someone to update this file. That test does not exist. There
-is no `tests/` directory and no test runner in `package.json`; §15 was never built.
+asset fails the test and reminds someone to update this file. That test **was written and
+then deleted**: `b4d5d05` removed all six files under `tests/unit/` — `stubs.test.ts` among
+them — along with `vitest.config.mts` and the `test:unit` script, under the title
+"Refactor code structure for improved readability and maintainability". There is no
+`tests/` directory and no test runner in `package.json` today, but the suite is recoverable
+at `b4d5d05^` rather than needing to be written from scratch. See `DECISIONS.md`,
+2026-09-04.
 
 Recorded rather than deleted because the design was right and the gap is worth seeing: the
 one automated reminder this file was promised is missing at exactly the phase that needs it.

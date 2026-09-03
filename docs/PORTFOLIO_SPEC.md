@@ -186,7 +186,7 @@ silently corrected, because three of the differences were decisions rather than 
 
 ```text
 portfolio/
-├── .github/workflows/          # empty; `ci.yml` was never written (§4.2, §16.2)
+├── .github/workflows/          # empty; `ci.yml` was deleted by b4d5d05 (§4.2, §16.2)
 ├── app/
 │   ├── layout.tsx              # html/body, fonts, theme script, MotionProvider, skip link
 │   ├── globals.css             # tailwind import, @theme tokens, base layer, scrollbar removal
@@ -276,7 +276,7 @@ project and not a typo:
 | Was specified | What is actually there | Standing |
 |---|---|---|
 | `worker/` for the contact endpoint | `app/api/contact/route.ts` | **Decided.** The endpoint is a Next route on Vercel, not a Cloudflare Worker — `DECISIONS.md`, 2026-09-01. §14 is amended to match |
-| `tests/unit/`, `tests/e2e/` | Neither exists; Vitest is not installed | **Outstanding.** Phase 2's exit criterion named the §5.5 invariant tests and they were never written. See §15.3 |
+| `tests/unit/`, `tests/e2e/` | Neither exists; Vitest is not installed | **Outstanding, and previously misreported.** Phase 2's exit criterion named the §5.5 invariant tests and they *were* written — six files under `tests/unit/`, deleted by `b4d5d05` along with `vitest.config.mts`. Recoverable at `b4d5d05^`. See §15.3 |
 | `.github/workflows/ci.yml` | `.github/` is empty | **Outstanding.** Phase 0 called for a stub; nothing was committed. §16.2 now says so |
 | `public/og/` | OG cards are generated per route by `opengraph-image.tsx` | **Decided.** §13.4 always described generation; the directory was a leftover from a static-export draft |
 | `app/certifications/page.tsx` | `app/skills/page.tsx` | **Decided.** Renamed 2026-08-31, §7.1, with a permanent redirect in `next.config.ts` |
@@ -560,7 +560,7 @@ During Phases 0 through 4, real content will not exist yet. That is expected, no
   for the word "placeholder" no longer finds them. The inventory is the mitigation, and it
   stops being one the moment it drifts out of date. A test in `tests/unit/` was to hold the
   half a machine can check — every image `src` in `content/` still pointing under
-  `/placeholders/` — and **it was never written** (§15.3), so the whole sweep is currently
+  `/placeholders/` — and **it was written and then deleted** by `b4d5d05` (§15.3), so the whole sweep is currently
   a human reading the inventory. `STUB-INVENTORY.md` says the same under its own last
   heading.
 
@@ -1875,7 +1875,7 @@ deliberate consequence of AGENTS.md's active development gate, which asks for th
 needed to validate a change and defers full validation to a deployment checkpoint.
 
 **The gap that matters is the unit row.** Phase 2's exit criterion named the §5.5
-cross-file invariant tests, and they were never written — every invariant in §5.5 is
+cross-file invariant tests, and they were deleted by `b4d5d05` — every invariant in §5.5 is
 currently enforced by reading, and the `links.*` row in `STUB-INVENTORY.md` names a
 `tests/unit/links.test.ts` that does not exist. §5.5's invariants are the highest-value
 tests in §15.1's table precisely because content changes are the thing this project does
@@ -1926,7 +1926,7 @@ behind an environment flag until the Phase 6 hardening pass flips it (§13.3).
 **Not built as of 2026-09-01.** `.github/workflows/` is empty; Phase 0 called for a stub and
 none was committed. Nothing has depended on it, because none of it was ever a gate and
 Vercel builds every push regardless (§16.3). It is listed as outstanding in §18 rather than
-quietly dropped — the `unit` step below cannot be written before §15.3's tests exist, and
+quietly dropped — the `unit` step below cannot run before §15.3's tests are restored, and
 the rest is worth having the day someone else touches this repo.
 
 ```text
@@ -2027,7 +2027,7 @@ motion work described in §10.4.
 **Exit:** an empty site is live on `mukeremshifa.com` over HTTPS with `www` redirecting to
 it, pushes to `dev` produce previews, and `pnpm check` is clean.
 
-*Left behind:* `ci.yml` was never committed (§16.2), and `pnpm check` does not exist as a
+*Left behind:* `ci.yml` was committed and later deleted by `b4d5d05` (§16.2); `pnpm check` was restored as a
 script (§15.3). Neither was load-bearing — Vercel builds every push, and nothing here was
 ever a gate.
 
