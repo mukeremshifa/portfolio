@@ -1,4 +1,5 @@
 import { Signature } from "@/components/brand/Signature";
+import { HeroSocialLinks } from "@/components/home/HeroSocialLinks";
 import { Fade } from "@/components/motion/Fade";
 import { ImageReveal } from "@/components/motion/ImageReveal";
 import { SignatureReveal } from "@/components/motion/SignatureReveal";
@@ -60,10 +61,14 @@ const HERO_STAGE = {
  *    below is the one exception, and it is unreachable while `site.name` is the signed
  *    name — it stays `font-serif` because §6.6 pairs `display-1` with Source Serif, and
  *    a hero rendering somebody else's name has bigger problems than family consistency.
- * 2. **Two calls to action, total.** The GitHub and LinkedIn links used to sit here as a
- *    third and fourth control. They are in `SiteFooter` on every page and on `/contact`,
- *    so the hero was the third place to say the same thing and the one where it cost the
- *    most.
+ * 2. **Two calls to action, total.** This still holds, and `HeroSocialLinks` does not
+ *    break it. GitHub and LinkedIn came back to this section on 2026-09-04, but as
+ *    handles under the portrait rather than as controls beside the buttons: muted mono
+ *    text, no fill, no border, no button padding. A visitor scanning the hero for
+ *    something to click still finds exactly two things. What changed is the argument —
+ *    the original removal was about the footer already carrying them, which is a content
+ *    argument; the footer is also a full page-scroll from the one visitor most likely to
+ *    want them. See `HeroSocialLinks` and docs/DECISIONS.md.
  * 3. **No stat row.** §1.5 and §21 forbid invented metrics, and the honest counts —
  *    seven projects, two of them deployed, two AI — are small enough that stating them
  *    reads weaker than the "Selected work" cards immediately below.
@@ -77,7 +82,10 @@ const HERO_STAGE = {
  * each is a row of the swap matrix in `docs/STUB-INVENTORY.md`:
  *
  * - no `portrait` → the row collapses to one column, which is §8.1's requirement. The
- *   text column is `flex-1`, so this needs no branch: it simply takes the width back.
+ *   text column is `flex-1`, so the width needs no branch: it simply takes it back. The
+ *   profile links do need one, because they hang off the photo — they move into the text
+ *   column rather than disappearing with it, which is where this departs from a literal
+ *   reading of §8.1. See the comment at the branch itself.
  * - no `resume` → the secondary CTA is not rendered, not disabled
  * - `availability.show: false` → the badge disappears from this hero, and this is now the
  *   only place any of it renders. The footer used to carry a second, separately-flagged
@@ -109,19 +117,57 @@ export function Hero({ site }: HeroProps) {
         // fifths of a 1200px container is a ~590px slab that the lines beside it cannot
         // balance. 360px wide reads as 480px tall, which sits inside the floor above with
         // room to breathe rather than setting the section's height itself.
-        <div className="w-full max-w-64 shrink-0 lg:w-2/5 lg:max-w-90">
-          {/* Stage 1. The face arrives first and it is the only image on the site that
-              uses `ImageReveal` on mount rather than on scroll — it is already in view. */}
-          <ImageReveal delay={HERO_STAGE.portrait} onMount>
-            <Figure
-              src={site.portrait.src}
-              alt={site.portrait.alt}
-              width={site.portrait.width}
-              height={site.portrait.height}
-              priority
-              sizes="(min-width: 1024px) 22.5rem, 16rem"
+        <div className="w-full max-w-64 shrink-0 lg:w-1/3 lg:max-w-80">
+          {/* The panel: a `brand-soft` block offset up and to the right, with the photo
+              sitting over its lower-left. Three things it is doing, none of them
+              decorative.
+
+              One, it is the fix for the portrait's backdrop. The photograph is a studio
+              shot on neutral grey — the one large achromatic area on a page whose every
+              surface token sits between hue 67 and 81 — and beside a warm canvas that
+              grey reads faintly blue, by the same induction §6.1(c) describes for the
+              dark surfaces. Surrounding two of its edges with a brand tint neutralises
+              that without touching the file, which is what keeps the OG card, the
+              `/about/` avatar, and this hero showing the same unmodified photograph.
+
+              Two, the offset gives the column a deliberate edge on the right, which is
+              what stops a 4:5-reasoned layout from reading as a slab now that the real
+              asset is 3:4 and tightly cropped.
+
+              Three, `border-subtle` on the panel and `Figure`'s own border on the photo
+              are the same 1px hairline, so the two planes read as one assembled object
+              rather than an image with a shape behind it. Square corners throughout:
+              §6.7 sets every radius to 0 and a rounded panel here would be the only soft
+              shape on the site. */}
+          <div className="relative pt-4 pr-4">
+            <div
+              aria-hidden="true"
+              className="absolute top-0 right-0 h-[calc(100%-1rem)] w-[calc(100%-1rem)] border border-border-subtle bg-brand-soft"
             />
-          </ImageReveal>
+            {/* Stage 1. The face arrives first and it is the only image on the site that
+                uses `ImageReveal` on mount rather than on scroll — it is already in view.
+                `relative` lifts it out of the panel's stacking context; without it the
+                absolutely positioned block above paints over the photograph. */}
+            <div className="relative">
+              <ImageReveal delay={HERO_STAGE.portrait} onMount>
+                <Figure
+                  src={site.portrait.src}
+                  alt={site.portrait.alt}
+                  width={site.portrait.width}
+                  height={site.portrait.height}
+                  priority
+                  sizes="(min-width: 1024px) 20rem, 16rem"
+                />
+              </ImageReveal>
+            </div>
+          </div>
+
+          {/* Stage 4, with the controls: the profiles arrive once the name and role have
+              said whose they are. Under the photo rather than beside the buttons, because
+              they are destinations rather than actions — see `HeroSocialLinks`. */}
+          <Fade delay={HERO_STAGE.controls}>
+            <HeroSocialLinks socials={site.socials} />
+          </Fade>
         </div>
       ) : null}
 
@@ -201,6 +247,23 @@ export function Hero({ site }: HeroProps) {
               </Button>
             ) : null}
           </div>
+
+          {/* The no-portrait fallback, and a deliberate departure from §8.1 — recorded in
+              docs/DECISIONS.md.
+
+              §8.1 says the hero collapses to a single column when `ProfileVisual` is
+              absent, and the profile links now hang off the portrait. Read literally,
+              deleting the photograph would also delete the GitHub and LinkedIn links,
+              which is not a collapse — it is one optional field silently taking an
+              unrelated one with it. The section still collapses to one column exactly as
+              specified; the links relocate into it rather than vanishing.
+
+              `inline` because there is no photo edge here to hang a rule under: a
+              `border-t` in this position would be drawing a line beneath the buttons and
+              claiming a relationship to them that does not exist. */}
+          {site.portrait ? null : (
+            <HeroSocialLinks socials={site.socials} variant="inline" />
+          )}
         </Fade>
       </div>
     </section>

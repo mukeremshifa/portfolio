@@ -1986,3 +1986,47 @@ gets the blurred markup on first paint and it corrects on hydration. The alterna
 assuming reduced motion on the server — sends every visitor the stripped version and then
 animates, which is worse for both audiences.
 **Affects:** §9.4, §10.4
+
+## 2026-09-04 — GitHub and LinkedIn return to the hero, as handles on the portrait
+
+**Context:** §8.1 lists social links in the hero; they were removed on 2026-08-30 as "a
+third and fourth control" because `SiteFooter` carries them on every page and `/contact`
+lists them again. That removal was right about the duplication and wrong about what the
+duplication cost. The footer's copy sits a full page-scroll below the fold, and the
+visitor most likely to want the GitHub link is a recruiter a few seconds into the home
+page — the one position on the site where the links are furthest from the person who
+wants them.
+**Decision:** `components/home/HeroSocialLinks.tsx`, rendered under the portrait as two
+monospace handles — `github.com/mukeremshifa`, `in/mukeremshifa` — beneath a
+`border-strong` rule, with `BrandIcon` marks and `ExternalLink` doing the tab
+announcement. The portrait column narrows from `lg:w-2/5 lg:max-w-90` to
+`lg:w-1/3 lg:max-w-80`, and a `brand-soft` panel is offset up-right behind the photograph.
+**Why this does not break "two calls to action, total."** The links are not styled as
+controls: muted mono text, no fill, no border, no button padding, `text-eyebrow` against
+the buttons' `text-body-sm`. A visitor scanning the hero for something to click still
+finds exactly two things. The rule that was protecting the hero's flat hierarchy is
+intact; what changed is that a *destination* is no longer being counted as an *action*.
+**Why handles rather than platform names.** "GitHub" is what the footer column already
+says. `github.com/mukeremshifa` is the string someone copies into a browser or a candidate
+note, so the link shows the thing it is for. The handle is derived from `socials[].url` at
+render rather than stored: adding a `handle` field would put the same substring in two
+places for the schema to let drift.
+**Why a panel instead of colour-grading the photograph.** The portrait is a studio shot on
+neutral grey — the one large achromatic area on a page whose surface tokens all sit
+between hue 67 and 81 — and beside the warm canvas it reads faintly blue, by the same
+induction §6.1(c) documents for the dark surfaces. A filter would fix the hero and leave
+the OG card, the `/about/` avatar, and any future consumer showing a different photograph.
+The panel surrounds two edges with `brand-soft` and neutralises the cast environmentally,
+so every surface keeps the same unmodified file.
+**The deviation from §8.1, stated plainly:** §8.1 requires the hero to collapse to a
+single column when `ProfileVisual` is absent, and the links now hang off the portrait. Read
+literally, deleting the photograph would delete the GitHub and LinkedIn links with it —
+one optional field silently taking an unrelated one down. The section still collapses to
+one column exactly as specified; the links relocate into the text column as an `inline`
+variant instead of vanishing. Authorised by the owner on 2026-09-04, who asked for the
+right behaviour for the repo over the literal reading.
+**Cost:** a second layout variant in `HeroSocialLinks` that only renders when `portrait`
+is absent, which is a state no shipped configuration currently reaches. It is covered by
+the swap matrix in `docs/STUB-INVENTORY.md` and was verified by rendering the hero without
+the field before this was committed.
+**Affects:** §8.1, §7.4
