@@ -2,15 +2,7 @@
   {
     "id": "languages",
     "title": "Languages",
-    "items": [
-      "TypeScript",
-      "JavaScript",
-      "Python",
-      "Java",
-      "SQL",
-      "HTML",
-      "CSS"
-    ]
+    "items": ["TypeScript", "JavaScript", "Python", "Java", "SQL", "HTML", "CSS"]
   },
   {
     "id": "frontend",
@@ -28,24 +20,12 @@
   {
     "id": "backend-and-apis",
     "title": "Back end and APIs",
-    "items": [
-      "Hono",
-      "Node.js",
-      "Deno",
-      "Django",
-      "Django REST Framework",
-      "Zod"
-    ]
+    "items": ["Hono", "Node.js", "Deno", "Django", "Django REST Framework", "Zod"]
   },
   {
     "id": "data-and-storage",
     "title": "Data and storage",
-    "items": [
-      "PostgreSQL",
-      "Supabase",
-      "Drizzle ORM",
-      "AWS S3"
-    ]
+    "items": ["PostgreSQL", "Supabase", "Drizzle ORM", "AWS S3"]
   },
   {
     "id": "ai-and-retrieval",
@@ -63,13 +43,7 @@
   {
     "id": "platform-and-delivery",
     "title": "Platform and delivery",
-    "items": [
-      "Cloudflare Workers",
-      "Vercel",
-      "Docker",
-      "pytest",
-      "nginx"
-    ]
+    "items": ["Cloudflare Workers", "Vercel", "Docker", "pytest", "nginx"]
   },
   {
     "id": "search-and-content",
@@ -87,11 +61,6 @@
   {
     "id": "product-and-interaction",
     "title": "Product and interaction",
-    "items": [
-      "Gamification Design",
-      "Survey UX",
-      "Java Swing",
-      "Desktop Application"
-    ]
+    "items": ["Gamification Design", "Survey UX", "Java Swing", "Desktop Application"]
   }
 ]

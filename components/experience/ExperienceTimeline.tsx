@@ -51,11 +51,7 @@ export function ExperienceTimeline({
       {compact ? (
         entries.map((entry) => (
           <li key={entry.id}>
-            <TimelineRow
-              entry={entry}
-              compact={compact}
-              headingLevel={headingLevel}
-            />
+            <TimelineRow entry={entry} compact={compact} headingLevel={headingLevel} />
           </li>
         ))
       ) : (

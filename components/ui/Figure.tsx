@@ -85,7 +85,11 @@ export function Figure({
       {srcDark ? (
         <>
           <Image {...shared} src={src} className={`${IMAGE_CLASS} dark:hidden`} />
-          <Image {...shared} src={srcDark} className={`${IMAGE_CLASS} hidden dark:block`} />
+          <Image
+            {...shared}
+            src={srcDark}
+            className={`${IMAGE_CLASS} hidden dark:block`}
+          />
         </>
       ) : (
         <Image {...shared} src={src} className={IMAGE_CLASS} />

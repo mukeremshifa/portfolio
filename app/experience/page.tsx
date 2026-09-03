@@ -53,9 +53,9 @@ export default function ExperiencePage() {
           </SplitText>
           <Fade delay={0.35}>
             <p className="max-w-measure font-sans text-body-lg text-text-muted">
-              A blend of full-stack development, AI integrations, leadership, and community.
-              Focused on building scalable features, optimizing performance, and shipping
-              production-grade solutions.
+              A blend of full-stack development, AI integrations, leadership, and
+              community. Focused on building scalable features, optimizing performance,
+              and shipping production-grade solutions.
             </p>
           </Fade>
         </div>

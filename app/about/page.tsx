@@ -75,21 +75,22 @@ export default function AboutPage() {
             <Prose>
               <p>
                 I like to start from the constraint rather than the feature list.
-                Permissions, migrations, partial failure, and the awkward second environment
-                are the parts that quietly decide what a system can become, and I have
-                learned the hard way that retrofitting them means rewriting all the parts
-                that were fun to build.
+                Permissions, migrations, partial failure, and the awkward second
+                environment are the parts that quietly decide what a system can become,
+                and I have learned the hard way that retrofitting them means rewriting all
+                the parts that were fun to build.
               </p>
               <p>
-                I would honestly rather maintain something than ship it and walk away. Four
-                of the projects here are still in progress, and most of what I believe about
-                any of their first designs came out of having to change them later.
+                I would honestly rather maintain something than ship it and walk away.
+                Four of the projects here are still in progress, and most of what I
+                believe about any of their first designs came out of having to change them
+                later.
               </p>
               <p>
-                Accessibility and clarity are product requirements to me, not a pass at the
-                end. Keyboard paths, focus order, contrast, and how a thing behaves at 320
-                pixels get decided while I am writing the component, because that is the
-                only moment they are cheap.
+                Accessibility and clarity are product requirements to me, not a pass at
+                the end. Keyboard paths, focus order, contrast, and how a thing behaves at
+                320 pixels get decided while I am writing the component, because that is
+                the only moment they are cheap.
               </p>
             </Prose>
           </Reveal>
@@ -101,9 +102,10 @@ export default function AboutPage() {
             <Prose>
               <p>
                 I watch a lot of mystery and thriller films, and I follow soccer more
-                closely than is strictly reasonable. I walk further than I need to. I try to
-                give people the benefit of the doubt, and I love finding out how things work
-                underneath the abstraction. That last one is arguably still engineering.
+                closely than is strictly reasonable. I walk further than I need to. I try
+                to give people the benefit of the doubt, and I love finding out how things
+                work underneath the abstraction. That last one is arguably still
+                engineering.
               </p>
             </Prose>
           </Reveal>
