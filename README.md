@@ -3,22 +3,21 @@
 Personal portfolio website for Mukerem Shifa, AI Engineer & Full-Stack Developer.
 Domain: [mukeremshifa.com](https://mukeremshifa.com)
 
-Status: **Phase 4 complete — next is Phase 5, the content sweep.** All seven routes in
-section 7.1 exist, no internal link 404s, and the contact form delivers through
-`app/api/contact/route.ts` with rate limiting behind it. Real project copy, covers,
-credentials, timeline and portrait have landed; what is left is listed in
-`docs/STUB-INVENTORY.md`.
+Status: **v1.0.0 — shipped.** All seven phases are complete and tagged `phase-0` through
+`phase-6` on `dev`. The site is live, indexed, and the content is real: `STUB-INVENTORY.md`
+is empty, all 33 external URLs were opened by hand, and the two absences that outlived the
+sweep — screenshots, and covers for the three projects with no front end — are decisions in
+`DECISIONS.md` rather than gaps.
 
-Three things were carried past their phase and none of them blocks Phase 5: the section 5.5
-invariant tests (Vitest is not installed), `ci.yml` (`.github/workflows/` is empty), and
-applying section 10.2's `Reveal`/`Stagger` inventory — the wrappers exist but no real page
-uses them. Section 10.4 says what to decide before that last one starts.
+Phase 6 profiled the deployed site rather than assuming: desktop scored 99/100/100/100, and
+a mobile LCP of 3.2 s traced to Next 16 having deprecated `priority` to a silent no-op on
+three call sites that all looked correct. `images.unoptimized` stays, on measured numbers —
+the whole `public/` tree is 1.1 MB and the heaviest page gzips to 60.4 KB. Security headers
+ship with a deliberate and documented absence of a CSP (§16.4).
 
 Every resource the owner supplies is a content change: the portrait, the resume, the
 address, the email, a project, a credential. Editing `content/` or dropping a file into
-`public/` is the whole procedure, and each row of that table was verified by doing it. Copy
-and imagery are stubs under section 5.6 until the Phase 5 sweep; crawling is blocked by
-`app/robots.ts` until Phase 6 flips `ALLOW_INDEXING`.
+`public/` is the whole procedure, and each row of that table was verified by doing it.
 
 ## Documentation
 
@@ -26,10 +25,11 @@ and imagery are stubs under section 5.6 until the Phase 5 sweep; crawling is blo
 | --- | --- |
 | [docs/PORTFOLIO_SPEC.md](docs/PORTFOLIO_SPEC.md) | Specification v2.1.5: stack, content model, design system, page specs, accessibility, testing, deployment, and a seven-phase delivery plan |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Append-only log of decisions that change the spec |
-| [docs/STUB-INVENTORY.md](docs/STUB-INVENTORY.md) | Where every owner-supplied resource lives and what swapping it costs, plus every field currently holding a stub. Phase 5 is done when the second table is empty |
+| [docs/STUB-INVENTORY.md](docs/STUB-INVENTORY.md) | Where every owner-supplied resource lives and what swapping it costs. The stub table is empty as of v1.0.0, which means the swap matrix is entirely real |
 
-Start with section 18 (Delivery plan) for what to build next, and section 19 (Open
-questions) for what still needs an answer.
+Section 18 (Delivery plan) records what each phase actually closed with. `DECISIONS.md`
+is the more useful entry point for why anything is the way it is — it is append-only and
+carries the cost of each decision as well as the benefit.
 
 ## Stack
 
@@ -46,13 +46,14 @@ pnpm).
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3000
-pnpm typecheck    # tsc --noEmit
+pnpm check        # format:check + lint + typecheck + test:unit
 ```
 
-Those are the only two scripts `package.json` defines. `next build` works, but per
-`AGENTS.md` this repo is in a local-only dev phase: iterate with `pnpm dev`, validate with
-`pnpm typecheck`, and leave build, test and release checks for a real deployment
-checkpoint. Appendix A of the spec lists the fuller command set as the target.
+`pnpm check` is what CI runs, as four parallel jobs. Individually: `format:check`, `lint`,
+`typecheck`, `test:unit` (57 tests over the §5.5 invariants, the loader, the JSON-LD
+builders, the formatters, the link policy and the routing surface). Per `AGENTS.md`,
+day-to-day iteration is `pnpm dev` plus `pnpm typecheck`; the full check belongs at a
+deployment checkpoint.
 
 The two asset generators are Python, run by hand, with their output committed:
 
@@ -68,4 +69,10 @@ is required for `pnpm dev` to run.
 
 Vercel builds every push through its GitHub integration. `main` deploys to production at
 `mukeremshifa.com`; `dev` and pull requests get preview URLs. There is no deploy workflow in
-this repo, by design (section 16.3).
+this repo, by design (section 16.3). `.github/workflows/ci.yml` runs the four quality tasks
+and is informational — nothing here gates a merge (section 16.2).
+
+Branching, per section 16.1: `feat/*` branches from `dev` and **rebases** back; `dev` reaches
+`main` **fast-forward only**. Neither `dev` nor `main` is ever squashed or force-pushed —
+squashing a branch that outlives the merge severs its ancestry, and this repo has been
+repaired from exactly that once.

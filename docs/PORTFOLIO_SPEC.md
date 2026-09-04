@@ -1980,16 +1980,22 @@ release finished, not conditions a PR is blocked on.
 
 ### 17.2 Release
 
-- [ ] Every external link resolves.
-- [ ] Manual accessibility pass on home, one project page, and the contact form.
-- [ ] Contact form delivers a real message end to end; the failure path shows the direct
-      email address.
-- [ ] 404 works for an unknown deep path.
-- [ ] Résumé link downloads the current file (once one exists).
-- [ ] No placeholder assets or stub copy remain (§5.6 sweep).
-- [ ] `mukeremshifa.com` resolves over HTTPS, and the non-canonical host form redirects to
-      the canonical one.
-- [ ] `docs/DECISIONS.md` is current.
+*All checked 2026-09-04 against the production origin, at `v1.0.0`.*
+
+- [x] Every external link resolves. All 33 opened by hand in Phase 5; `links.test.ts`
+      guards the policy, not the reachability.
+- [x] Manual accessibility pass on home, one project page, and the contact form. Keyboard
+      and screen-reader passes both clean; the one finding was hyphen line-breaking, closed
+      as correct behaviour.
+- [x] Contact form delivers a real message end to end; the failure path shows the direct
+      email address. Re-verified with a real address after the header and route changes,
+      so this stands on a current check rather than the 2026-09-01 one.
+- [x] 404 works for an unknown deep path.
+- [x] Résumé link downloads the current file.
+- [x] No placeholder assets or stub copy remain (§5.6 sweep). `STUB-INVENTORY.md` is empty.
+- [x] `mukeremshifa.com` resolves over HTTPS, and the non-canonical host form redirects to
+      the canonical one. `www` 308s to the apex; `/certifications` 308s to `/skills`.
+- [x] `docs/DECISIONS.md` is current.
 
 ---
 
