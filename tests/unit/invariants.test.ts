@@ -112,30 +112,36 @@ describe("§5.5 cross-file invariants", () => {
   });
 
   /**
-   * The reverse of 8, and currently **failing on four entries** — which is why it is
-   * `.fails` rather than deleted or quietly relaxed.
+   * The reverse of 8. §5.5 claims invariant 8 "closes both ways: nothing in a project is
+   * missing from a group, nothing in a group is unused."
    *
-   * §5.5 claims invariant 8 "closes both ways: nothing in a project is missing from a
-   * group, nothing in a group is unused." The forward half holds. The reverse does not:
-   * `SQL`, `Framer Motion`, `nginx` and `WordPress` sit in groups no project's
-   * `technologies` array names. That is a claim the site makes about its author that
-   * nothing on the site demonstrates — the exact vocabulary drift the invariant exists
-   * to catch.
+   * **What a skill has to be backed by.** This originally compared `skills.json` against
+   * project `technologies` alone and reported four orphans — `SQL`, `Framer Motion`,
+   * `nginx`, `WordPress` — which is what it was written as `.fails` to hold open. Three
+   * of those four were never orphans: `Framer Motion` and `nginx` are on the RAK Center
+   * frontend role and `WordPress` on the Amtec Links internship, all in
+   * `timeline.json`. The test was looking in one of the two places the site demonstrates
+   * a skill, so it flagged work the site already shows.
    *
-   * It is an owner decision, not a mechanical one: each of the four is either a real
-   * skill whose project should list it (WordPress belongs to the AmtecLinks engagement,
-   * whose `technologies` name only SEO activities and no platform), or a claim to drop.
-   * `.fails` keeps the assertion executing and green while the discrepancy stands, and
-   * turns red the moment someone resolves it — so the test cannot be forgotten in either
-   * direction. Flip it to a plain `test` once the four are settled.
+   * Employment is evidence. A skill is backed if some project or some experience entry
+   * names it; a skill in neither is a claim nothing on the site supports, which is the
+   * drift this invariant is actually for. `SQL` was the one real orphan and is now on
+   * the Little Lemon capstone, whose DRF backend, cart and order flows are relational by
+   * construction.
+   *
+   * Now a plain `test`: with the union as the denominator the assertion passes, so there
+   * is nothing left to hold open.
    *
    * See DECISIONS.md, 2026-09-04.
    */
-  test.fails("8 (reverse) — every skills entry is used by at least one project", () => {
-    const used = new Set(getAllProjects().flatMap((project) => project.technologies));
+  test("8 (reverse) — every skills entry is backed by a project or a role", () => {
+    const demonstrated = new Set([
+      ...getAllProjects().flatMap((project) => project.technologies),
+      ...getExperience().flatMap((entry) => entry.technologies ?? []),
+    ]);
     const unused = getSkills().flatMap((group) =>
       group.items
-        .filter((item) => !used.has(item))
+        .filter((item) => !demonstrated.has(item))
         .map((item) => `${group.title}: ${item}`),
     );
     expect(unused).toEqual([]);

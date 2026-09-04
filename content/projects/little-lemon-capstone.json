@@ -9,7 +9,15 @@
   "year": { "start": "2025", "end": "2025" },
   "role": "Backend developer",
   "team": "Solo",
-  "technologies": ["Python", "Django", "Django REST Framework", "HTML", "CSS", "pytest"],
+  "technologies": [
+    "Python",
+    "Django",
+    "Django REST Framework",
+    "SQL",
+    "HTML",
+    "CSS",
+    "pytest"
+  ],
   "links": {
     "github": "https://github.com/mukeremshifa/little-lemon-capstone"
   },

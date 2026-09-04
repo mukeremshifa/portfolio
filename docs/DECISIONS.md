@@ -2272,3 +2272,35 @@ three majors declare `using: node24`, checked before the bump rather than assume
 here gates a merge (§16.2) — this is a warning, not a failure — but a workflow that is
 noisy by default is one nobody reads when it has something real to say.
 **Affects:** §16.2
+
+## 2026-09-04 — Three of invariant 8's four orphans were never orphans
+
+**Context:** §5.5's invariant 8 reverse half was held open by a `test.fails` listing four
+skills in no project's `technologies`: `SQL`, `Framer Motion`, `nginx`, `WordPress`. The
+owner's instruction was to attach each to a project, and to drop any that did not fit.
+**Decision:** Only `SQL` was added — to the Little Lemon capstone. The other three were
+resolved by fixing the **test**, which was comparing against the wrong denominator. The
+assertion is now a plain `test`, not `.fails`.
+**Reason:** `Framer Motion` and `nginx` are on the RAK Center frontend role and
+`WordPress` on the Amtec Links internship, all three already in `timeline.json`. The test
+looked at project `technologies` alone — one of the two places this site demonstrates a
+skill — so it reported work the site does show. Its own comment claimed these were "a
+claim the site makes about its author that nothing on the site demonstrates," and for
+three of the four that was simply false. Employment is evidence; the denominator is now
+the union of project and experience technologies.
+
+Writing the other three into project files would have made the content worse in three
+distinct ways, which is the part worth keeping. ConverseKit sits at the schema's 12-
+technology maximum, so `Framer Motion` could only enter by evicting one of twelve entries
+the prose supports — trading a documented technology for an undocumented one. Nothing in
+Survey Quest's copy mentions `nginx`; it names Docker, so something served it, but which
+is not recorded. And `WordPress` on the amteclinks project would duplicate onto the
+project the platform already recorded on the *same work's* experience entry. All three
+would have been content invented to turn a test green, which §21's first guardrail and
+§1.5 both forbid.
+
+`SQL` was the one real orphan and the one genuine addition: a Django REST Framework
+backend with cart and order flows, four-group role permissions and 24 acceptance tests is
+relational by construction, and the project had room at 6 of 12. It is listed after
+`Django REST Framework` — the ORM that produces it — and before the presentation layer.
+**Affects:** §5.5, §15.3; `content/projects/little-lemon-capstone.json`

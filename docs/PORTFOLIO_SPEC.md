@@ -532,7 +532,7 @@ build-blocking gates during early development:
 | 5 | Every `cover.src` and `screenshots[].src` exists | Broken images |
 | 6 | Exactly 3 focus pillars | A broken three-column layout |
 | 7 | At most one experience entry per organization has `end: null` | Two simultaneous "Present" roles |
-| 8 | Every technology string appears in at least one skills group, or is explicitly allowlisted | Vocabulary drift between pages |
+| 8 | Closes both ways. Forward: every project technology appears in a skills group. Reverse: every skills entry is named by at least one project **or one experience entry** — employment is evidence, and three of the four apparent orphans found on 2026-09-04 were demonstrated only by `timeline.json` | Vocabulary drift between pages, and skills the site claims but never shows |
 | 9 | **Added 2026-08-31.** `content/education/` is the only place a qualification appears | A degree rendering as a job. Enforced by the schema rather than by a test: `ExperienceSchema` no longer accepts `type: "education"` |
 
 The v1.0 invariant banning `TODO`/`Lorem`/bracketed placeholders **everywhere** is gone from
